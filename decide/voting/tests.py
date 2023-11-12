@@ -26,7 +26,6 @@ from datetime import datetime
 from django.contrib.admin.sites import AdminSite
 from .admin import VotingAdmin
 import json
-from django.test.client import RequestFactory
 
 
 class VotingTestCase(BaseTestCase):
