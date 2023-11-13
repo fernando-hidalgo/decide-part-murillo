@@ -80,10 +80,8 @@ class CensusImportView(TemplateView):
                 ).first()
 
                 if not existing_census:
-                    # Si no existe, crear uno nuevo
                     Census.objects.create(voting_id=voting_id, voter_id=voter_id)
                 else:
-                    # Si ya existe, puedes manejar esto según tus requisitos, por ejemplo, mostrar un mensaje de error
                     messages.error(
                         request,
                         f"Ya existe un registro para la pareja de voting_id={voting_id} y voter_id={voter_id}",
