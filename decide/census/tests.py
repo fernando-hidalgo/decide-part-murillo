@@ -10,6 +10,9 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 
+from .admin import CensusAdmin
+from django.http import HttpRequest
+
 from .models import Census
 from base import mods
 from base.tests import BaseTestCase
@@ -18,15 +21,13 @@ from datetime import datetime
 from voting.models import Voting, Question, QuestionOption
 from base.models import Auth
 from django.conf import settings
-from openpyxl import Workbook
+from openpyxl import Workbook, load_workbook
 from django.core.files.uploadedfile import SimpleUploadedFile
 from io import BytesIO
 from django.urls import reverse
 
 from django.contrib.admin.sites import AdminSite
-from .admin import CensusAdmin
-from django.http import HttpRequest
-from openpyxl import load_workbook
+from django.contrib import messages
 
 
 class CensusTestCase(BaseTestCase):
@@ -308,3 +309,31 @@ class AdminExportToExcelTest(TestCase):
         # Verificar que los datos están presentes
         self.assertEqual(sheet["A2"].value, self.census.voting_id)
         self.assertEqual(sheet["B2"].value, self.census.voter_id)
+
+
+class AdminReuseCensusActionTest(TestCase):
+    def setUp(self):
+        self.site = AdminSite()
+        self.model_admin = CensusAdmin(model=Census, admin_site=self.site)
+
+    def test_reuse_action(self):
+        census = Census.objects.create(voter_id=1, voting_id=1)
+
+        request = HttpRequest()
+        request.method = "POST"
+        request.POST["id_to_reuse"] = "3"
+        request._messages = messages.storage.default_storage(
+            request
+        )  # Necesario para testear código con mensajes
+
+        self.model_admin.reuse_action(request, Census.objects.filter(pk=census.pk))
+
+        # Llama de nuevo, para cubrir el código del caso donde Censo ya está presente en BD
+        self.model_admin.reuse_action(request, Census.objects.filter(pk=census.pk))
+
+        # Llama una última vez, para cubrir el código del caso donde Censo tenga ID nulo
+        request.POST["id_to_reuse"] = None
+        self.model_admin.reuse_action(request, Census.objects.filter(pk=census.pk))
+
+        # Debe haber 2 censos con el mismo votante: El original y el creado reutilizando el previo
+        self.assertEqual(len(Census.objects.filter(voter_id=census.voter_id)), 2)
