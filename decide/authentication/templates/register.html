@@ -1,0 +1,105 @@
+<head>
+    <title>Register | Django site </title>
+    <link rel="stylesheet" href="/static/admin/css/base.css">
+
+      <link rel="stylesheet" href="/static/admin/css/dark_mode.css">
+
+
+      <link rel="stylesheet" href="/static/admin/css/nav_sidebar.css">
+      <script src="/static/admin/js/nav_sidebar.js" defer=""></script>
+
+    <link rel="stylesheet" href="/static/admin/css/login.css">
+
+
+
+
+
+        <meta name="viewport" content="user-scalable=no, width=device-width, initial-scale=1.0, maximum-scale=1.0">
+        <link rel="stylesheet" href="/static/admin/css/responsive.css">
+
+
+    <meta name="robots" content="NONE,NOARCHIVE">
+    </head>
+
+    <body class="login" data-admin-utc-offset="0">
+
+    <!-- Container -->
+    <div id="container">
+
+
+        <!-- Header -->
+
+        <div id="header">
+            <div id="branding">
+
+    <h1 id="site-name">Register in Django</h1>
+    <h4>Do you want to participate in new votings? Register now!</h4>
+
+            </div>
+
+        </div>
+
+        <!-- END Header -->
+
+
+
+        <div class="main" id="main">
+
+
+
+          <div class="content">
+
+
+
+            <!-- Content -->
+            <div id="content" class="colM">
+
+
+
+
+
+
+
+
+    <div id="content-main">
+
+
+
+    <form action="/authentication/registeruser/" method="post" id="login-form"><input type="hidden" name="csrfmiddlewaretoken" value="5MvOBWwyGwFgUzqrLCsbLtVkIe5W9ayiw5S34O3tYzNeIjZYRZGxdwt64cuUPM0g">
+      <div class="form-row">
+
+        <label for="id_username" class="required">Username:</label> <input type="text" name="username" autofocus="" autocapitalize="none" maxlength="150" required="" id="id_username">
+      </div>
+      <div class="form-row">
+
+        <label for="id_email" class="required">Email:</label> <input type="email" name="email" required="" id="id_email">
+      </div>
+      <div class="form-row">
+
+        <label for="id_password" class="required">Password:</label> <input type="password" name="password" autocomplete="current-password" required="" id="id_password">
+      </div>
+      <div class="form-row">
+
+        <label for="id_password_conf" class="required">Confirm password:</label> <input type="password" name="password_conf" autocomplete="current-password" required="" id="id_password">
+      </div>
+
+
+      <div class="submit-row">
+        <input type="submit" value="Register">
+      </div>
+    </form>
+
+    </div>
+
+
+              <br class="clear">
+            </div>
+            <!-- END Content -->
+            <div id="footer"></div>
+          </div>
+        </div>
+    </div>
+    <!-- END Container -->
+
+
+    </body>
