@@ -288,7 +288,7 @@ class AdminExportToExcelTest(TestCase):
             "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
         )
         self.assertTrue(
-            "attachment; filename=exportacion_excel.xlsx"
+            "attachment; filename=exportacion_censo.xlsx"
             in response["Content-Disposition"]
         )
 
