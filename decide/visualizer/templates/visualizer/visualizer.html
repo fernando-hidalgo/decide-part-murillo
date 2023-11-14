@@ -15,7 +15,6 @@
                 <h1 class="navbar-brand">Decide</h1>
             </div>
         </nav>
-          
 
         <div class="voting container">
             <h1>[[ voting.id ]] - [[ voting.name ]]</h1>
@@ -41,8 +40,10 @@
                         </tr>
                     </tbody>
                 </table>
+                <h3>Recuento de votos: [[ totalVotes ]]  </h3>
+                <h3>Total de personas en el censo:  [[ votersCount ]]   </h3>
+                <h3>Porcentaje del censo que ha votado: [[ percentageVotes ]]%</h3>
             </div>
-
         </div>
     </div>
 {% endblock %}
@@ -54,13 +55,32 @@
     <script src="https://unpkg.com/bootstrap@5.2.2/dist/js/bootstrap.js"></script>
 
     <script>
-        var voting = {{voting|safe}};
+        var voting = {{ voting|safe }};
+        var votersCount = {{ voters_count|default:0 }};
+        
         const { createApp } = Vue
         createApp({
             delimiters: ['[[', ']]'],
             data() {
                 return {
-                    voting: voting
+                    voting: voting,
+                    votersCount: votersCount
+                }
+            },
+            computed: {
+                totalVotes() {
+                    if (this.voting.tally !== null) {
+                        return this.voting.postproc.reduce((total, opt) => total + opt.votes, 0);
+                    } else {
+                        return 0;
+                    }
+                },
+                percentageVotes() {
+                    if (this.votersCount !== 0) {
+                        return ((this.totalVotes / this.votersCount) * 100).toFixed(2);
+                    } else {
+                        return 0;
+                    }
                 }
             }
         }).mount('#app-visualizer')
