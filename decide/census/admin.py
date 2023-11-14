@@ -6,8 +6,6 @@ from django import forms
 from django.http import HttpResponse
 from openpyxl import Workbook
 
-from .models import Census  # Asegúrate de importar tu modelo correctamente
-
 
 class ReuseActionForm(ActionForm):
     id_to_reuse = forms.IntegerField(required=False)

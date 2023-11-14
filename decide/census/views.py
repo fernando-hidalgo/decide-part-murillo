@@ -14,9 +14,6 @@ from base.perms import UserIsStaff
 from .models import Census
 from django.contrib import messages
 import openpyxl
-from openpyxl import Workbook
-from openpyxl.styles import PatternFill, Font, Alignment
-from django.http import HttpResponse
 from django.http import HttpResponseRedirect
 from django.views.generic.base import TemplateView
 
