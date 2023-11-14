@@ -9,7 +9,9 @@ from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404, render
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.contrib.auth.password_validation import CommonPasswordValidator
+import difflib
 
 from .serializers import UserSerializer
 
@@ -63,9 +65,44 @@ class RegisterUserView(APIView):
         username = request.data.get("username", "")
         pwd = request.data.get("password", "")
         email = request.data.get("email", "")
-        if not username or not pwd or not email:
+        confirm_pwd = request.data.get("password_conf", "")
+        if not username or not pwd or not email or not confirm_pwd:
             return Response({}, status=HTTP_400_BAD_REQUEST)
 
+        error_messages = []
+
+        if User.objects.filter(username=username).exists():
+            error_messages.append(
+                "Username already exists. Please choose a different username."
+            )
+
+        if len(pwd) < 8:
+            error_messages.append("Password must contain at least 8 characters.")
+
+        if pwd.isdigit():
+            error_messages.append(
+                "Password can't be entirely numeric. Please include alphabetic or special characters."
+            )
+
+        if pwd != confirm_pwd:
+            error_messages.append("Passwords do not match. Please try again.")
+
+        try:
+            validator = CommonPasswordValidator()
+            validator.validate(pwd)
+        except ValidationError:
+            error_messages.append(
+                "Password is commonly used. Please choose a different password."
+            )
+
+        matcher = difflib.SequenceMatcher(a=username.lower(), b=pwd.lower())
+        if matcher.ratio() > 0.7:
+            error_messages.append(
+                "Password can't be similar to the username. Please choose a different password."
+            )
+
+        if error_messages:
+            return render(request, "register.html", {"error_messages": error_messages})
         try:
 
             user = User(username=username, email=email)
@@ -74,5 +111,5 @@ class RegisterUserView(APIView):
             token, _ = Token.objects.get_or_create(user=user)
         except IntegrityError:
             return Response({}, status=HTTP_400_BAD_REQUEST)
-        return Response({"user_pk": user.pk, "token": token.key}, HTTP_201_CREATED)
-        # return redirect('')
+        register_success = "Your account has been created successfully!"
+        return render(request, "register.html", {"register_success": register_success})

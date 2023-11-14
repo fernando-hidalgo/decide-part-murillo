@@ -1,9 +1,12 @@
 from django.db import models
+from django.contrib.auth.password_validation import validate_password
 
-# Create your models here.
+
 class User(models.Model):
     username = models.CharField(max_length=100, unique=True, blank=False)
-    password = models.CharField(max_length=100, blank=False)
+    password = models.CharField(
+        max_length=100, blank=False, validators=[validate_password]
+    )
     email = models.EmailField(unique=True, blank=False)
 
     def __str__(self):
@@ -11,6 +14,3 @@ class User(models.Model):
 
     def save(self):
         self.save()
-
-    def clean(self):
-        pass
