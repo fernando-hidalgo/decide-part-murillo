@@ -21,8 +21,6 @@ from django.views.generic.base import TemplateView
 class CensusCreate(generics.ListCreateAPIView):
     permission_classes = (UserIsStaff,)
 
-    # TODO:Añadir en la vista la opción de importación
-
     def create(self, request, *args, **kwargs):
         voting_id = request.data.get("voting_id")
         voters = request.data.get("voters")
