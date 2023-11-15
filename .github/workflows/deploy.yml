@@ -50,7 +50,7 @@ jobs:
     needs: build
     steps:
     - name: Deploy
-      if: github.ref == 'refs/heads/deploy2'
+      if: github.ref == 'refs/heads/deploy'
       env:
         deploy_url: ${{secrets.RENDER_DEPLOY_HOOK_URL}}
       run: |
