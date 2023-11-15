@@ -8,16 +8,13 @@ from django.test import TestCase, Client
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
 
-import time
 import json
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
 
 from base import mods
 from base.tests import BaseTestCase
