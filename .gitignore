@@ -102,10 +102,3 @@ ENV/
 
 .vagrant
 decide/local_settings.py
-decide/base/templates/base.html
-decide/base/templates/switch_language.html
-decide/locale/en/LC_MESSAGES/django.po
-decide/locale/es/LC_MESSAGES/django.po
-decide/visualizer/templates/visualizer/visualizer.html
-decide/visualizer/views.py
-decide/visualizer/tests.py
