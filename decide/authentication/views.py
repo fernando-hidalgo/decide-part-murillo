@@ -81,7 +81,7 @@ class RegisterUserView(APIView):
 
         if pwd.isdigit():
             error_messages.append(
-                "Password can't be entirely numeric. Please include alphabetic or special characters."
+                "Password cannot be entirely numeric. Please include alphabetic or special characters."
             )
 
         if pwd != confirm_pwd:
@@ -98,7 +98,7 @@ class RegisterUserView(APIView):
         matcher = difflib.SequenceMatcher(a=username.lower(), b=pwd.lower())
         if matcher.ratio() > 0.7:
             error_messages.append(
-                "Password can't be similar to the username. Please choose a different password."
+                "Password cannot be similar to the username. Please choose a different password."
             )
 
         if error_messages:
