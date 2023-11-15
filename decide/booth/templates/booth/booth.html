@@ -305,6 +305,32 @@
                     this.alertLvl = lvl;
                     this.alertMsg = msg;
                     this.alertShow = true;
+                },
+
+                editVote(){
+                    this.userHasVoted = false;
+                },
+
+                updateVote(){
+                    var v = this.decideEncrypt();
+                        var data = {
+                            vote: {a: v.alpha.toString(), b: v.beta.toString()},
+                            voting: this.voting.id,
+                            voter: this.user.id,
+                            token: this.token
+                        }
+                        this.postData("{% url "gateway" "store" "/" %}", data)
+                            .then(data => {
+                                this.successVote = true;
+                                this.alertShow = false;
+                                this.showAlert("success", '{% trans "Congratulations. Your vote has been changed" %}');
+                                this.userHasVoted = true;
+                                this.alreadyVoted = true;
+                            })
+                            .catch(error => {
+                                this.succesVote = false;
+                                this.showAlert("danger", '{% trans "Error: " %}' + error);
+                            });
                 }
             },
         }).mount('#app-booth')
