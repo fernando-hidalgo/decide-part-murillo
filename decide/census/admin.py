@@ -3,6 +3,8 @@ from .models import Census
 from django.contrib import messages
 from django.contrib.admin.helpers import ActionForm
 from django import forms
+from django.http import HttpResponse
+from openpyxl import Workbook
 
 
 class ReuseActionForm(ActionForm):
@@ -14,6 +16,27 @@ class CensusAdmin(admin.ModelAdmin):
     list_display = ("voting_id", "voter_id")
     list_filter = ("voting_id",)
     search_fields = ("voter_id",)
+
+    def exportar_a_excel(modeladmin, request, queryset):
+        workbook = Workbook()
+        sheet = workbook.active
+
+        sheet.append(
+            ["ID Votacion", "ID Votante"]
+        )  # El append funciona en filas, de izquierda a derecha
+
+        for elemento in queryset:
+            sheet.append([elemento.voting_id, elemento.voter_id])
+
+        response = HttpResponse(
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+        response["Content-Disposition"] = "attachment; filename=exportacion_censo.xlsx"
+        workbook.save(response)
+
+        return response
+
+    exportar_a_excel.short_description = "Exportar a Excel"
 
     def reuse_action(modeladmin, request, queryset):
         reuse_voting_id = request.POST.get("id_to_reuse")
@@ -42,7 +65,7 @@ class CensusAdmin(admin.ModelAdmin):
 
     reuse_action.short_description = "Reutilizar Censo"
 
-    actions = [reuse_action]
+    actions = [reuse_action, exportar_a_excel]
     action_form = ReuseActionForm
 
 
