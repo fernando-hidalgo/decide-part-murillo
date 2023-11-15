@@ -47,10 +47,9 @@ class QuestionOptionByPreference(models.Model):
     preference = models.PositiveIntegerField(blank=True, null=True)
 
     def save(self):
-
         self.preference = 0
         if not self.number:
-            self.number = self.question.options.count() + 2
+            self.number = self.question.preferences.count() + 2
         return super().save()
 
     def __str__(self):
