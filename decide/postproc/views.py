@@ -1,6 +1,5 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-import json
 
 
 class PostProcView(APIView):
@@ -35,13 +34,14 @@ class PostProcView(APIView):
         # Verificar si se proporcionó el número total de escaños
         if total_escaños > 0:
             # Asignar escaños utilizando la ley D'Hondt
-            for i in range(total_escaños):
+            while total_escaños >0:
                 max_lista = max(votos)
                 index_max = votos.index(max_lista)
                 resultados[index_max]["seats"] += 1
                 votos[index_max] = votos[index_max] / (
                     resultados[index_max]["seats"] + 1
                 )
+                total_escaños -=1
 
             # Ordenar los resultados por la cantidad de escaños asignados (en orden descendente)
             resultados.sort(key=lambda x: -x["seats"])
