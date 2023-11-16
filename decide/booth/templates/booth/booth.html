@@ -26,7 +26,7 @@
                     <li class="nav-item" v-if="signup">
                         <!-- Button trigger modal -->
                         <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#registerModal">
-                            {% trans "Login" %}
+                            Login
                         </button>
                     </li>
                 </ul>
@@ -71,7 +71,7 @@
                 <path fill-rule="evenodd" d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
             </svg>
             <div class="ms-2">
-                {% trans "¡Debe iniciar sesión para poder acceder a la votación!" %}
+                ¡Debe iniciar sesión para poder acceder a la votación!
             </div>
         </div>
         <div class="container-fluid">
@@ -115,7 +115,7 @@
         </div>
 
         <!-- Voting -->
-        <div v-if="!signup">
+        <div v-if="!userHasVoted && !signup">
             <h1>[[ voting.id ]] - [[ voting.name ]]</h1>
             <h2>[[ voting.question.desc ]]</h2>
             <form v-for="opt in voting.question.options" :key="opt.number">
@@ -140,7 +140,6 @@
                 {% trans "Edit Vote" %}
             </button>
         </div>
-
     </div>
 
 </div>
@@ -170,7 +169,7 @@
         createApp({
             delimiters: ['[[', ']]'],
             data() {
-                return {
+                return{
                     voting: voting,
                     selected: "",
                     signup: true,
@@ -183,14 +182,14 @@
                     userHasVoted: false,
                     form: {
                         username: '',
-                        password: ''
+                        password: '',
                     },
                     bigpk: {
                         p: BigInt.fromJSONObject(voting.pub_key.p.toString()),
                         g: BigInt.fromJSONObject(voting.pub_key.g.toString()),
                         y: BigInt.fromJSONObject(voting.pub_key.y.toString()),
                     },
-                    keybits: {{ KEYBITS }}
+                    keybits: {{ KEYBITS }},
                 }
             },
             beforeMount() {
@@ -254,6 +253,7 @@
                             if (this.user.votes) {
                                 this.userHasVoted = this.user.votes.some(vote => vote.voting.id === this.voting.id);
                             }
+
                             this.alertShow = false;
                         }).catch(error => {
                             this.showAlert("danger", '{% trans "Error: " %}' + error);
