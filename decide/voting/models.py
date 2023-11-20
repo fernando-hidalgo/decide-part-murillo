@@ -214,11 +214,17 @@ class VotingByPreference(models.Model):
 
     def get_votes(self, token=""):
         # gettings votes from store
-        votes = mods.get(
-            "store",
-            params={"voting_preference_id": self.id},
-            HTTP_AUTHORIZATION="Token " + token,
-        )
+        auxvoting = VoteByPreference.objects.filter(voting_preference_id=self.id)
+        votes = []
+        for vote in auxvoting:
+            voting_data = {
+                "id": vote.id,
+                "voting_preference_id": vote.voting_preference_id,
+                "voter_preference_id": vote.voter_preference_id,
+                "a": vote.a,
+                "b": vote.b,
+            }
+            votes.append(voting_data)
         # anon votes
         votes_format = []
         vote_list = []
