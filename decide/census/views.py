@@ -2,6 +2,7 @@ from django.db.utils import IntegrityError
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import generics
 from rest_framework.response import Response
+from rest_framework.generics import CreateAPIView
 from rest_framework.status import (
     HTTP_201_CREATED as ST_201,
     HTTP_204_NO_CONTENT as ST_204,
@@ -16,11 +17,15 @@ from django.contrib import messages
 import openpyxl
 from django.http import HttpResponseRedirect
 from django.views.generic.base import TemplateView
+from .serializers import CensusSerializer
+from rest_framework.permissions import AllowAny
+from django.views.decorators.csrf import csrf_exempt
 
 
 class CensusCreate(generics.ListCreateAPIView):
     permission_classes = (UserIsStaff,)
 
+    @csrf_exempt
     def create(self, request, *args, **kwargs):
         voting_id = request.data.get("voting_id")
         voters = request.data.get("voters")
@@ -32,12 +37,25 @@ class CensusCreate(generics.ListCreateAPIView):
             return Response("Error try to create census", status=ST_409)
         return Response("Census created", status=ST_201)
 
+    @csrf_exempt
     def list(self, request, *args, **kwargs):
         voting_id = request.GET.get("voting_id")
         voters = Census.objects.filter(voting_id=voting_id).values_list(
             "voter_id", flat=True
         )
         return Response({"voters": voters})
+
+
+class CensusCreateView(CreateAPIView):
+    queryset = Census.objects.all()
+    serializer_class = CensusSerializer
+
+
+class CensusListCreateAPIView(generics.ListCreateAPIView):
+    queryset = Census.objects.all()
+    serializer_class = CensusSerializer
+    permission_classes = [AllowAny]
+    # Si necesitas permisos específicos, puedes añadirlos aquí
 
 
 class CensusDetail(generics.RetrieveDestroyAPIView):
@@ -54,6 +72,24 @@ class CensusDetail(generics.RetrieveDestroyAPIView):
         except ObjectDoesNotExist:
             return Response("Invalid voter", status=ST_401)
         return Response("Valid voter")
+
+
+class CensusAdminView(TemplateView):
+    template_name = "census/admin_census.html"
+
+    def get_context_data(self, **kwargs):
+        # Aquí puedes añadir lógica para enviar datos adicionales al template si es necesario
+        context = super().get_context_data(**kwargs)
+        # Ejemplo: Añadir alguna configuración o dato relevante
+        context["extra_info"] = "Algún valor o configuración"
+        return context
+
+    def list(self, request, *args, **kwargs):
+        voting_id = request.GET.get("voting_id")
+        voters = Census.objects.filter(voting_id=voting_id).values_list(
+            "voter_id", flat=True
+        )
+        return Response({"voters": voters})
 
 
 class CensusImportView(TemplateView):
