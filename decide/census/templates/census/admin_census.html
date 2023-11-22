@@ -59,10 +59,14 @@ function displayVotings(votingsWithCensus) {
         const listItem = document.createElement('li');
         listItem.className = 'list-group-item';
 
+        const votingTitle = document.createElement('h3');
+        votingTitle.textContent = `Votación: ${voting.name}`;
+
         // Filtrar votantes disponibles para esta votación
         const availableVoters = getAvailableVotersForVoting(voting.voting_id, votingsWithCensus);
         availableVoters.forEach( voter => { console.log("AVAILABLE IN "+voting.name + " "+voter.username)
         });
+
 
         // Botón para mostrar/ocultar votantes
         const button = document.createElement('button');
@@ -100,10 +104,11 @@ function displayVotings(votingsWithCensus) {
             console.log(voting.voting_id+" "+ votersSelect.value);
             addCensus(voting.voting_id, votersSelect.value);
         }
-
+        listItem.appendChild(votingTitle);
+        listItem.appendChild(button);
         listItem.appendChild(votersSelect);
         listItem.appendChild(addCensusButton);
-        listItem.appendChild(button);
+
         listItem.appendChild(votersList);
         censusList.appendChild(listItem);
     });
