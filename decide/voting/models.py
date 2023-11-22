@@ -6,13 +6,11 @@ from django.dispatch import receiver
 from base import mods
 from base.models import Auth, Key
 
-
 class Question(models.Model):
     desc = models.TextField()
 
     def __str__(self):
         return self.desc
-
 
 class QuestionOption(models.Model):
     question = models.ForeignKey(
@@ -29,13 +27,10 @@ class QuestionOption(models.Model):
     def __str__(self):
         return "{} ({})".format(self.option, self.number)
 
-
 class Voting(models.Model):
     name = models.CharField(max_length=200)
     desc = models.TextField(blank=True, null=True)
-    question = models.ForeignKey(
-        Question, related_name="voting", on_delete=models.CASCADE
-    )
+    questions = models.ManyToManyField(Question, related_name="votings")  # Cambiada a ManyToMany
 
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
@@ -66,11 +61,11 @@ class Voting(models.Model):
         self.save()
 
     def get_votes(self, token=""):
-        # gettings votes from store
+        # Obtener votos desde el almacenamiento
         votes = mods.get(
             "store", params={"voting_id": self.id}, HTTP_AUTHORIZATION="Token " + token
         )
-        # anon votes
+        # Votos anónimos
         votes_format = []
         vote_list = []
         for vote in votes:
@@ -84,52 +79,53 @@ class Voting(models.Model):
         return vote_list
 
     def tally_votes(self, token=""):
-        """
-        The tally is a shuffle and then a decrypt
-        """
+        for question in self.questions.all():
+            selected_options = question.options.filter(voting=self)
+            votes = []
 
-        votes = self.get_votes(token)
+            for option in selected_options:
+                votes.extend(option.votes.all())
 
-        auth = self.auths.first()
-        shuffle_url = "/shuffle/{}/".format(self.id)
-        decrypt_url = "/decrypt/{}/".format(self.id)
-        auths = [{"name": a.name, "url": a.url} for a in self.auths.all()]
+            auth = self.auths.first()
+            shuffle_url = "/shuffle/{}/".format(self.id)
+            decrypt_url = "/decrypt/{}/".format(self.id)
+            auths = [{"name": a.name, "url": a.url} for a in self.auths.all()]
 
-        # first, we do the shuffle
-        data = {"msgs": votes}
-        response = mods.post(
-            "mixnet",
-            entry_point=shuffle_url,
-            baseurl=auth.url,
-            json=data,
-            response=True,
-        )
-        if response.status_code != 200:
-            # TODO: manage error
-            pass
+            # first, we do the shuffle
+            data = {"msgs": votes}
+            response = mods.post(
+                "mixnet",
+                entry_point=shuffle_url,
+                baseurl=auth.url,
+                json=data,
+                response=True,
+            )
+            if response.status_code != 200:
+                # TODO: manage error
+                pass
 
-        # then, we can decrypt that
-        data = {"msgs": response.json()}
-        response = mods.post(
-            "mixnet",
-            entry_point=decrypt_url,
-            baseurl=auth.url,
-            json=data,
-            response=True,
-        )
+            # then, we can decrypt that
+            data = {"msgs": response.json()}
+            response = mods.post(
+                "mixnet",
+                entry_point=decrypt_url,
+                baseurl=auth.url,
+                json=data,
+                response=True,
+            )
 
-        if response.status_code != 200:
-            # TODO: manage error
-            pass
+            if response.status_code != 200:
+                # TODO: manage error
+                pass
 
-        self.tally = response.json()
-        self.save()
+            self.tally = response.json()
+            self.save()
 
-        self.do_postproc()
+            self.do_postproc()
 
     def do_postproc(self):
         tally = self.tally
-        options = self.question.options.all()
+        options = self.questions.first().options.all()
 
         opts = []
         for opt in options:
