@@ -1,9 +1,23 @@
+{% load i18n%}
 <!DOCTYPE html>
 <html>
     <head>
         <meta charset="utf-8" />
         <title>{% block title %}Decide!{% endblock %}</title>
-        {% block extrahead %}{% endblock %}
+        <div id="google_translate_element" class="google"></div>
+
+        <script type="text/javascript">
+        function googleTranslateElementInit() {
+        new google.translate.TranslateElement({pageLanguage: 'es', includedLanguages: 'ca,eu,gl,en,fr,it,pt,de', layout: google.translate.TranslateElement.InlineLayout.SIMPLE, gaTrack: true}, 'google_translate_element');
+        }
+        </script>
+
+        <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+        {% include 'switch_language.html' %}
+        {% block extrahead %}
+
+        {% endblock %}
+
     </head>
     <body>
         {% block content %}
