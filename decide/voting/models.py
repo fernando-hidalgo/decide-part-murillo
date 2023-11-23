@@ -37,7 +37,6 @@ class QuestionOption(models.Model):
     def __str__(self):
         return "{} ({})".format(self.option, self.number)
 
-
 class QuestionOptionByPreference(models.Model):
     question = models.ForeignKey(
         QuestionByPreference, related_name="preferences", on_delete=models.CASCADE
@@ -55,7 +54,6 @@ class QuestionOptionByPreference(models.Model):
     def __str__(self):
         return "{} ({})".format(self.option, self.number)
 
-
 class Voting(models.Model):
     name = models.CharField(max_length=200)
     desc = models.TextField(blank=True, null=True)
@@ -71,6 +69,8 @@ class Voting(models.Model):
     )
     auths = models.ManyToManyField(Auth, related_name="votings")
 
+    tallyType = models.CharField(max_length=200, default="IDENTITY")
+    escaños = models.IntegerField(default=10)
     tally = JSONField(blank=True, null=True)
     postproc = JSONField(blank=True, null=True)
 
@@ -161,9 +161,15 @@ class Voting(models.Model):
                 votes = tally.count(opt.number)
             else:
                 votes = 0
-            opts.append({"option": opt.option, "number": opt.number, "votes": votes})
+            opts.append(
+                {
+                    "option": opt.option,
+                    "number": opt.number,
+                    "votes": votes,
+                }
+            )
 
-        data = {"type": "IDENTITY", "options": opts}
+        data = {"escaños": self.escaños, "type": self.tallyType, "options": opts}
         postp = mods.post("postproc", json=data)
 
         self.postproc = postp

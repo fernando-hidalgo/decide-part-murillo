@@ -18,6 +18,14 @@ from base import mods
 from base.tests import BaseTestCase
 from datetime import datetime
 
+from voting.models import Voting, Question, QuestionOption
+from base.models import Auth
+from django.conf import settings
+from openpyxl import Workbook, load_workbook
+from django.core.files.uploadedfile import SimpleUploadedFile
+from io import BytesIO
+from django.urls import reverse
+
 from django.contrib.admin.sites import AdminSite
 from django.contrib import messages
 
@@ -195,6 +203,112 @@ class CensusTest(StaticLiveServerTestCase):
             self.cleaner.current_url
             == self.live_server_url + "/admin/census/census/add"
         )
+
+
+class CensusImportViewTest(BaseTestCase):
+    def setUp(self):
+        super().setUp()
+
+    def create_voting(self):
+        q = Question(desc="test_question")
+        q.save()
+
+        options = [
+            QuestionOption(question=q, option=f"option {i + 1}") for i in range(3)
+        ]
+        QuestionOption.objects.bulk_create(options)
+
+        v = Voting(name="test_voting", question=q)
+        v.save()
+
+        auth, _ = Auth.objects.get_or_create(
+            url=settings.BASEURL, defaults={"me": True, "name": "test_auth"}
+        )
+        v.auths.add(auth)
+
+        return v
+
+    def test_census_import_view(self):
+        self.create_voting()
+
+        workbook = Workbook()
+        sheet = workbook.active
+        sheet.append(["Voting ID", "Voter ID"])
+        sheet.append([1, 1])
+        sheet.append([1, 2])
+        sheet.append([1, 1])  # Censo repetido, dará error
+
+        file_buffer = BytesIO()
+        workbook.save(file_buffer)
+        file_buffer.seek(0)
+
+        excel_file = SimpleUploadedFile("census.xlsx", file_buffer.read())
+
+        url = reverse("import_census")
+
+        response = self.client.post(url, {"census_file": excel_file}, follow=True)
+
+        self.assertEqual(response.status_code, 200)
+
+        census_data = Census.objects.all()
+        self.assertEqual(census_data.count(), 2)
+        self.assertEqual(census_data[0].voting_id, 1)
+        self.assertEqual(census_data[0].voter_id, 1)
+        self.assertEqual(census_data[1].voting_id, 1)
+        self.assertEqual(census_data[1].voter_id, 2)
+
+        messages = list(response.context["messages"])
+        expected_messages = [
+            "Ya existe un registro para la pareja de voting_id=1 y voter_id=1",
+            "Importación finalizada",
+        ]
+        self.assertEqual([str(msg) for msg in messages], expected_messages)
+
+
+class AdminExportToExcelTest(TestCase):
+    def setUp(self):
+        self.site = AdminSite()
+        self.model_admin = CensusAdmin(model=Census, admin_site=self.site)
+        self.census = Census.objects.create(voter_id=1, voting_id=1)
+
+    def test_export_to_excel(self):
+        request = HttpRequest()
+        request.method = "POST"
+
+        # Simular la selección de objetos en el panel de administración
+        queryset = Census.objects.filter(pk=self.census.pk)
+
+        # Ejecutar la acción de exportar a Excel
+        response = self.model_admin.exportar_a_excel(request, queryset)
+
+        # Verificar que la respuesta es un archivo Excel
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response["Content-Type"],
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+        self.assertTrue(
+            "attachment; filename=exportacion_censo.xlsx"
+            in response["Content-Disposition"]
+        )
+
+        # Cargar el libro de trabajo desde el contenido de la respuesta
+        content = BytesIO(response.content)
+        workbook = load_workbook(content)
+
+        # Verificar que el libro de trabajo tiene una hoja de cálculo activa
+        self.assertTrue("Sheet" in workbook.sheetnames)
+
+        # Obtener la hoja de cálculo activa
+        sheet = workbook.active
+
+        # Verificar que los encabezados están presentes
+        self.assertEqual(sheet["A1"].value, "ID Votacion")
+        self.assertEqual(sheet["B1"].value, "ID Votante")
+
+        # Verificar que los datos están presentes
+        self.assertEqual(sheet["A2"].value, self.census.voting_id)
+        self.assertEqual(sheet["B2"].value, self.census.voter_id)
 
 
 class AdminReuseCensusActionTest(TestCase):

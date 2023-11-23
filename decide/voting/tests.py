@@ -28,6 +28,9 @@ from voting.models import (
 )
 from datetime import datetime
 
+from django.contrib.admin.sites import AdminSite
+from .admin import VotingAdmin
+import json
 
 class VotingTestCase(BaseTestCase):
     def setUp(self):
@@ -135,6 +138,47 @@ class VotingTestCase(BaseTestCase):
                 voter = voters.pop()
                 mods.post("store", json=data)
         return clear
+
+    def test_start_admin_action(self):
+        v = self.create_voting()
+        self.create_voters(v)
+
+        # Configura una instancia del sitio de administración
+        admin_site = AdminSite()
+
+        # Llama a la acción "start" en la clase de administración VotingAdmin
+        VotingAdmin.start(None, admin_site, queryset=Voting.objects.filter(id=v.id))
+
+        started_v = Voting.objects.filter(id=v.id)[0]
+        self.assertIsNotNone(started_v.start_date)
+
+    def test_stop_admin_action(self):
+        v = self.create_voting()
+        self.create_voters(v)
+
+        admin_site = AdminSite()
+
+        # Llama a la acción "stop" en la clase de administración VotingAdmin
+        VotingAdmin.stop(None, admin_site, queryset=Voting.objects.filter(id=v.id))
+
+        stoped_v = Voting.objects.filter(id=v.id)[0]
+        self.assertIsNotNone(stoped_v.end_date)
+
+    def test_result_export_admin_action(self):
+        v = self.create_voting()
+        self.create_voters(v)
+
+        admin_site = AdminSite()
+
+        # Llama a la acción "voting_result_data" en la clase de administración VotingAdmin
+        response = VotingAdmin.voting_result_data(
+            None, admin_site, queryset=Voting.objects.filter(id=v.id)
+        )
+
+        json_data = json.loads(response.content.decode("utf-8"))
+        self.assertTrue(
+            isinstance(json_data, list)
+        )  # Verifica que es una lista u otro objeto JSON válido
 
     def test_complete_voting(self):
         v = self.create_voting()
@@ -415,7 +459,6 @@ class VotingTestCase(BaseTestCase):
         )
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json(), "Voting already tallied")
-
 
 class LogInSuccessTests(StaticLiveServerTestCase):
     def setUp(self):
