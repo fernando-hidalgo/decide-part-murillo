@@ -13,6 +13,7 @@ from django.http import HttpResponse
 import io
 import json
 
+
 def start(modeladmin, request, queryset):
     for v in queryset.all():
         v.create_pubkey()
@@ -52,20 +53,6 @@ class VotingAdmin(admin.ModelAdmin):
     list_display = ("name", "start_date", "end_date")
     readonly_fields = ("start_date", "end_date", "pub_key", "tally", "postproc")
     date_hierarchy = "start_date"
-    list_filter = (StartedFilter,)
-    search_fields = ("name",)
-
-    actions = [start, stop, tally]
-
-
-class VotingByPreferenceAdmin(admin.ModelAdmin):
-    list_display = ("name", "start_date", "end_date")
-    readonly_fields = ("start_date", "end_date", "pub_key", "tally", "postproc")
-    date_hierarchy = "start_date"
-    list_filter = (StartedFilter,)
-    search_fields = ("name",)
-
-    actions = [start, stop, tally]
     list_filter = (StartedFilter,)
     search_fields = ("name",)
 
@@ -113,6 +100,16 @@ class VotingByPreferenceAdmin(admin.ModelAdmin):
     voting_result_data.short_description = "Exportar resultados"
 
     actions = [start, stop, tally, voting_result_data]
+
+
+class VotingByPreferenceAdmin(admin.ModelAdmin):
+    list_display = ("name", "start_date", "end_date")
+    readonly_fields = ("start_date", "end_date", "pub_key", "tally", "postproc")
+    date_hierarchy = "start_date"
+    list_filter = (StartedFilter,)
+    search_fields = ("name",)
+
+    actions = [start, stop, tally]
 
 
 admin.site.register(Voting, VotingAdmin)
