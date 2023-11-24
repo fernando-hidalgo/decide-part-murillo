@@ -1,0 +1,88 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-11-15 08:16+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: base/templates/switch_language.html:3
+msgid "Cambiar lenguaje"
+msgstr "Cambiar lenguaje"
+
+#: booth/templates/booth/booth.html:24
+msgid "Logout"
+msgstr "Cerrar Sesión"
+
+#: booth/templates/booth/booth.html:29 booth/templates/booth/booth.html:110
+msgid "Login"
+msgstr "Inciar Sesión"
+
+#: booth/templates/booth/booth.html:75
+msgid "¡Debe iniciar sesión para poder acceder a la votación!"
+msgstr "¡Debe iniciar sesión para poder acceder a la votación!"
+
+#: booth/templates/booth/booth.html:91
+msgid "Username"
+msgstr "Nombre de Usuario"
+
+#: booth/templates/booth/booth.html:101
+msgid "Password"
+msgstr "Contraseña"
+
+#: booth/templates/booth/booth.html:132
+msgid "Vote"
+msgstr "Votar"
+
+#: booth/templates/booth/booth.html:235 booth/templates/booth/booth.html:246
+#: booth/templates/booth/booth.html:282
+msgid "Error: "
+msgstr "Error: "
+
+#: booth/templates/booth/booth.html:278
+msgid "Congratulations. Your vote has been sent"
+msgstr "Enhorabuena. Tu voto ha sido emitido"
+
+#: decide/settings.py:149
+msgid "English"
+msgstr "Inglés"
+
+#: decide/settings.py:150
+msgid "Spanish"
+msgstr "Español"
+
+#: visualizer/templates/visualizer/visualizer.html:22
+msgid "Votación no comenzada"
+msgstr "Votación no comenzada"
+
+#: visualizer/templates/visualizer/visualizer.html:23
+msgid "Votación en curso"
+msgstr "Votación en curso"
+
+#: visualizer/templates/visualizer/visualizer.html:25
+msgid "Resultados:"
+msgstr "Resultados:"
+
+#: visualizer/templates/visualizer/visualizer.html:30
+msgid "Opción"
+msgstr "Opción"
+
+#: visualizer/templates/visualizer/visualizer.html:31
+msgid "Puntuación"
+msgstr "Puntuación"
+
+#: visualizer/templates/visualizer/visualizer.html:32
+msgid "Votos"
+msgstr "Votos"

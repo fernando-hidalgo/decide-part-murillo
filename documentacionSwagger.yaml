@@ -1,0 +1,1238 @@
+openapi: 3.0.3
+info:
+  title: Murillo
+  description: |-
+    Plataforma voto electrónico educativa: 
+    El objetivo de este proyecto es implementar una plataforma de voto
+    electrónico seguro, que cumpla una serie de garantías básicas, como la
+    anonimicidad y el secreto del voto.
+
+    Se trata de un proyecto educativo, pensado para el estudio de sistemas de
+    votación, por lo que prima la simplicidad por encima de la eficiencia
+    cuando sea posible. Por lo tanto se asumen algunas carencias para permitir
+    que sea entendible y extensible.
+    
+  termsOfService: http://swagger.io/terms/
+  contact:
+    email: apiteam@swagger.io
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.1
+externalDocs:
+  description: Find out more about Swagger
+  url: http://swagger.io
+servers:
+  - url: http://localhost:8000/admin/
+tags:
+  - name: tokens
+    description: Todo sobre tokens que vayamos a generar
+  - name: auth
+    description: Todo sobre autenticacion y autorizacion para grupos y usuarios
+  - name: base
+    description: Todo sobre base, es decir autorizacion de url's o claves
+  - name: census
+    description: Todo sobre censos
+  - name: mixnet
+    description: Todo sobre mixnets
+  - name: store
+    description: Todo sobre store, es decir, de los votos guardados
+  - name: voting
+    description: Todo sobre la voting, ya sea votaciones o preguntas
+  - name: user
+    description: Todo sobre el login, el usuario y el perfil
+paths:
+  /authtoken/tokenproxy/:
+    get:
+      tags:
+      - tokens
+      summary: Obtiene todos los tokens de autentiacion y autorizacion
+      responses:
+        200: 
+          description: Ha cargado la pagina bien y muestra todos los tokens
+          content:
+            application/json:
+              schema:
+                type: object
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+          
+  /authtoken/tokenproxy/add/:
+    post:
+      tags:
+      - tokens
+      summary: Añade un token a la base de datos
+      parameters:
+         - $ref: '#/components/parameters/user'
+      responses:
+        200: 
+          description: Ha añadido el token al usuario correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+  
+  /authtoken/tokenproxy/add/{userId}/change/:
+    put:
+      tags:
+      - tokens
+      summary: Cambia un token a la base de datos
+      parameters:
+        - $ref: '#/components/parameters/user'
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        200: 
+          description: Has actualizado el token al usuario nuevo o lo has eliminado
+          content:
+            application/json:
+              schema:
+                type: object
+        400:
+          $ref: '#/components/responses/BadRequest'
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        404:
+          $ref: '#/components/responses/NotFound'
+        500:
+          $ref: '#/components/responses/ServerError'
+
+
+
+  /auth/group/:
+    get:
+      tags:
+      - auth
+      summary: Visualiza todos los grupos de usuarios autorizados
+      responses:
+       200: 
+          description: Has obtenido a todos los grupos de usuarios correctamente 
+          content:
+            application/json:
+              schema:
+                type: object
+       400:
+          $ref: '#/components/responses/BadRequest'
+       401:
+          $ref: '#/components/responses/Unauthorized'
+       404:
+          $ref: '#/components/responses/NotFound'
+       500:
+          $ref: '#/components/responses/ServerError'
+
+  /auth/group/add:
+    post:
+      tags:
+      - auth
+      summary: Añade un grupo de usuarios autorizados
+      parameters:
+         - $ref: '#/components/parameters/permissions'
+         - $ref: '#/components/parameters/groupName'
+      responses:
+       200: 
+          description: Has añadido correctamente un grupo de usuarios 
+          content:
+            application/json:
+              schema:
+                type: object
+       400:
+          $ref: '#/components/responses/BadRequest'
+       401:
+          $ref: '#/components/responses/Unauthorized'
+       404:
+          $ref: '#/components/responses/NotFound'
+       500:
+          $ref: '#/components/responses/ServerError'
+          
+  /auth/group/add/{groupId}/change/:
+    put:
+      tags:
+      - auth
+      summary: Cambia el grupo de usuarios autorizados
+      parameters:
+         - $ref: '#/components/parameters/permissions'
+         - $ref: '#/components/parameters/groupName'
+         - name: groupId
+           in: path
+           required: true
+           schema:
+            type: integer
+      responses:
+       200: 
+          description: Has cambiado el grupo de usuarios correctamente 
+          content:
+            application/json:
+              schema:
+                type: object
+       400:
+          $ref: '#/components/responses/BadRequest'
+       401:
+          $ref: '#/components/responses/Unauthorized'
+       404:
+          $ref: '#/components/responses/NotFound'
+       500:
+          $ref: '#/components/responses/ServerError'
+          
+          
+  /auth/user/:
+    get:
+      tags:
+      - auth
+      summary: Visualiza todos los usuarios autorizados
+      responses:
+       200: 
+          description: Has obtenido a todos los usuarios correctamente 
+          content:
+            application/json:
+              schema:
+                type: object
+       400:
+          $ref: '#/components/responses/BadRequest'
+       401:
+          $ref: '#/components/responses/Unauthorized'
+       404:
+          $ref: '#/components/responses/NotFound'
+       500:
+          $ref: '#/components/responses/ServerError'
+          
+  /auth/user/add/:
+    post:
+      tags:
+      - auth
+      summary: Añade un usuario autorizados
+      parameters:
+         - $ref: '#/components/parameters/username'
+         - $ref: '#/components/parameters/password'
+         - $ref: '#/components/parameters/passwordConfirmation'
+      responses:
+       200: 
+          description: Has añadido el usuario correctamente 
+          content:
+            application/json:
+              schema:
+                type: object
+       400:
+          $ref: '#/components/responses/BadRequest'
+       401:
+          $ref: '#/components/responses/Unauthorized'
+       404:
+          $ref: '#/components/responses/NotFound'
+       500:
+          $ref: '#/components/responses/ServerError'
+
+  /auth/user/add/{userId}/change/:
+    put:
+      tags:
+      - auth
+      summary: Cambia un usuario autorizados
+      parameters:
+         - $ref: '#/components/parameters/username'
+         - $ref: '#/components/parameters/password'
+         - $ref: '#/components/parameters/passwordConfirmation'
+         - $ref: '#/components/parameters/firstName'
+         - $ref: '#/components/parameters/lastName'
+         - $ref: '#/components/parameters/email'
+         - $ref: '#/components/parameters/permissionsUser'
+         - $ref: '#/components/parameters/group'
+         - $ref: '#/components/parameters/permissions'
+         - name: userId
+           in: path
+           required: true
+           schema:
+            type: integer
+      responses:
+       200: 
+          description: Has cambiado un usuario correctamente 
+          content:
+            application/json:
+              schema:
+                type: object
+       400:
+          $ref: '#/components/responses/BadRequest'
+       401:
+          $ref: '#/components/responses/Unauthorized'
+       404:
+          $ref: '#/components/responses/NotFound'
+       500:
+          $ref: '#/components/responses/ServerError'
+          
+        
+  /base/auth/:
+    get:
+      tags:
+      - base
+      summary: Visualiza todos las url's autorizadas
+      responses:
+       200: 
+          description: Has obtenido a todos las url's correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+       400:
+          $ref: '#/components/responses/BadRequest'
+       401:
+          $ref: '#/components/responses/Unauthorized'
+       404:
+          $ref: '#/components/responses/NotFound'
+       500:
+          $ref: '#/components/responses/ServerError'
+          
+  /base/auth/add/:
+    post:
+      tags:
+      - base
+      summary: Añade una url autorizadas
+      parameters:
+         - $ref: '#/components/parameters/authName'
+         - $ref: '#/components/parameters/url'
+         - $ref: '#/components/parameters/me'
+      responses:
+       200: 
+          description: Has añadido una url correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+       400:
+          $ref: '#/components/responses/BadRequest'
+       401:
+          $ref: '#/components/responses/Unauthorized'
+       404:
+          $ref: '#/components/responses/NotFound'
+       500:
+          $ref: '#/components/responses/ServerError'
+          
+  /base/auth/add/{authId}/change/:
+    put:
+      tags:
+      - base
+      summary: Cambia una url autorizadas
+      parameters:
+         - $ref: '#/components/parameters/authName'
+         - $ref: '#/components/parameters/url'
+         - $ref: '#/components/parameters/me'
+         - name: authId
+           in: path
+           required: true
+           schema:
+            type: integer
+      responses:
+       200: 
+          description: Has cambiado una url correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+       400:
+          $ref: '#/components/responses/BadRequest'
+       401:
+          $ref: '#/components/responses/Unauthorized'
+       404:
+          $ref: '#/components/responses/NotFound'
+       500:
+          $ref: '#/components/responses/ServerError'
+
+  /base/key/:
+    get:
+      tags:
+      - base
+      summary: Visualiza todos las claves
+      responses:
+       200: 
+          description: Has obtenido todas las claves disponibles
+          content:
+            application/json:
+              schema:
+                type: object
+       400:
+          $ref: '#/components/responses/BadRequest'
+       401:
+          $ref: '#/components/responses/Unauthorized'
+       404:
+          $ref: '#/components/responses/NotFound'
+       500:
+          $ref: '#/components/responses/ServerError'
+
+  /base/key/add/:
+    post:
+      tags:
+      - base
+      summary: Añade una claves
+      parameters:
+         - $ref: '#/components/parameters/p'
+         - $ref: '#/components/parameters/g'
+         - $ref: '#/components/parameters/y'
+         - $ref: '#/components/parameters/x'
+      responses:
+       200: 
+          description: Has añadido una clave correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+       400:
+          $ref: '#/components/responses/BadRequest'
+       401:
+          $ref: '#/components/responses/Unauthorized'
+       404:
+          $ref: '#/components/responses/NotFound'
+       500:
+          $ref: '#/components/responses/ServerError'
+          
+  /base/key/add/{keyId}/change/:
+    put:
+      tags:
+      - base
+      summary: Cambia una clave
+      parameters:
+         - $ref: '#/components/parameters/p'
+         - $ref: '#/components/parameters/g'
+         - $ref: '#/components/parameters/y'
+         - $ref: '#/components/parameters/x'
+         - name: keyId
+           in: path
+           required: true
+           schema:
+            type: integer
+      responses:
+       200: 
+          description: Has cambiado la clave correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+       400:
+          $ref: '#/components/responses/BadRequest'
+       401:
+          $ref: '#/components/responses/Unauthorized'
+       404:
+          $ref: '#/components/responses/NotFound'
+       500:
+          $ref: '#/components/responses/ServerError'
+          
+  /census/census/:
+    get:
+      tags:
+      - census
+      summary: Visualiza todos los censos
+      responses:
+       200: 
+          description: Has obtenido todos los censos correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+       400:
+          $ref: '#/components/responses/BadRequest'
+       401:
+          $ref: '#/components/responses/Unauthorized'
+       404:
+          $ref: '#/components/responses/NotFound'
+       500:
+          $ref: '#/components/responses/ServerError'
+          
+  /census/census/add/:
+    post:
+      tags:
+      - census
+      summary: Añade un censo
+      parameters:
+         - $ref: '#/components/parameters/voterId'
+         - $ref: '#/components/parameters/votingId'
+      responses:
+       200: 
+          description: Has añadido el censo correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+       400:
+          $ref: '#/components/responses/BadRequest'
+       401:
+          $ref: '#/components/responses/Unauthorized'
+       404:
+          $ref: '#/components/responses/NotFound'
+       500:
+          $ref: '#/components/responses/ServerError'
+          
+  /census/census/add/{censusId}/change/:
+    put:
+      tags:
+      - census
+      summary: Cambia un censo
+      parameters:
+         - $ref: '#/components/parameters/voterId'
+         - $ref: '#/components/parameters/votingId'
+         - name: censusId
+           in: path
+           required: true
+           schema:
+            type: integer
+      responses:
+       200: 
+          description: Has cambiado el censo correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+       400:
+          $ref: '#/components/responses/BadRequest'
+       401:
+          $ref: '#/components/responses/Unauthorized'
+       404:
+          $ref: '#/components/responses/NotFound'
+       500:
+          $ref: '#/components/responses/ServerError'
+
+  /mixnet/mixnet/:
+    get:
+      tags:
+      - mixnet
+      summary: Visualiza todos los mixnets
+      responses:
+       200: 
+          description: Has obtenido todos los mixnets
+          content:
+            application/json:
+              schema:
+                type: object
+       400:
+          $ref: '#/components/responses/BadRequest'
+       401:
+          $ref: '#/components/responses/Unauthorized'
+       404:
+          $ref: '#/components/responses/NotFound'
+       500:
+          $ref: '#/components/responses/ServerError'
+          
+  /mixnet/mixnet/add/:
+    post:
+      tags:
+      - mixnet
+      summary: Añade un mixnet
+      parameters:
+         - $ref: '#/components/parameters/authPosition'
+         - $ref: '#/components/parameters/votingId'
+         - $ref: '#/components/parameters/auth'
+         - $ref: '#/components/parameters/key'
+         - $ref: '#/components/parameters/pubKey'
+      responses:
+       200: 
+          description: Has añadido el mixnet correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+       400:
+          $ref: '#/components/responses/BadRequest'
+       401:
+          $ref: '#/components/responses/Unauthorized'
+       404:
+          $ref: '#/components/responses/NotFound'
+       500:
+          $ref: '#/components/responses/ServerError'
+          
+  /mixnet/mixnet/add/{mixnetId}/change/:
+    put:
+      tags:
+      - mixnet
+      summary: Cambia un mixnet
+      parameters:
+         - $ref: '#/components/parameters/authPosition'
+         - $ref: '#/components/parameters/votingId'
+         - $ref: '#/components/parameters/auth'
+         - $ref: '#/components/parameters/key'
+         - $ref: '#/components/parameters/pubKey'
+         - name: mixnetId
+           in: path
+           required: true
+           schema:
+            type: integer
+      responses:
+       200: 
+          description: Has cambiado el mixnet correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+       400:
+          $ref: '#/components/responses/BadRequest'
+       401:
+          $ref: '#/components/responses/Unauthorized'
+       404:
+          $ref: '#/components/responses/NotFound'
+       500:
+          $ref: '#/components/responses/ServerError'
+          
+  /store/vote/:
+    get:
+      tags:
+      - store
+      summary: Visualiza todos los votos
+      responses:
+       200: 
+          description: Has obtenido todos los votos de cada usuario correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+       400:
+          $ref: '#/components/responses/BadRequest'
+       401:
+          $ref: '#/components/responses/Unauthorized'
+       404:
+          $ref: '#/components/responses/NotFound'
+       500:
+          $ref: '#/components/responses/ServerError'
+          
+  /store/vote/add/:
+    post:
+      tags:
+      - store
+      summary: Añade un voto
+      parameters:
+         - $ref: '#/components/parameters/voterId'
+         - $ref: '#/components/parameters/votingId'
+         - $ref: '#/components/parameters/a'
+         - $ref: '#/components/parameters/b'
+      responses:
+       200: 
+          description: Has añadido un voto correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+       400:
+          $ref: '#/components/responses/BadRequest'
+       401:
+          $ref: '#/components/responses/Unauthorized'
+       404:
+          $ref: '#/components/responses/NotFound'
+       500:
+          $ref: '#/components/responses/ServerError'
+          
+  /store/vote/add/{voteId}/change/:
+    put:
+      tags:
+      - store
+      summary: Cambia un voto
+      parameters:
+         - $ref: '#/components/parameters/voterId'
+         - $ref: '#/components/parameters/votingId'
+         - $ref: '#/components/parameters/a'
+         - $ref: '#/components/parameters/b'
+         - name: voteId
+           in: path
+           required: true
+           schema:
+            type: integer
+      responses:
+       200: 
+          description: Has cambiado el voto correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+       400:
+          $ref: '#/components/responses/BadRequest'
+       401:
+          $ref: '#/components/responses/Unauthorized'
+       404:
+          $ref: '#/components/responses/NotFound'
+       500:
+          $ref: '#/components/responses/ServerError'
+
+
+  /voting/question/:
+    get:
+      tags:
+      - voting
+      summary: Visualiza todas las preguntas realizadas
+      responses:
+       200: 
+          description: Has obtenido todas las preguntas correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+       400:
+          $ref: '#/components/responses/BadRequest'
+       401:
+          $ref: '#/components/responses/Unauthorized'
+       404:
+          $ref: '#/components/responses/NotFound'
+       500:
+          $ref: '#/components/responses/ServerError'
+
+  /voting/question/add/:
+    post:
+      tags:
+      - voting
+      summary: Añade una pregunta 
+      parameters:
+         - $ref: '#/components/parameters/questionDescription'
+         - $ref: '#/components/parameters/questionOptions'
+      responses:
+       200: 
+          description: Has añadido una pregunta correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+       400:
+          $ref: '#/components/responses/BadRequest'
+       401:
+          $ref: '#/components/responses/Unauthorized'
+       404:
+          $ref: '#/components/responses/NotFound'
+       500:
+          $ref: '#/components/responses/ServerError'
+          
+  /voting/question/add/{questionId}/change/:
+    put:
+      tags:
+      - voting
+      summary: Cambia una pregunta realizada
+      parameters:
+         - $ref: '#/components/parameters/questionDescription'
+         - $ref: '#/components/parameters/questionOptions'
+         - name: questionId
+           in: path
+           required: true
+           schema:
+            type: integer
+      responses:
+       200: 
+          description: Has cambiado la pregunta correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+       400:
+          $ref: '#/components/responses/BadRequest'
+       401:
+          $ref: '#/components/responses/Unauthorized'
+       404:
+          $ref: '#/components/responses/NotFound'
+       500:
+          $ref: '#/components/responses/ServerError'
+          
+  /voting/voting/:
+    get:
+      tags:
+      - voting
+      summary: Visualiza todas las votaciones disponibles para ver
+      responses:
+       200: 
+          description: Has obtenido todas las votaciones
+          content:
+            application/json:
+              schema:
+                type: object
+       400:
+          $ref: '#/components/responses/BadRequest'
+       401:
+          $ref: '#/components/responses/Unauthorized'
+       404:
+          $ref: '#/components/responses/NotFound'
+       500:
+          $ref: '#/components/responses/ServerError'
+
+  /voting/voting/add/:
+    post:
+      tags:
+      - voting
+      summary: Añade una votacion 
+      parameters:
+         - $ref: '#/components/parameters/votingName'
+         - $ref: '#/components/parameters/votingDescription'
+         - $ref: '#/components/parameters/question'
+         - $ref: '#/components/parameters/auth'
+      responses:
+       200: 
+          description: Has añadido una votacion correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+       400:
+          $ref: '#/components/responses/BadRequest'
+       401:
+          $ref: '#/components/responses/Unauthorized'
+       404:
+          $ref: '#/components/responses/NotFound'
+       500:
+          $ref: '#/components/responses/ServerError'
+          
+  
+  /voting/voting/add/{votingId}/change/:
+    put:
+      tags:
+      - voting
+      summary: Cambia una votacion
+      parameters:
+         - $ref: '#/components/parameters/votingName'
+         - $ref: '#/components/parameters/votingDescription'
+         - $ref: '#/components/parameters/question'
+         - $ref: '#/components/parameters/auth'
+         - name: votingId
+           in: path
+           required: true
+           schema:
+            type: integer
+      responses:
+       200: 
+          description: Has cambiado una votacion correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+       400:
+          $ref: '#/components/responses/BadRequest'
+       401:
+          $ref: '#/components/responses/Unauthorized'
+       404:
+          $ref: '#/components/responses/NotFound'
+       500:
+          $ref: '#/components/responses/ServerError'
+
+  /password_change/:
+    put:
+      tags:
+      - user
+      summary: Cambiar la contraseña
+      parameters:
+         - $ref: '#/components/parameters/oldPassword'
+         - $ref: '#/components/parameters/newPassword'
+         - $ref: '#/components/parameters/newPasswordConfirmation'
+      responses:
+       200: 
+          description: Has cambiado la contraseña correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+       400:
+          $ref: '#/components/responses/BadRequest'
+       401:
+          $ref: '#/components/responses/Unauthorized'
+       404:
+          $ref: '#/components/responses/NotFound'
+       500:
+          $ref: '#/components/responses/ServerError'
+
+  /login/next=/admin/:
+    post:
+      tags:
+      - user
+      summary: Logearse como administrador 
+      parameters:
+         - $ref: '#/components/parameters/usernameAdmin'
+         - $ref: '#/components/parameters/passwordAdmin'
+      responses:
+       200: 
+          description: Has añadido una votacion correctamente
+          content:
+            application/json:
+              schema:
+                type: object
+       400:
+          $ref: '#/components/responses/BadRequest'
+       401:
+          $ref: '#/components/responses/Unauthorized'
+       404:
+          $ref: '#/components/responses/NotFound'
+       500:
+          $ref: '#/components/responses/ServerError'
+
+
+components:
+  responses:
+    Unauthorized:
+      description: (Unauthorized) no hay autorizacion para llamar al servicio
+    NotFound:
+      description: (NotFound) no se encontro la informacion
+    BadRequest:
+      description: (BadRequest) los datos enviados no han sido correctos o faltan obligatorios por rellenar
+    ServerError:
+      description: (ServerError) error en el servidor
+    
+  parameters:
+    user:
+      name: user
+      content:
+        application/json:
+            schema:
+              type: object
+      in: query 
+      description: usuario creado anteriormente en la base de datos
+      required: true
+      
+    groupName:
+      name: groupName
+      content:
+        application/json:
+            schema:
+              type: string
+      in: query 
+      description: nombre del grupo
+      required: true
+      
+    permissions:
+      name: permissions
+      content:
+        application/json:
+            schema:
+              type: array
+      in: query 
+      description: permisos disponibles de la base de datos
+      required: false
+      
+    username:
+      name: username
+      content:
+        application/json:
+            schema:
+              type: string
+      in: query 
+      description: nombre de usuario que deseamos
+      required: true
+      
+    password:
+      name: password
+      content:
+        application/json:
+            schema:
+              type: string
+      in: query 
+      description: contraseña que deseamos
+      required: true
+      
+    passwordConfirmation:
+      name: password
+      content:
+        application/json:
+            schema:
+              type: string
+      in: query 
+      description: contraseña que deseamos repetida para confirmar
+      required: true
+      
+    firstName:
+      name: firstName
+      content:
+        application/json:
+            schema:
+              type: string
+      in: query 
+      description: nombre de pila del usuario
+      required: false
+    
+    lastName:
+      name: lastName
+      content:
+        application/json:
+            schema:
+              type: string
+      in: query 
+      description: apellido o apellidos
+      required: false
+    
+    email:
+      name: email
+      content:
+        application/json:
+            schema:
+              type: string
+      in: query 
+      description: email del usuario
+      required: false
+    
+    permissionsUser:
+      name: permissionsUser
+      content:
+        application/json:
+            schema:
+              type: array
+      in: query 
+      description: permisos del usuario
+      required: false
+      
+    group:
+      name: group
+      content:
+        application/json:
+            schema:
+              type: array
+      in: query 
+      description: grupos a los que puede pertenecer
+      required: false
+  
+    authName:
+      name: authName
+      content:
+        application/json:
+            schema:
+              type: string
+      in: query 
+      description: nombre de la autorizacion
+      required: true
+      
+    url:
+      name: url
+      content:
+        application/json:
+            schema:
+              type: string
+      in: query 
+      description: url que tendra la autorizacion
+      required: true
+        
+    me:
+      name: me
+      content:
+        application/json:
+            schema:
+              type: boolean
+      in: query 
+      description: va dirigido a mi la autorizacion
+      required: false
+      
+    p:
+      name: p
+      content:
+        application/json:
+            schema:
+              type: string
+      in: query 
+      description: contenedor p de la clave
+      required: true
+      
+    g:
+      name: g
+      content:
+        application/json:
+            schema:
+              type: string
+      in: query 
+      description: contenedor g de la clave
+      required: true
+      
+    y:
+      name: y
+      content:
+        application/json:
+            schema:
+              type: string
+      in: query 
+      description: contenedor y de la clave
+      required: true
+      
+    x:
+      name: x
+      content:
+        application/json:
+            schema:
+              type: string
+      in: query 
+      description: contenedor x de la clave
+      required: false
+      
+    voterId:
+      name: voterId
+      content:
+        application/json:
+            schema:
+              type: integer
+      in: query 
+      description: id de la persona que vota
+      required: true
+      
+    votingId:
+      name: votingId
+      content:
+        application/json:
+            schema:
+              type: integer
+      in: query 
+      description: id de la votacion
+      required: true
+      
+    authPosition:
+      name: authPosition
+      content:
+        application/json:
+            schema:
+              type: integer
+      in: query 
+      description: posicion de la autorizacion
+      required: false
+      
+    pubKey:
+      name: pubKey
+      content:
+        application/json:
+            schema:
+              type: array
+      in: query 
+      description: lista de claves a elegir como publica
+      required: false
+      
+    key:
+      name: key
+      content:
+        application/json:
+            schema:
+              type: array
+      in: query 
+      description: lista de claves a elegir
+      required: false
+      
+    a:
+      name: a
+      content:
+        application/json:
+            schema:
+              type: string
+      in: query 
+      description: contenedor que guarda a para un voto
+      required: true
+      
+    b:
+      name: b
+      content:
+        application/json:
+            schema:
+              type: string
+      in: query 
+      description: contenedor que guarda b para un voto
+      required: true
+      
+    questionDescription:
+      name: questionDescription
+      content:
+        application/json:
+            schema:
+              type: string
+      in: query 
+      description: descripcion de la pregunta
+      required: true
+      
+    questionOptions:
+      name: questionOptions
+      content:
+        application/json:
+            schema:
+              type: array
+      in: query 
+      description: conjunto de opciones a añadir a la pregunta que se compone de numero y nombre de la opcion
+      required: false
+      
+    auth:
+      name: auth
+      content:
+        application/json:
+            schema:
+              type: array
+      in: query 
+      description: autorizaciones a escoger
+      required: true
+      
+    question:
+      name: question
+      content:
+        application/json:
+            schema:
+              type: array
+      in: query 
+      description: pregunta a escoger
+      required: true
+      
+    votingDescription:
+      name: votingDescription
+      content:
+        application/json:
+            schema:
+              type: string
+      in: query 
+      description: descripcion de la votacion
+      required: false
+      
+    votingName:
+      name: votingName
+      content:
+        application/json:
+            schema:
+              type: string
+      in: query 
+      description: nombre de la votacion
+      required: true
+    
+    oldPassword:
+      name: oldPassword
+      content:
+        application/json:
+            schema:
+              type: string
+      in: query 
+      description: antigua contraseña a cambiar
+      required: true
+      
+    newPassword:
+      name: newPassword
+      content:
+        application/json:
+            schema:
+              type: string
+      in: query 
+      description: nueva contraseña deseada
+      required: true
+      
+    newPasswordConfirmation:
+      name: newPasswordConfirmation
+      content:
+        application/json:
+            schema:
+              type: string
+      in: query 
+      description: repetir la contraseña deseada
+      required: true
+      
+    usernameAdmin:
+      name: usernameAdmin
+      content:
+        application/json:
+            schema:
+              type: string
+      in: query 
+      description: nombre de usuario del administrador a logearse
+      required: true
+      
+    passwordAdmin:
+      name: passwordAdmin
+      content:
+        application/json:
+            schema:
+              type: string
+      in: query 
+      description: contraseña del administrador a logearse
+      required: true
+      
