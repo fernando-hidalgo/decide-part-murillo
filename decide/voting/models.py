@@ -12,6 +12,14 @@ from base.models import Auth, Key
 class Question(models.Model):
     desc = models.TextField()
 
+    optionYes = models.PositiveIntegerField(editable=False, default=1)
+    optionNo = models.PositiveIntegerField(editable=False, default=2)
+
+    def save(self, *args, **kwargs):
+        self.optionYes = 1
+        self.optionNo = 2
+        super().save(*args, **kwargs)
+
     def __str__(self):
         return self.desc
 
@@ -271,10 +279,8 @@ class VotingYesNo(models.Model):
 
     def do_postproc(self):
         tally = self.tally
-        options = []
-        options.append(self.question.optionYes)
-        options.append(self.question.optionNo)
-        ls = []
+        options = self.question.pregYN.all()
+
         opts = []
         for opt in options:
             if isinstance(tally, list):
