@@ -5,7 +5,7 @@ from django.dispatch import receiver
 
 from base import mods
 from base.models import Auth, Key
-from decide.store.models import VoteByPreference
+from store.models import VoteByPreference
 
 
 class QuestionByPreference(models.Model):
