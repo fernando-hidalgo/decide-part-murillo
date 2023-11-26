@@ -12,14 +12,6 @@ from base.models import Auth, Key
 class Question(models.Model):
     desc = models.TextField()
 
-    optionYes = models.PositiveIntegerField(editable=False, default=1)
-    optionNo = models.PositiveIntegerField(editable=False, default=2)
-
-    def save(self, *args, **kwargs):
-        self.optionYes = 1
-        self.optionNo = 2
-        super().save(*args, **kwargs)
-
     def __str__(self):
         return self.desc
 
@@ -27,6 +19,14 @@ class Question(models.Model):
 # Modelo para preguntas de tipo si o no
 class QuestionYesNo(models.Model):
     desc = models.TextField()
+
+    optionYes = models.PositiveIntegerField(editable=False, default=1)
+    optionNo = models.PositiveIntegerField(editable=False, default=2)
+
+    def save(self, *args, **kwargs):
+        self.optionYes = 1
+        self.optionNo = 2
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.desc
@@ -42,6 +42,27 @@ class QuestionOption(models.Model):
     def save(self):
         if not self.number:
             self.number = self.question.options.count() + 2
+        return super().save()
+
+    def __str__(self):
+        return "{} ({})".format(self.option, self.number)
+
+
+# Modelo para preguntas de tipo si o no
+class QuestionOptionYesNo(models.Model):
+    question = models.ForeignKey(
+        QuestionYesNo, related_name="pregYN", on_delete=models.CASCADE
+    )
+
+    number = models.PositiveIntegerField(blank=True, null=True)
+    option = models.TextField()
+    option = models.PositiveIntegerField(blank=True, null=True)
+
+    def save(self):
+
+        self.preference = 0
+        if not self.number:
+            self.number = self.question.pregYN.count() + 2
         return super().save()
 
     def __str__(self):
