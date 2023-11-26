@@ -7,6 +7,13 @@ from base import mods
 from base.models import Auth, Key
 
 
+class QuestionByPreference(models.Model):
+    desc = models.TextField()
+
+    def __str__(self):
+        return self.desc
+
+
 class Question(models.Model):
     desc = models.TextField()
 
@@ -22,6 +29,25 @@ class QuestionOption(models.Model):
     option = models.TextField()
 
     def save(self):
+        if not self.number:
+            self.number = self.question.options.count() + 2
+        return super().save()
+
+    def __str__(self):
+        return "{} ({})".format(self.option, self.number)
+
+
+class QuestionOptionByPreference(models.Model):
+    question = models.ForeignKey(
+        QuestionByPreference, related_name="preferences", on_delete=models.CASCADE
+    )
+    number = models.PositiveIntegerField(blank=True, null=True)
+    option = models.TextField()
+    preference = models.PositiveIntegerField(blank=True, null=True)
+
+    def save(self):
+
+        self.preference = 0
         if not self.number:
             self.number = self.question.options.count() + 2
         return super().save()
@@ -150,6 +176,34 @@ class Voting(models.Model):
 
         self.postproc = postp
         self.save()
+
+    def __str__(self):
+        return self.name
+
+
+class VotingByPreference(models.Model):
+    name = models.CharField(max_length=200)
+    desc = models.TextField(blank=True, null=True)
+    question = models.ForeignKey(
+        QuestionByPreference,
+        related_name="votingbypreference",
+        on_delete=models.CASCADE,
+    )
+
+    start_date = models.DateTimeField(blank=True, null=True)
+    end_date = models.DateTimeField(blank=True, null=True)
+
+    pub_key = models.OneToOneField(
+        Key,
+        related_name="votingbypreference",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
+    auths = models.ManyToManyField(Auth, related_name="votingsbypreference")
+
+    tally = JSONField(blank=True, null=True)
+    postproc = JSONField(blank=True, null=True)
 
     def __str__(self):
         return self.name
