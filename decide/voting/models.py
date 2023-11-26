@@ -2,6 +2,7 @@ from django.db import models
 from django.db.models import JSONField
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.core.exceptions import ValidationError
 
 from base import mods
 from base.models import Auth, Key
@@ -9,6 +10,21 @@ from base.models import Auth, Key
 
 class Question(models.Model):
     desc = models.TextField()
+
+    def __str__(self):
+        return self.desc
+
+
+# Modelo para preguntas de tipo si o no
+class QuestionYesNo(models.Model):
+    desc = models.TextField()
+    optionYes = models.PositiveIntegerField(editable=False)
+    optionNo = models.PositiveIntegerField(editable=False)
+
+    def save(self, *args, **kwargs):
+        self.optionYes = 1
+        self.optionNo = 2
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return self.desc
@@ -137,19 +153,40 @@ class Voting(models.Model):
                 votes = tally.count(opt.number)
             else:
                 votes = 0
-            opts.append(
-                {
-                    "option": opt.option,
-                    "number": opt.number,
-                    "votes": votes,
-                }
-            )
+            opts.append({"option": opt.option, "number": opt.number, "votes": votes})
 
-        data = {"escaños": self.escaños, "type": self.tallyType, "options": opts}
+        data = {"type": "IDENTITY", "options": opts}
         postp = mods.post("postproc", json=data)
 
         self.postproc = postp
         self.save()
+
+    def __str__(self):
+        return self.name
+
+
+# Modelo para votaciones de tipo si o no
+class VotingYesNo(models.Model):
+    name = models.CharField(max_length=200)
+    desc = models.TextField(blank=True, null=True)
+    question = models.ForeignKey(
+        QuestionYesNo, related_name="votingyesno", on_delete=models.CASCADE
+    )
+
+    start_date = models.DateTimeField(blank=True, null=True)
+    end_date = models.DateTimeField(blank=True, null=True)
+
+    pub_key = models.OneToOneField(
+        Key,
+        related_name="votingyesno",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
+    )
+    auths = models.ManyToManyField(Auth, related_name="votingsyesno")
+
+    tally = JSONField(blank=True, null=True)
+    postproc = JSONField(blank=True, null=True)
 
     def __str__(self):
         return self.name
