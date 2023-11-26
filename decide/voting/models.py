@@ -48,27 +48,6 @@ class QuestionOption(models.Model):
         return "{} ({})".format(self.option, self.number)
 
 
-# Modelo para preguntas de tipo si o no
-class QuestionOptionYesNo(models.Model):
-    question = models.ForeignKey(
-        QuestionYesNo, related_name="pregYN", on_delete=models.CASCADE
-    )
-
-    number = models.PositiveIntegerField(blank=True, null=True)
-    option = models.TextField()
-    option = models.PositiveIntegerField(blank=True, null=True)
-
-    def save(self):
-
-        self.preference = 0
-        if not self.number:
-            self.number = self.question.pregYN.count() + 2
-        return super().save()
-
-    def __str__(self):
-        return "{} ({})".format(self.option, self.number)
-
-
 class Voting(models.Model):
     name = models.CharField(max_length=200)
     desc = models.TextField(blank=True, null=True)
