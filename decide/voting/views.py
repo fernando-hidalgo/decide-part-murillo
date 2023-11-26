@@ -147,7 +147,7 @@ class VotingByPreferenceView(generics.ListCreateAPIView):
         question.save()
         for idx, q_opt in enumerate(request.data.get("question_opt")):
             opt = QuestionOptionByPreference(
-                question=question, option=q_opt, number=idx, preference=0
+                question=question, option=q_opt, number=idx, preference=idx
             )
             opt.save()
         voting = VotingByPreference(
@@ -171,12 +171,12 @@ class VotingByPreferenceUpdate(generics.RetrieveUpdateDestroyAPIView):
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
     permission_classes = (UserIsStaff,)
 
-    def put(self, request, voting_id, *args, **kwars):
+    def put(self, request, voting_by_preference_id, *args, **kwars):
         action = request.data.get("action")
         if not action:
             return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
-        voting = get_object_or_404(VotingByPreference, pk=voting_id)
+        voting = get_object_or_404(VotingByPreference, pk=voting_by_preference_id)
         msg = ""
         st = status.HTTP_200_OK
         if action == "start":
