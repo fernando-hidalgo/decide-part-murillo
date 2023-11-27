@@ -7,6 +7,8 @@ from rest_framework import generics
 
 from .models import Vote, VoteYN
 from .serializers import VoteSerializer, VoteYNSerializer
+from .models import Vote, VoteByPreference
+from .serializers import VoteByPreferenceSerializer, VoteSerializer
 from base import mods
 from base.perms import UserIsStaff
 from voting.models import VotingYesNo
@@ -85,7 +87,6 @@ class StoreView(generics.ListAPIView):
 
         return Response({})
 
-
 class StoreYNView(generics.ListAPIView):
     queryset = VoteYN.objects.all()
     serializer_class = VoteYNSerializer
@@ -96,8 +97,8 @@ class StoreYNView(generics.ListAPIView):
         self.permission_classes = (UserIsStaff,)
         self.check_permissions(request)
         return super().get(request)
-
-    def post(self, request):
+      
+      def post(self, request):
         """
         * voting: id
         * voter: id
@@ -125,8 +126,7 @@ class StoreYNView(generics.ListAPIView):
 
         if not vid or not uid or not vote:
             return Response({}, status=status.HTTP_400_BAD_REQUEST)
-
-        # validating voter
+          
         if request.auth:
             token = request.auth.key
         else:
@@ -146,14 +146,90 @@ class StoreYNView(generics.ListAPIView):
         )
         if perms.status_code == 401:
             # print("por aqui 65")
+            return Response({}, status=status.HTTP_401UNAUTHORIZED)
+
+        a = vote.get("a")
+        b = vote.get("b")
+
+        defs = {"a": a, "b": b}
+        v,  = VoteYN.objects.get_or_create(
+            voting_yesno_id=vid, voter_yesno_id=uid, defaults=defs
+        )
+        v.a = a
+        v.b = b
+
+        v.save()
+
+        return Response({})
+    
+class StoreByPreferenceView(generics.ListAPIView):
+    queryset = VoteByPreference.objects.all()
+    serializer_class = VoteByPreferenceSerializer
+    filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
+    filterset_fields = ("voting_preference_id", "voter_preference_id")
+
+    def get(self, request):
+        self.permission_classes = (UserIsStaff,)
+        self.check_permissions(request)
+        return super().get(request)
+
+    def post(self, request):
+        """
+        * voting: id
+        * voter: id
+        * vote: { "a": int, "b": int }
+        """
+
+        vid = request.data.get("voting_preference")
+        voting = mods.get("voting_preference", params={"id": vid})
+        if not voting or not isinstance(voting, list):
+            # print("por aqui 35")
+            return Response({}, status=status.HTTP_401_UNAUTHORIZED)
+        start_date = voting[0].get("start_date", None)
+        # print ("Start date: "+  start_date)
+        end_date = voting[0].get("end_date", None)
+        # print ("End date: ", end_date)
+        not_started = not start_date or timezone.now() < parse_datetime(start_date)
+        # print (not_started)
+        is_closed = end_date and parse_datetime(end_date) < timezone.now()
+        if not_started or is_closed:
+            # print("por aqui 42")
+            return Response({}, status=status.HTTP_401_UNAUTHORIZED)
+
+        uid = request.data.get("voter")
+        vote = request.data.get("vote")
+
+        if not vid or not uid or not vote:
+            return Response({}, status=status.HTTP_400_BAD_REQUEST)
+
+        # validating voter
+        if request.auth:
+            token = request.auth.key
+        else:
+            token = "NO-AUTH-VOTE"
+        voter = mods.post(
+            "authentication", entry_point="/getuser/", json={"token": token}
+        )
+        
+        voter_id = voter.get("id", None)
+        if not voter_id or voter_id != uid:
+            # print("por aqui 59")
+            return Response({}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # the user is in the census
+        perms = mods.get(
+            "census/{}".format(vid), params={"voter_id": uid}, response=True
+        )
+        if perms.status_code == 401:
+            # print("por aqui 65")
             return Response({}, status=status.HTTP_401_UNAUTHORIZED)
 
         a = vote.get("a")
         b = vote.get("b")
 
         defs = {"a": a, "b": b}
-        v, _ = VoteYN.objects.get_or_create(
-            voting_yesno_id=vid, voter_yesno_id=uid, defaults=defs
+        v, _ = VoteByPreference.objects.get_or_create(
+            voting_preference_id=vid, voter_preference_id=uid, defaults=defs
         )
         v.a = a
         v.b = b
