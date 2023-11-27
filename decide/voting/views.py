@@ -132,17 +132,12 @@ class VotingYNView(generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         self.permission_classes = (UserIsStaff,)
         self.check_permissions(request)
-        for data in ["name", "desc", "question", "question_opt"]:
+        for data in ["name", "desc", "question"]:
             if not data in request.data:
                 return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
         question = QuestionYesNo(desc=request.data.get("question"))
         question.save()
-        for idx, q_opt in enumerate(request.data.get("question_opt")):
-            opt = QuestionOptionYesNo(
-                question=question, option=q_opt, number=idx, preference=0
-            )
-            opt.save()
         voting = VotingYesNo(
             name=request.data.get("name"),
             desc=request.data.get("desc"),
@@ -164,12 +159,12 @@ class VotingYesNoUpdate(generics.RetrieveUpdateDestroyAPIView):
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
     permission_classes = (UserIsStaff,)
 
-    def put(self, request, voting_id, *args, **kwars):
+    def put(self, request, voting_yes_no_id, *args, **kwars):
         action = request.data.get("action")
         if not action:
             return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
-        voting = get_object_or_404(VotingByPreference, pk=voting_id)
+        voting = get_object_or_404(VotingYesNo, pk=voting_yes_no_id)
         msg = ""
         st = status.HTTP_200_OK
         if action == "start":
