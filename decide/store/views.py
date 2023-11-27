@@ -87,6 +87,7 @@ class StoreView(generics.ListAPIView):
 
         return Response({})
 
+
 class StoreYNView(generics.ListAPIView):
     queryset = VoteYN.objects.all()
     serializer_class = VoteYNSerializer
@@ -97,8 +98,8 @@ class StoreYNView(generics.ListAPIView):
         self.permission_classes = (UserIsStaff,)
         self.check_permissions(request)
         return super().get(request)
-      
-      def post(self, request):
+
+    def post(self, request):
         """
         * voting: id
         * voter: id
@@ -126,7 +127,7 @@ class StoreYNView(generics.ListAPIView):
 
         if not vid or not uid or not vote:
             return Response({}, status=status.HTTP_400_BAD_REQUEST)
-          
+
         if request.auth:
             token = request.auth.key
         else:
@@ -152,7 +153,7 @@ class StoreYNView(generics.ListAPIView):
         b = vote.get("b")
 
         defs = {"a": a, "b": b}
-        v,  = VoteYN.objects.get_or_create(
+        (v,) = VoteYN.objects.get_or_create(
             voting_yesno_id=vid, voter_yesno_id=uid, defaults=defs
         )
         v.a = a
@@ -161,7 +162,8 @@ class StoreYNView(generics.ListAPIView):
         v.save()
 
         return Response({})
-    
+
+
 class StoreByPreferenceView(generics.ListAPIView):
     queryset = VoteByPreference.objects.all()
     serializer_class = VoteByPreferenceSerializer
@@ -210,7 +212,7 @@ class StoreByPreferenceView(generics.ListAPIView):
         voter = mods.post(
             "authentication", entry_point="/getuser/", json={"token": token}
         )
-        
+
         voter_id = voter.get("id", None)
         if not voter_id or voter_id != uid:
             # print("por aqui 59")

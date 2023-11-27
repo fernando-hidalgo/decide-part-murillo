@@ -10,6 +10,7 @@ urlpatterns = [
         "yesno/<int:voting_yes_no_id>/",
         views.VotingYesNoUpdate.as_view(),
         name="votingyesno",
+    ),
     path(
         "preference/", views.VotingByPreferenceView.as_view(), name="votingbypreference"
     ),

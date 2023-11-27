@@ -72,13 +72,13 @@ class VotingTestCase(BaseTestCase):
 
         return v
 
-    def create_voting_yesno(self):
+    def create_voting_yes_no(self):
         q = QuestionYesNo(desc="test question")
         q.save()
         v = VotingYesNo(name="test voting", question=q)
         v.save()
 
-        a,  = Auth.objects.get_or_create(
+        a, _ = Auth.objects.get_or_create(
             url=settings.BASEURL, defaults={"me": True, "name": "test auth"}
         )
         a.save()
@@ -161,13 +161,13 @@ class VotingTestCase(BaseTestCase):
                 voter = voters.pop()
                 mods.post("store", json=data)
         return clear
-      
+
     def store_votes_by_preference(self, v):
         voters = list(Census.objects.filter(voting_id=v.id))
         voter = voters.pop()
 
         clear = {}
-        
+
         for opt in v.question.preferences.all():
             clear[opt.number] = 0
             for i in range(random.randint(0, 5)):
@@ -265,7 +265,7 @@ class VotingTestCase(BaseTestCase):
 
         for q in v.postproc:
             self.assertEqual(tally.get(q["number"], 0), q["votes"])
-            
+
     def test_complete_voting_by_preference(self):
         v = self.create_voting_by_preference()
         self.create_voters(v)
@@ -308,7 +308,7 @@ class VotingTestCase(BaseTestCase):
 
         response = self.client.post("/voting/", data, format="json")
         self.assertEqual(response.status_code, 201)
-        
+
     def test_create_voting_yes_no_from_api(self):
         data = {"name": "Example"}
 
@@ -439,7 +439,7 @@ class VotingTestCase(BaseTestCase):
         response = self.client.put("/voting/{}/".format(voting.pk), data, format="json")
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json(), "Voting already tallied")
-        
+
     def test_update_voting_yes_no(self):
         votingYesNo = self.create_voting_yes_no()
 
