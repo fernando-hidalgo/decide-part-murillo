@@ -3,7 +3,11 @@ name: Docker Images
 on:
   push:
     branches:
-      - 'deploy'
+      - docker-images-config
+
+  pull_request:
+    branches:
+      - master
 
 jobs:
   docker:
