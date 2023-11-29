@@ -13,8 +13,8 @@ class ReuseActionForm(ActionForm):
 
 
 class CensusAdmin(admin.ModelAdmin):
-    list_display = ("voting_id", "voter_id")
-    list_filter = ("voting_id",)
+    list_display = ("voting_id", "voter_id", "group")
+    list_filter = ("voting_id","group")
     search_fields = ("voter_id",)
 
     def exportar_a_excel(modeladmin, request, queryset):
