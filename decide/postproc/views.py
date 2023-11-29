@@ -21,19 +21,18 @@ class PostProcView(APIView):
     def apply_hont(self, options, escaños):
 
         votos = [opt["votes"] for opt in options]
-        total_escaños = escaños  # Obtener el número total de escaños o 0 si no existe
-
+        total_escaños = escaños  
         resultados = (
             []
-        )  # Lista para almacenar el número de escaños asignados y otros parámetros a cada lista
+        )  
 
-        # Inicializar el número de escaños asignados a cada lista en 0
+        
         for opt in options:
             resultados.append({**opt, "seats": 0})
 
-        # Verificar si se proporcionó el número total de escaños
+        
         if total_escaños > 0:
-            # Asignar escaños utilizando la ley D'Hondt
+            
             while total_escaños >0:
                 max_lista = max(votos)
                 index_max = votos.index(max_lista)
@@ -43,14 +42,35 @@ class PostProcView(APIView):
                 )
                 total_escaños -=1
 
-            # Ordenar los resultados por la cantidad de escaños asignados (en orden descendente)
+            
             resultados.sort(key=lambda x: -x["seats"])
 
         return Response(resultados)
 
+    def apply_lague(self, options, escaños):
+        votos = [opt["votes"] for opt in options]
+        total_escaños = escaños
+        resultados = []
+
+        for opt in options:
+            resultados.append({**opt, "seats": 0})
+
+        if total_escaños > 0:
+            while total_escaños > 0:
+                max_lista = max(votos)
+                index_max = votos.index(max_lista)
+                resultados[index_max]["seats"] += 1
+                votos[index_max] = votos[index_max] / (2 * resultados[index_max]["seats"] + 1)
+                total_escaños -= 1
+
+            resultados.sort(key=lambda x: -x["seats"])
+
+        return Response(resultados)
+
+
     def post(self, request):
         """
-        * type: IDENTITY | EQUALITY | WEIGHT | HONT
+        * type: IDENTITY | EQUALITY | WEIGHT | HONT | LAGUE
         * options: [
            {
             option: str,
@@ -69,5 +89,7 @@ class PostProcView(APIView):
             return self.apply_identity(opts)
         if t == "HONT":
             return self.apply_hont(opts, escaños)
+        elif t == "LAGUE":
+            return self.apply_lague(opts, escaños)
 
         return Response({})
