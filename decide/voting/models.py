@@ -202,9 +202,15 @@ class Voting(models.Model):
                 votes = tally.count(opt.number)
             else:
                 votes = 0
-            opts.append({"option": opt.option, "number": opt.number, "votes": votes})
+            opts.append(
+                {
+                    "option": opt.option,
+                    "number": opt.number,
+                    "votes": votes,
+                }
+            )
 
-        data = {"type": "IDENTITY", "options": opts}
+        data = {"escaños": self.escaños, "type": self.tallyType, "options": opts}
         postp = mods.post("postproc", json=data)
 
         self.postproc = postp
@@ -233,6 +239,9 @@ class VotingYesNo(models.Model):
         on_delete=models.SET_NULL,
     )
     auths = models.ManyToManyField(Auth, related_name="votingsyesno")
+
+    tallyType = models.CharField(max_length=200, default="IDENTITY")
+    escaños = models.IntegerField(default=10)
 
     tally = JSONField(blank=True, null=True)
     postproc = JSONField(blank=True, null=True)
@@ -314,11 +323,11 @@ class VotingYesNo(models.Model):
             else:
                 votes = 0
             if int(opt) == 1:
-                opts.append({"option": "Si", "votes": votes})
+                opts.append({"option": "Si", "votes": votes, "number":1})
             else:
-                opts.append({"option": "No", "votes": votes})
+                opts.append({"option": "No", "votes": votes, "number":0})
 
-        data = {"type": "IDENTITY", "options": opts}
+        data = {"escaños": self.escaños, "type": self.tallyType, "options": opts}
         postp = mods.post("postproc", json=data)
 
         self.postproc = postp
@@ -348,6 +357,9 @@ class VotingByPreference(models.Model):
         on_delete=models.SET_NULL,
     )
     auths = models.ManyToManyField(Auth, related_name="votingsbypreference")
+    
+    tallyType = models.CharField(max_length=200, default="IDENTITY")
+    escaños = models.IntegerField(default=10)
 
     tally = JSONField(blank=True, null=True)
     postproc = JSONField(blank=True, null=True)
@@ -447,9 +459,15 @@ class VotingByPreference(models.Model):
                 votes = tally.count(opt.number)
             else:
                 votes = 0
-            opts.append({"option": opt.option, "number": opt.number, "votes": votes})
+            opts.append(
+                {
+                    "option": opt.option,
+                    "number": opt.number,
+                    "votes": votes,
+                }
+            )
 
-        data = {"type": "IDENTITY", "options": opts}
+        data = {"escaños": self.escaños, "type": self.tallyType, "options": opts}
         postp = mods.post("postproc", json=data)
 
         self.postproc = postp
