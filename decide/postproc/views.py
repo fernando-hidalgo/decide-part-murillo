@@ -37,7 +37,7 @@ class PostProcView(APIView):
                 max_lista = max(votos)
                 index_max = votos.index(max_lista)
                 resultados[index_max]["seats"] += 1
-                votos[index_max] = votos[index_max] / (
+                votos[index_max] = options[index_max]["votes"] / (
                     resultados[index_max]["seats"] + 1
                 )
                 total_escaños -=1
