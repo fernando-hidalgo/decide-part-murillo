@@ -84,3 +84,70 @@ class CensusImportView(TemplateView):
 
             messages.success(request, "Importación finalizada")
             return HttpResponseRedirect("/census/import/")
+
+class CensusByPreferenceCreate(generics.ListCreateAPIView):
+    permission_classes = (UserIsStaff,)
+
+    def create(self, request, *args, **kwargs):
+        voting_id = request.data.get("voting_id")
+        voters = request.data.get("voters")
+        try:
+            for voter in voters:
+                census = CensusByPreference(voting_id=voting_id, voter_id=voter)
+                census.save()
+        except IntegrityError:
+            return Response("Error try to create census", status=ST_409)
+        return Response("Census by preference created", status=ST_201)
+
+    def list(self, request, *args, **kwargs):
+        voting_id = request.GET.get("voting_id")
+        voters = CensusByPreference.objects.filter(voting_id=voting_id).values_list(
+            "voter_id", flat=True
+        )
+        return Response({"voters": voters})
+
+
+class CensusByPreferenceDetail(generics.RetrieveDestroyAPIView):
+    def destroy(self, request, voting_id, *args, **kwargs):
+        voters = request.data.get("voters")
+        census = CensusByPreference.objects.filter(voting_id=voting_id, voter_id__in=voters)
+        census.delete()
+        return Response("Voters deleted from census by preference", status=ST_204)
+
+    def retrieve(self, request, voting_id, *args, **kwargs):
+        voter = request.GET.get("voter_id")
+        try:
+            CensusByPreference.objects.get(voting_id=voting_id, voter_id=voter)
+        except ObjectDoesNotExist:
+            return Response("Invalid voter", status=ST_401)
+        return Response("Valid voter")
+
+
+class CensusByPreferenceImportView(TemplateView):
+    template_name = "census/import_census.html"
+
+    def post(self, request, *args, **kwargs):
+        if request.method == "POST" and request.FILES["census_file"]:
+            census_file = request.FILES["census_file"]
+            workbook = openpyxl.load_workbook(census_file)
+            sheet = workbook.active
+
+            for row in sheet.iter_rows(min_row=2, values_only=True):
+                voting_id = row[0]
+                voter_id = row[1]
+
+                # Comprobar si ya existe un objeto con la misma pareja de voting_id y voter_id
+                existing_census = CensusByPreference.objects.filter(
+                    voting_id=voting_id, voter_id=voter_id
+                ).first()
+
+                if not existing_census:
+                    CensusByPreference.objects.create(voting_id=voting_id, voter_id=voter_id)
+                else:
+                    messages.error(
+                        request,
+                        f"Ya existe un registro para la pareja de voting_id={voting_id} y voter_id={voter_id}",
+                    )
+
+            messages.success(request, "Importación finalizada")
+            return HttpResponseRedirect("/census/import/")
