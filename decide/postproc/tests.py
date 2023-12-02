@@ -46,7 +46,7 @@ class PostProcTestCase(APITestCase):
         self.assertEqual(values, expected_result)
 
 
-    def test_dhont(self):
+    def test_dhont_1(self):
         data = {
             "type": "HONT",
             "options": common_options,
@@ -67,7 +67,7 @@ class PostProcTestCase(APITestCase):
             sorted(expected_result, key=lambda x: x["option"]),
         )
 
-    def test_sainte_lague(self):
+    def test_sainte_lague_1(self):
         data = {
             "type": "LAGUE",
             "options": common_options,
@@ -87,3 +87,49 @@ class PostProcTestCase(APITestCase):
             sorted(values, key=lambda x: x["option"]),
             sorted(expected_result, key=lambda x: x["option"]),
         )
+
+
+    def test_dhont_2(self):
+        data = {
+            "type": "HONT",
+            "options": [
+                {"option": "Party A", "number": 1, "votes": 60000},
+                {"option": "Party B", "number": 2, "votes": 40000},
+                {"option": "Party C", "number": 3, "votes": 25000},
+            ],
+        }
+        expected_result = [
+            {"option": "Party A", "number": 1, "votes": 60000, "seats": 5},
+            {"option": "Party B", "number": 2, "votes": 40000, "seats": 3},
+            {"option": "Party C", "number": 3, "votes": 25000, "seats": 2},
+        ]
+        response = self.client.post("/postproc/", data, format="json")
+        self.assertEqual(response.status_code, 200)
+        values = response.json()
+        self.assertEqual(
+            sorted(values, key=lambda x: x["option"]),
+            sorted(expected_result, key=lambda x: x["option"]),
+        )
+
+    def test_sainte_lague_2(self):
+        data = {
+            "type": "LAGUE",
+            "options": [
+                {"option": "Party X", "number": 1, "votes": 80000},
+                {"option": "Party Y", "number": 2, "votes": 30000},
+                {"option": "Party Z", "number": 3, "votes": 20000},
+            ],
+        }
+        expected_result = [
+            {"option": "Party X", "number": 1, "votes": 80000, "seats": 4},
+            {"option": "Party Y", "number": 2, "votes": 30000, "seats": 3},
+            {"option": "Party Z", "number": 3, "votes": 20000, "seats": 3},
+        ]
+        response = self.client.post("/postproc/", data, format="json")
+        self.assertEqual(response.status_code, 200)
+        values = response.json()
+        self.assertEqual(
+            sorted(values, key=lambda x: x["option"]),
+            sorted(expected_result, key=lambda x: x["option"]),
+        )
+    
