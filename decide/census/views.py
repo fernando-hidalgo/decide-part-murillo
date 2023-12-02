@@ -11,7 +11,7 @@ from rest_framework.status import (
 )
 
 from base.perms import UserIsStaff
-from .models import Census
+from .models import Census, CensusByPreference
 from django.contrib import messages
 import openpyxl
 from django.http import HttpResponseRedirect
