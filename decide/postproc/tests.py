@@ -1,5 +1,3 @@
-from django.test import TestCase
-
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
 
@@ -18,8 +16,6 @@ class PostProcTestCase(APITestCase):
         self.client = APIClient()
         mods.mock_query(self.client)
 
-    def tearDown(self):
-        self.client = None
 
     def test_identity(self):
         data = {
@@ -48,10 +44,6 @@ class PostProcTestCase(APITestCase):
 
         values = response.json()
         self.assertEqual(values, expected_result)
-
-
-    
-
 
 
     def test_dhont(self):
