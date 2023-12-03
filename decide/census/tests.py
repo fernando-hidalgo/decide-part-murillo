@@ -10,15 +10,15 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 
-from .admin import CensusAdmin
+from .admin import CensusAdmin, CensusByPreferenceAdmin
 from django.http import HttpRequest
 
-from .models import Census
+from .models import Census, CensusByPreference
 from base import mods
 from base.tests import BaseTestCase
 from datetime import datetime
 
-from voting.models import Voting, Question, QuestionOption
+from voting.models import Voting, Question, QuestionOption, VotingByPreference, QuestionByPreference, QuestionOptionByPreference
 from base.models import Auth
 from django.conf import settings
 from openpyxl import Workbook, load_workbook
@@ -337,3 +337,108 @@ class AdminReuseCensusActionTest(TestCase):
 
         # Debe haber 2 censos con el mismo votante: El original y el creado reutilizando el previo
         self.assertEqual(len(Census.objects.filter(voter_id=census.voter_id)), 2)
+#__________________________________________________________________________________________________________________________________
+
+class CensusByPreferenceTest(StaticLiveServerTestCase):
+    def setUp(self):
+        # Load base test functionality for decide
+        self.base = BaseTestCase()
+        self.base.setUp()
+
+        options = webdriver.ChromeOptions()
+        options.headless = True
+        self.driver = webdriver.Chrome(options=options)
+
+        super().setUp()
+
+    def tearDown(self):
+        super().tearDown()
+        self.driver.quit()
+
+        self.base.tearDown()
+
+    def createCensusSuccess(self):
+        self.cleaner.get(self.live_server_url + "/admin/login/?next=/admin/")
+        self.cleaner.set_window_size(1280, 720)
+
+        self.cleaner.find_element(By.ID, "id_username").click()
+        self.cleaner.find_element(By.ID, "id_username").send_keys("decide")
+
+        self.cleaner.find_element(By.ID, "id_password").click()
+        self.cleaner.find_element(By.ID, "id_password").send_keys("decide")
+
+        self.cleaner.find_element(By.ID, "id_password").send_keys("Keys.ENTER")
+
+        self.cleaner.get(self.live_server_url + "/admin/censusbypreference/census/add")
+        now = datetime.now()
+        self.cleaner.find_element(By.ID, "id_voting_id").click()
+        self.cleaner.find_element(By.ID, "id_voting_id").send_keys(
+            now.strftime("%m%d%M%S")
+        )
+        self.cleaner.find_element(By.ID, "id_voter_id").click()
+        self.cleaner.find_element(By.ID, "id_voter_id").send_keys(
+            now.strftime("%m%d%M%S")
+        )
+        self.cleaner.find_element(By.NAME, "_save").click()
+
+        self.assertTrue(
+            self.cleaner.current_url == self.live_server_url + "/admin/census/censusbypreference"
+        )
+
+    def createCensusEmptyError(self):
+        self.cleaner.get(self.live_server_url + "/admin/login/?next=/admin/")
+        self.cleaner.set_window_size(1280, 720)
+
+        self.cleaner.find_element(By.ID, "id_username").click()
+        self.cleaner.find_element(By.ID, "id_username").send_keys("decide")
+
+        self.cleaner.find_element(By.ID, "id_password").click()
+        self.cleaner.find_element(By.ID, "id_password").send_keys("decide")
+
+        self.cleaner.find_element(By.ID, "id_password").send_keys("Keys.ENTER")
+
+        self.cleaner.get(self.live_server_url + "/admin/census/censusbypreference/add")
+
+        self.cleaner.find_element(By.NAME, "_save").click()
+
+        self.assertTrue(
+            self.cleaner.find_element_by_xpath(
+                "/html/body/div/div[3]/div/div[1]/div/form/div/p"
+            ).text
+            == "Please correct the errors below."
+        )
+        self.assertTrue(
+            self.cleaner.current_url
+            == self.live_server_url + "/admin/census/censusbypreference/add"
+        )
+
+    def createCensusValueError(self):
+        self.cleaner.get(self.live_server_url + "/admin/login/?next=/admin/")
+        self.cleaner.set_window_size(1280, 720)
+
+        self.cleaner.find_element(By.ID, "id_username").click()
+        self.cleaner.find_element(By.ID, "id_username").send_keys("decide")
+
+        self.cleaner.find_element(By.ID, "id_password").click()
+        self.cleaner.find_element(By.ID, "id_password").send_keys("decide")
+
+        self.cleaner.find_element(By.ID, "id_password").send_keys("Keys.ENTER")
+
+        self.cleaner.get(self.live_server_url + "/admin/census/censusbypreference/add")
+        now = datetime.now()
+        self.cleaner.find_element(By.ID, "id_voting_id").click()
+        self.cleaner.find_element(By.ID, "id_voting_id").send_keys("64654654654654")
+        self.cleaner.find_element(By.ID, "id_voter_id").click()
+        self.cleaner.find_element(By.ID, "id_voter_id").send_keys("64654654654654")
+        self.cleaner.find_element(By.NAME, "_save").click()
+
+        self.assertTrue(
+            self.cleaner.find_element_by_xpath(
+                "/html/body/div/div[3]/div/div[1]/div/form/div/p"
+            ).text
+            == "Please correct the errors below."
+        )
+        self.assertTrue(
+            self.cleaner.current_url
+            == self.live_server_url + "/admin/census/censusbypreference/add"
+        )
