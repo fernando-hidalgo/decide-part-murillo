@@ -502,3 +502,48 @@ class CensusByPreferenceImportViewTest(BaseTestCase):
         ]
         self.assertEqual([str(msg) for msg in messages], expected_messages)
 
+class ByPreferenceAdminExportToExcelTest(TestCase):
+    def setUp(self):
+        self.site = AdminSite()
+        self.model_admin = CensusByPreferenceAdmin(model=CensusByPreference, admin_site=self.site)
+        self.census = CensusByPreference.objects.create(voter_id=1, voting_id=1)
+
+    def test_export_to_excel(self):
+        request = HttpRequest()
+        request.method = "POST"
+
+        # Simular la selección de objetos en el panel de administración
+        queryset = CensusByPreference.objects.filter(pk=self.census.pk)
+
+        # Ejecutar la acción de exportar a Excel
+        response = self.model_admin.exportar_a_excel(request, queryset)
+
+        # Verificar que la respuesta es un archivo Excel
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(
+            response["Content-Type"],
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        )
+        self.assertTrue(
+            "attachment; filename=exportacion_censo.xlsx"
+            in response["Content-Disposition"]
+        )
+
+        # Cargar el libro de trabajo desde el contenido de la respuesta
+        content = BytesIO(response.content)
+        workbook = load_workbook(content)
+
+        # Verificar que el libro de trabajo tiene una hoja de cálculo activa
+        self.assertTrue("Sheet" in workbook.sheetnames)
+
+        # Obtener la hoja de cálculo activa
+        sheet = workbook.active
+
+        # Verificar que los encabezados están presentes
+        self.assertEqual(sheet["A1"].value, "ID Votacion")
+        self.assertEqual(sheet["B1"].value, "ID Votante")
+
+        # Verificar que los datos están presentes
+        self.assertEqual(sheet["A2"].value, self.census.voting_id)
+        self.assertEqual(sheet["B2"].value, self.census.voter_id)
+
