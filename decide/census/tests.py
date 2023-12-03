@@ -1,4 +1,4 @@
-import random
+import secrets
 from django.test import TestCase
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 
@@ -514,7 +514,7 @@ class CensusByPreferenceImportViewTest(BaseTestCase):
         q.save()
 
         options = [
-            QuestionOptionByPreference(question=q, option=f"option {i + 1}", preference= random.randint(1, 10)) for i in range(3)
+            QuestionOptionByPreference(question=q, option=f"option {i + 1}", preference=secrets.randbelow(10) + 1) for i in range(3)
         ]
         QuestionOptionByPreference.objects.bulk_create(options)
 
