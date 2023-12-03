@@ -5,16 +5,13 @@ from rest_framework.test import APIClient
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 
 from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.keys import Keys
 
 from .admin import CensusAdmin, CensusByPreferenceAdmin
 from django.http import HttpRequest
 
 from .models import Census, CensusByPreference
-from base import mods
 from base.tests import BaseTestCase
 from datetime import datetime
 
@@ -337,7 +334,6 @@ class AdminReuseCensusActionTest(TestCase):
 
         # Debe haber 2 censos con el mismo votante: El original y el creado reutilizando el previo
         self.assertEqual(len(Census.objects.filter(voter_id=census.voter_id)), 2)
-#__________________________________________________________________________________________________________________________________
 
 class CensusByPreferenceTest(StaticLiveServerTestCase):
     def setUp(self):
