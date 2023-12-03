@@ -132,26 +132,3 @@ class VisualizerTestCase(BaseTestCase):
         self.assertIn("Total de personas en el censo", content)
         self.assertIn("Porcentaje del censo que ha votado", content)
 
-
-# class Testswitchlanguage:
-#    def setUp(self):
-#        self.driver = webdriver.Chrome()
-#        self.vars = {}
-#
-#    def tearDown(self):
-#        self.driver.quit()
-#
-#    def test_testswitchlanguage(self):
-#        self.driver.get("http://localhost:8000/visualizer/2/")
-#        self.driver.set_window_size(945, 1016)
-#        dropdown = self.driver.find_element(By.NAME, "language")
-#        dropdown.find_element(By.XPATH, "//option[. = 'Inglés']").click()
-#        element = self.driver.find_element(By.NAME, "language")
-#        actions = ActionChains(self.driver)
-#        actions.move_to_element(element).click_and_hold().perform()
-#        element = self.driver.find_element(By.NAME, "language")
-#        actions = ActionChains(self.driver)
-#        actions.move_to_element(element).perform()
-#        element = self.driver.find_element(By.NAME, "language")
-#        actions = ActionChains(self.driver)
-#        actions.move_to_element(element).release().perform()
