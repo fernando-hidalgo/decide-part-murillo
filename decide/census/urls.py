@@ -4,11 +4,32 @@ from . import views
 
 urlpatterns = [
     path("", views.CensusCreate.as_view(), name="census_create"),
-    path("bypreference/", views.CensusByPreferenceCreate.as_view(), name="census_by_preference_create"),
-    path("yesno/", views.CensusYesNoCreate.as_view(), name="census_yesno_create"
+    path(
+        "bypreference/",
+        views.CensusByPreferenceCreate.as_view(),
+        name="census_by_preference_create",
+    ),
+    path("yesno/", views.CensusYesNoCreate.as_view(), name="census_yesno_create"),
     path("<int:voting_id>/", views.CensusDetail.as_view(), name="census_detail"),
-    path("bypreference/<int:voting_id>/", views.CensusByPreferenceDetail.as_view(), name="census_by_preference_detail"),
-    path("yesno/<int:voting_id>/", views.CensusYesNoDetail.as_view(), name="census_yesno_detail"),
+    path(
+        "bypreference/<int:voting_id>/",
+        views.CensusByPreferenceDetail.as_view(),
+        name="census_by_preference_detail",
+    ),
+    path(
+        "yesno/<int:voting_id>/",
+        views.CensusYesNoDetail.as_view(),
+        name="census_yesno_detail",
+    ),
     path("import/", views.CensusImportView.as_view(), name="import_census"),
-    path("bypreference/import/", views.CensusImportView.as_view(), name="import_census_by_preference"),
-    path("yesno/import/", views.CensusYesNoImportView.as_view(), name="import_census_yesno"),
+    path(
+        "bypreference/import/",
+        views.CensusImportView.as_view(),
+        name="import_census_by_preference",
+    ),
+    path(
+        "yesno/import/",
+        views.CensusYesNoImportView.as_view(),
+        name="import_census_yesno",
+    ),
+]
