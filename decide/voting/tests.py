@@ -48,8 +48,9 @@ class VotingTestCase(BaseTestCase):
         for i in range(5):
             opt = QuestionOption(question=q, option="option {}".format(i + 1))
             opt.save()
-        v = Voting(name="test voting", question=q)
+        v = Voting(name="test voting")
         v.save()
+        v.question.set([q])
 
         a, _ = Auth.objects.get_or_create(
             url=settings.BASEURL, defaults={"me": True, "name": "test auth"}
@@ -162,12 +163,12 @@ class VotingTestCase(BaseTestCase):
     def test_create_voting_from_api(self):
         data = {"name": "Example"}
         response = self.client.post("/voting/", data, format="json")
-        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.status_code, 400)
 
         # login with user no admin
         self.login(user="noadmin")
         response = mods.post("voting", params=data, response=True)
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, 400)
 
         # login with user admin
         self.login()

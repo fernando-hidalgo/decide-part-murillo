@@ -218,8 +218,9 @@ class CensusImportViewTest(BaseTestCase):
         ]
         QuestionOption.objects.bulk_create(options)
 
-        v = Voting(name="test_voting", question=q)
+        v = Voting(name="test_voting")
         v.save()
+        v.question.add(q)
 
         auth, _ = Auth.objects.get_or_create(
             url=settings.BASEURL, defaults={"me": True, "name": "test_auth"}

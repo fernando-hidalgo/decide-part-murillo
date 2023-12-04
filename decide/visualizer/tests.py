@@ -49,8 +49,9 @@ class VisualizerTestCase(BaseTestCase):
         for i in range(5):
             opt = QuestionOption(question=q, option="option {}".format(i + 1))
             opt.save()
-        v = Voting(name="test voting", question=q)
+        v = Voting(name="test voting")
         v.save()
+        v.question.set([q])
 
         a, _ = Auth.objects.get_or_create(
             url=settings.BASEURL, defaults={"me": True, "name": "test auth"}
