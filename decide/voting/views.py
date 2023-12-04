@@ -61,7 +61,7 @@ class VotingView(generics.ListCreateAPIView):
         self.permission_classes = (UserIsStaff,)
 
 
-        if not all(data in request.data for data in ['name', 'desc', 'questions']):
+        if not all(data in request.data for data in ['name', 'desc', 'question']):
             return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
         voting= Voting(name=request.data.get('name'), desc=request.data.get('desc'))
@@ -86,11 +86,11 @@ class VotingView(generics.ListCreateAPIView):
             questions = Question.objects.get_or_create(desc=question_desc)
             question = questions[0]  # get_or_create devuelve una tupla, el primer elemento es el objeto
 
-            for idx, q_opt in enumerate(question_data.get('options', [])):
-                opt = QuestionOption(questions=question, option=q_opt, number=idx)
+            for idx, q_opt in enumerate(question_data):
+                opt = QuestionOption(question=question, option=q_opt, number=idx)
                 opt.save()
 
-            voting.questions.add(question)
+            voting.question.add(question)
 
         return Response({}, status=status.HTTP_201_CREATED)
 
