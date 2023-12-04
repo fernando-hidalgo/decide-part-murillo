@@ -70,8 +70,8 @@ class CensusAdmin(admin.ModelAdmin):
 
 
 class CensusYesNoAdmin(admin.ModelAdmin):
-    list_display = ("voting_yesno_id", "voter_id", "group")
-    list_filter = ("voting_yesno_id", "group")
+    list_display = ("voting_id", "voter_id", "group")
+    list_filter = ("voting_id", "group")
     search_fields = ("voter_id",)
 
     def exportar_a_excel(modeladmin, request, queryset):
@@ -83,7 +83,7 @@ class CensusYesNoAdmin(admin.ModelAdmin):
         )  # El append funciona en filas, de izquierda a derecha
 
         for elemento in queryset:
-            sheet.append([elemento.voting_yesno_id, elemento.voter_id])
+            sheet.append([elemento.voting_id, elemento.voter_id])
 
         response = HttpResponse(
             content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -96,23 +96,23 @@ class CensusYesNoAdmin(admin.ModelAdmin):
     exportar_a_excel.short_description = "Exportar a Excel"
 
     def reuse_action(modeladmin, request, queryset):
-        reuse_voting_yesno_id = request.POST.get("id_to_reuse")
+        reuse_voting_id = request.POST.get("id_to_reuse")
 
-        if reuse_voting_yesno_id is not None and reuse_voting_yesno_id.strip():
-            modeladmin.message_user(request, f"ID introducido: {reuse_voting_yesno_id}")
+        if reuse_voting_id is not None and reuse_voting_id.strip():
+            modeladmin.message_user(request, f"ID introducido: {reuse_voting_id}")
 
             for census in queryset.all():
-                if Census.objects.filter(
-                    voting_id=reuse_voting_yesno_id, voter_id=census.voter_id
+                if CensusYesNo.objects.filter(
+                    voting_id=reuse_voting_id, voter_id=census.voter_id
                 ).exists():
                     messages.error(
                         request,
-                        f"Ya existe Censo con voter_id {census.voter_id} y voting_id {reuse_voting_yesno_id} en la base de datos.",
+                        f"Ya existe Censo con voter_id {census.voter_id} y voting_id {reuse_voting_id} en la base de datos.",
                     )
                     continue  # Salta al siguiente censo en lugar de intentar guardarlo
-                re_census = Census()
+                re_census = CensusYesNo()
                 re_census.voter_id = census.voter_id
-                re_census.voting_id = reuse_voting_yesno_id
+                re_census.voting_id = reuse_voting_id
                 re_census.save()
         else:
             messages.error(

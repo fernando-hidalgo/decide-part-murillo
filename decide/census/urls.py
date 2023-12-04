@@ -8,7 +8,7 @@ urlpatterns = [
     path("import/", views.CensusImportView.as_view(), name="import_census"),
     path("yesno/", views.CensusYesNoCreate.as_view(), name="census_yesno_create"),
     path(
-        "yesno/<int:voting_yesno_id>/",
+        "yesno/<int:voting_id>/",
         views.CensusYesNoDetail.as_view(),
         name="census_yesno_detail",
     ),
