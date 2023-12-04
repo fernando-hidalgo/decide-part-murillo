@@ -43,7 +43,7 @@ class QuestionByPreferenceSerializer(serializers.HyperlinkedModelSerializer):
         fields = ("desc", "preferences")
 
 class VotingSerializer(serializers.HyperlinkedModelSerializer):
-    question = QuestionSerializer(many=True, read_only=True)
+    questions = QuestionSerializer(many=True, read_only=True)
     pub_key = KeySerializer()
     auths = AuthSerializer(many=True)
 
@@ -102,6 +102,8 @@ class VotingByPreferenceSerializer(serializers.HyperlinkedModelSerializer):
             "tally",
             "postproc",
         )
+        fields = ('id', 'name', 'desc', 'questions', 'start_date',
+                  'end_date', 'pub_key', 'auths', 'tally', 'postproc')
 
 
 class SimpleVotingSerializer(serializers.HyperlinkedModelSerializer):

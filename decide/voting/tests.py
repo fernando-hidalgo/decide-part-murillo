@@ -87,6 +87,7 @@ class VotingTestCase(BaseTestCase):
             opt.save()
         v = VotingByPreference(name="test voting", question=q)
         v.save()
+        v.question.set([q])
 
         a, _ = Auth.objects.get_or_create(
             url=settings.BASEURL, defaults={"me": True, "name": "test auth"}

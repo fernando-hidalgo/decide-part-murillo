@@ -1,6 +1,11 @@
 from django.db import models
 from django.db.models import JSONField
 from django.db import transaction
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.db import transaction
+
+
 from base import mods
 from base.models import Auth, Key
 from store.models import VoteByPreference
@@ -99,7 +104,8 @@ class Voting(models.Model):
 class Voting(models.Model):
     name = models.CharField(max_length=200)
     desc = models.TextField(blank=True, null=True)
-    questions = models.ManyToManyField(Question, related_name="votings")  # Cambiada a ManyToMany
+    question = models.ManyToManyField(Question, related_name="votings")  # Cambiada a ManyToMany
+    
 
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
@@ -147,50 +153,62 @@ class Voting(models.Model):
             votes_format = []
         return vote_list
 
+
     def tally_votes(self, token=""):
-        for question in self.questions.all():
-            selected_options = question.options.filter(voting=self)
-            votes = []
-
-            for option in selected_options:
-                votes.extend(option.votes.all())
-
-            auth = self.auths.first()
-            shuffle_url = "/shuffle/{}/".format(self.id)
-            decrypt_url = "/decrypt/{}/".format(self.id)
-            auths = [{"name": a.name, "url": a.url} for a in self.auths.all()]
-
-            # first, we do the shuffle
-            data = {"msgs": votes}
-            response = mods.post(
-                "mixnet",
-                entry_point=shuffle_url,
-                baseurl=auth.url,
-                json=data,
-                response=True,
-            )
-            if response.status_code != 200:
-                # TODO: manage error
-                pass
-
-            # then, we can decrypt that
-            data = {"msgs": response.json()}
-            response = mods.post(
-                "mixnet",
-                entry_point=decrypt_url,
-                baseurl=auth.url,
-                json=data,
-                response=True,
-            )
-
-            if response.status_code != 200:
-                # TODO: manage error
-                pass
-
-            self.tally = response.json()
+        with transaction.atomic():
+            # Guarda la instancia de Voting antes de trabajar con las preguntas
             self.save()
 
-            self.do_postproc()
+            for question in self.question.all():
+                if not question.pk:
+                    # Si la pregunta no ha sido guardada, guárdala
+                    question.save()
+
+                selected_options = question.options.filter(voting=self)
+                votes = []
+
+                for option in selected_options:
+                    votes.extend(option.votes.all())
+
+                auth = self.auths.first()
+                shuffle_url = "/shuffle/{}/".format(self.id)
+                decrypt_url = "/decrypt/{}/".format(self.id)
+                auths = [{"name": a.name, "url": a.url} for a in self.auths.all()]
+
+                # first, we do the shuffle
+                data = {"msgs": votes}
+                response = mods.post(
+                    "mixnet",
+                    entry_point=shuffle_url,
+                    baseurl=auth.url,
+                    json=data,
+                    response=True,
+                )
+                if response.status_code != 200:
+                    # TODO: manage error
+                    pass
+
+                # then, we can decrypt that
+                data = {"msgs": response.json()}
+                response = mods.post(
+                    "mixnet",
+                    entry_point=decrypt_url,
+                    baseurl=auth.url,
+                    json=data,
+                    response=True,
+                )
+
+                if response.status_code != 200:
+                    # TODO: manage error
+                    pass
+
+                self.tally = response.json()
+                self.save()
+
+                self.do_postproc()
+
+
+
 
     def do_postproc(self):
         tally = self.tally
