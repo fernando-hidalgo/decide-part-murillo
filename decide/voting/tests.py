@@ -117,6 +117,7 @@ class VotingTestCase(BaseTestCase):
         voter = voters.pop()
 
         clear = {}
+        
         # Verifica si v.selected_option es None antes de iterar
         if v.selected_option is not None:
             for opt in [v.selected_option]:
@@ -176,7 +177,9 @@ class VotingTestCase(BaseTestCase):
                 self.login(user=user.username)
                 voter = voters.pop()
                 mods.post("store", json=data)
+        
         return clear
+
 
     def test_start_admin_action(self):
         v = self.create_voting()
@@ -279,6 +282,7 @@ class VotingTestCase(BaseTestCase):
 
         for q in v.postproc:
             self.assertEqual(tally.get(q["number"], 0), q["votes"])
+
 
     def test_create_voting_from_api(self):
         data = {"name": "Example"}
