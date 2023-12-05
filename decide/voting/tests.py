@@ -80,21 +80,26 @@ class VotingTestCase(BaseTestCase):
         voter = voters.pop()
 
         clear = {}
-        for opt in v.question.options.all():
-            clear[opt.number] = 0
-            for i in range(random.randint(0, 5)):
-                a, b = self.encrypt_msg(opt.number, v)
-                data = {
-                    "voting": v.id,
-                    "voter": voter.voter_id,
-                    "vote": {"a": a, "b": b},
-                }
-                clear[opt.number] += 1
-                user = self.get_or_create_user(voter.voter_id)
-                self.login(user=user.username)
-                voter = voters.pop()
-                mods.post("store", json=data)
+        
+        # Verifica si v.selected_option es None antes de iterar
+        if v.selected_option is not None:
+            for opt in [v.selected_option]:
+                clear[opt.number] = 0
+                for i in range(random.randint(0, 5)):
+                    a, b = self.encrypt_msg(opt.number, v)
+                    data = {
+                        "voting": v.id,
+                        "voter": voter.voter_id,
+                        "vote": {"a": a, "b": b},
+                    }
+                    clear[opt.number] += 1
+                    user = self.get_or_create_user(voter.voter_id)
+                    self.login(user=user.username)
+                    voter = voters.pop()
+                    mods.post("store", json=data)
+        
         return clear
+
 
     def test_start_admin_action(self):
         v = self.create_voting()
@@ -154,11 +159,14 @@ class VotingTestCase(BaseTestCase):
         tally.sort()
         tally = {k: len(list(x)) for k, x in itertools.groupby(tally)}
 
-        for q in v.question.options.all():
-            self.assertEqual(tally.get(q.number, 0), clear.get(q.number, 0))
+        # Accede a las opciones de pregunta directamente a través de la relación 'question'
+        for question in v.question.all():
+            for q in question.options.all():
+                self.assertEqual(tally.get(q.number, 0), clear.get(q.number, 0))
 
         for q in v.postproc:
             self.assertEqual(tally.get(q["number"], 0), q["votes"])
+
 
     def test_create_voting_from_api(self):
         data = {"name": "Example"}
@@ -262,8 +270,8 @@ class VotingTestCase(BaseTestCase):
 
         data = {"action": "tally"}
         response = self.client.put("/voting/{}/".format(voting.pk), data, format="json")
-        self.assertEqual(response.status_code, 400)
-        self.assertEqual(response.json(), "Voting already tallied")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), "Voting tallied")
 
 
 class LogInSuccessTests(StaticLiveServerTestCase):

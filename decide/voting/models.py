@@ -33,8 +33,8 @@ class Voting(models.Model):
     name = models.CharField(max_length=200)
     desc = models.TextField(blank=True, null=True)
     question = models.ManyToManyField(Question, related_name="votings")  # Cambiada a ManyToMany
+    selected_option = models.ForeignKey(QuestionOption, related_name="selected_votings", null=True, blank=True,on_delete=models.SET_NULL)
     
-
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
 
@@ -87,12 +87,11 @@ class Voting(models.Model):
             # Guarda la instancia de Voting antes de trabajar con las preguntas
             self.save()
 
-            for question in self.question.all():
-                if not question.pk:
-                    # Si la pregunta no ha sido guardada, guárdala
-                    question.save()
+            # Accede a la opción seleccionada a través del campo 'selected_option'
+            selected_option = self.selected_option
 
-                selected_options = question.options.filter(voting=self)
+            if selected_option is not None:
+                selected_options = [selected_option]
                 votes = []
 
                 for option in selected_options:
@@ -130,10 +129,22 @@ class Voting(models.Model):
                     # TODO: manage error
                     pass
 
-                self.tally = response.json()
-                self.save()
+                # Verifica que response.json() no sea None antes de asignarlo a self.tally
+                if response.json() is not None:
+                    self.tally = response.json()
+                    self.save()
+                    self.do_postproc()
+                else:
+                    # Manejo de error: imprime o registra un mensaje de error
+                    print("Error: response.json() es None en tally_votes")
 
+            else:
+                # Si selected_option es None, asigna una lista vacía a self.tally
+                self.tally = []
+                self.save()
                 self.do_postproc()
+
+
 
 
 
