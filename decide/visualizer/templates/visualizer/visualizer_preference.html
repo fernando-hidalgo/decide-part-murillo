@@ -30,14 +30,14 @@
                     <thead>
                         <tr>
                             <th>Opción</th>
-                            <th>Puntuación</th>
+                            <th>Puntuación media de preferencia</th>
                             <th>Votos</th>
                         </tr>
                     </thead>
                     <tbody>
-                        <tr v-for="opt in voting.question.preferences" :key="opt.number">
+                        <tr v-for="opt in voting.postproc" :key="opt.number">
                             <th>[[opt.option]]</th>
-                            <td>[[opt.preference]]</td>
+                            <td>[[opt.postproc]]</td>
                             <td class="text-muted">[[voting.tally.length]]</td>
                         </tr>
                     </tbody>

@@ -122,12 +122,11 @@
                 <div class="form-group"  v-for="opt in voting.question.preferences" :key="opt.number">
 
                         <label :for="'q' + opt.number">[[ opt.option ]]</label>
-                        <input type="number" v-model="selected[opt.number-2]"
+                        <input type="number" v-model="selected[opt.number]"
                                 :id="'q' + opt.number"
                                 name="question"
                                 min="1"
                                 :max="voting.question.preferences.length"
-                                :value="opt.number"
                                 required>
 
                 </div>
