@@ -8,9 +8,10 @@ from rest_framework.views import APIView
 from rest_framework.authtoken.models import Token
 from django.contrib.auth.models import User
 from django.db import IntegrityError
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.contrib.auth.password_validation import CommonPasswordValidator
+from django.contrib import messages
 import difflib
 
 from .serializers import UserSerializer
@@ -111,5 +112,6 @@ class RegisterUserView(APIView):
             token, _ = Token.objects.get_or_create(user=user)
         except IntegrityError:
             return Response({}, status=HTTP_400_BAD_REQUEST)
-        register_success = "Your account has been created successfully!"
-        return render(request, "register.html", {"register_success": register_success})
+
+        messages.success(request, "User created successfully")
+        return redirect("home")
