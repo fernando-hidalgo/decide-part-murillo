@@ -7,7 +7,8 @@ class Census(models.Model):
     group = models.CharField(default="", max_length=50)
 
     class Meta:
-        unique_together = (('voting_id', 'voter_id'),)
+        unique_together = (("voting_id", "voter_id"),)
+
 
 class CensusByPreference(models.Model):
     voting_id = models.PositiveIntegerField()
@@ -16,3 +17,11 @@ class CensusByPreference(models.Model):
 
     class Meta:
         unique_together = (('voting_id', 'voter_id'),)
+        
+class CensusYesNo(models.Model):
+    voting_id = models.PositiveIntegerField()
+    voter_id = models.PositiveIntegerField()
+    group = models.CharField(default="", max_length=50)
+
+    class Meta:
+        unique_together = (("voting_id", "voter_id"),)
