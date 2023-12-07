@@ -455,12 +455,14 @@ class VotingByPreference(models.Model):
         opts = []
         diccionario_preferences = {}
         options = self.question.preferences.all()
-        for t in range(len(tally)):
-            tally_str = str(tally[t])
-            tally_str_with_commas = tally_str.replace("10000", ",")
-            tally_list = [int(num) for num in tally_str_with_commas.split(",") if num]
-            for opt in options:
-                if isinstance(tally, list):
+        if isinstance(tally, list):
+            for t in range(len(tally)):
+                tally_str = str(tally[t])
+                tally_str_with_commas = tally_str.replace("10000", ",")
+                tally_list = [
+                    int(num) for num in tally_str_with_commas.split(",") if num
+                ]
+                for opt in options:
                     key = opt.number
                     if key in diccionario_preferences:
                         diccionario_preferences[key] += tally_list[opt.number - 1]
