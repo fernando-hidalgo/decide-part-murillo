@@ -4,15 +4,9 @@ from django.utils import timezone
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from django.test import TestCase
-from rest_framework.test import APIClient
-from rest_framework.test import APITestCase
 
 from selenium import webdriver
-from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.webdriver.common.keys import Keys
 
 from base import mods
 from base.tests import BaseTestCase
@@ -22,7 +16,6 @@ from mixnet.mixcrypt import MixCrypt
 from mixnet.models import Auth
 from voting.models import (
     QuestionYesNo,
-    QuestionOptionYesNo,
     Voting,
     Question,
     QuestionOption,
