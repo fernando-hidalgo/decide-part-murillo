@@ -106,7 +106,7 @@ class StoreYNView(generics.ListAPIView):
         * vote: { "a": int, "b": int }
         """
 
-        vid = request.date.get("voting")
+        vid = request.data.get("voting")
         voting = mods.get("voting/yesno", params={"id": vid})
         if not voting or not isinstance(voting, list):
             return Response({}, status=status.HTTP_401_UNAUTHORIZED)
@@ -153,7 +153,7 @@ class StoreYNView(generics.ListAPIView):
         b = vote.get("b")
 
         defs = {"a": a, "b": b}
-        (v,) = VoteYN.objects.get_or_create(
+        v, _ = VoteYN.objects.get_or_create(
             voting_yesno_id=vid, voter_yesno_id=uid, defaults=defs
         )
         v.a = a
