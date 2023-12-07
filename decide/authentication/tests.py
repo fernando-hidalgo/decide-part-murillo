@@ -4,6 +4,7 @@ from rest_framework.test import APITestCase
 
 from django.contrib.auth.models import User
 from rest_framework.authtoken.models import Token
+from django.urls import reverse
 
 from base import mods
 
@@ -142,8 +143,10 @@ class AuthTestCase(APITestCase):
         }
 
         response = self.client.post(url, data)
-        self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "Your account has been created successfully!")
+
+        url = reverse("home")
+        self.assertEqual(response.status_code, 302)
+        self.assertRedirects(response, url)
         self.assertTrue(User.objects.filter(username="new_user").exists())
         self.assertTrue(Token.objects.filter(user__username="new_user").exists())
 
