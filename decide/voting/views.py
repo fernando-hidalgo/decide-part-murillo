@@ -21,7 +21,7 @@ from .serializers import (
     VotingByPreferenceSerializer,
     VotingSerializer,
     SimpleVotingYesNoSerializer,
-    VotingYesNoSerializer
+    VotingYesNoSerializer,
 )
 from base.perms import UserIsStaff
 from base.models import Auth
@@ -122,13 +122,14 @@ class VotingUpdate(generics.RetrieveUpdateDestroyAPIView):
             st = status.HTTP_400_BAD_REQUEST
         return Response(msg, status=st)
 
+
 class VotingYNView(generics.ListCreateAPIView):
     queryset = VotingYesNo.objects.all()
     serializer_class = VotingYesNoSerializer
     filter_backends = (django_filters.rest_framework.DjangoFilterBackend,)
     filterset_fields = ("id",)
 
-    def get(self, request, args, **kwargs):
+    def get(self, request, *args, **kwargs):
         idpath = kwargs.get("voting_yesno_id")
         self.queryset = VotingYesNo.objects.all()
         version = request.version
@@ -137,8 +138,8 @@ class VotingYNView(generics.ListCreateAPIView):
         if version == "v2":
             self.serializer_class = SimpleVotingYesNoSerializer
 
-        return super().get(request,args, **kwargs)
-      
+        return super().get(request, args, **kwargs)
+
     def post(self, request, *args, **kwargs):
         self.permission_classes = (UserIsStaff,)
         self.check_permissions(request)
@@ -154,13 +155,14 @@ class VotingYNView(generics.ListCreateAPIView):
             question=question,
         )
         voting.save()
-        
+
         auth, _ = Auth.objects.get_or_create(
             url=settings.BASEURL, defaults={"me": True, "name": "test auth"}
         )
         auth.save()
         voting.auths.add(auth)
         return Response({}, status=status.HTTP_201_CREATED)
+
 
 class VotingByPreferenceView(generics.ListCreateAPIView):
     queryset = VotingByPreference.objects.all()
@@ -182,7 +184,7 @@ class VotingByPreferenceView(generics.ListCreateAPIView):
     def post(self, request, *args, **kwargs):
         self.permission_classes = (UserIsStaff,)
         self.check_permissions(request)
-        
+
         for data in ["name", "desc", "question", "question_opt"]:
             if not data in request.data:
                 return Response({}, status=status.HTTP_400_BAD_REQUEST)
@@ -207,6 +209,7 @@ class VotingByPreferenceView(generics.ListCreateAPIView):
         auth.save()
         voting.auths.add(auth)
         return Response({}, status=status.HTTP_201_CREATED)
+
 
 class VotingYesNoUpdate(generics.RetrieveUpdateDestroyAPIView):
     queryset = VotingYesNo.objects.all()
@@ -258,7 +261,8 @@ class VotingYesNoUpdate(generics.RetrieveUpdateDestroyAPIView):
             msg = "Action not found, try with start, stop or tally"
             st = status.HTTP_400_BAD_REQUEST
         return Response(msg, status=st)
-      
+
+
 class VotingByPreferenceUpdate(generics.RetrieveUpdateDestroyAPIView):
     queryset = VotingByPreference.objects.all()
     serializer_class = VotingByPreferenceSerializer

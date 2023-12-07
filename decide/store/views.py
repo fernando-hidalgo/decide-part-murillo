@@ -106,8 +106,8 @@ class StoreYNView(generics.ListAPIView):
         * vote: { "a": int, "b": int }
         """
 
-        vid = request.date.get("voting_yesno")
-        voting = mods.get("voting_yesno", params={"id": vid})
+        vid = request.data.get("voting")
+        voting = mods.get("voting/yesno", params={"id": vid})
         if not voting or not isinstance(voting, list):
             return Response({}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -143,7 +143,7 @@ class StoreYNView(generics.ListAPIView):
 
         # the user is in the census
         perms = mods.get(
-            "census/{}".format(vid), params={"voter_id": uid}, response=True
+            "census/yesno/{}".format(vid), params={"voter_id": uid}, response=True
         )
         if perms.status_code == 401:
             # print("por aqui 65")
@@ -153,7 +153,7 @@ class StoreYNView(generics.ListAPIView):
         b = vote.get("b")
 
         defs = {"a": a, "b": b}
-        (v,) = VoteYN.objects.get_or_create(
+        v, _ = VoteYN.objects.get_or_create(
             voting_yesno_id=vid, voter_yesno_id=uid, defaults=defs
         )
         v.a = a
