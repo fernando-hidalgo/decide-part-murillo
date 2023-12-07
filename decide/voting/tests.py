@@ -24,13 +24,10 @@ from voting.models import (
     QuestionOptionByPreference,
     VotingByPreference,
 )
-from datetime import datetime
 
 from django.contrib.admin.sites import AdminSite
 from .admin import VotingAdmin
 
-from django.http import HttpResponse
-import io
 import json
 
 
