@@ -29,45 +29,23 @@ class StoreTextCase(BaseTestCase):
         self.question = Question(desc="qwerty")
         self.question.save()
         self.voting = Voting(
-            pk=5001,
-            name="voting example",
-            question=self.question,
-            start_date=timezone.now(),
-        )
+            pk=5001, 
+            name='voting example', 
+            start_date=timezone.now()
+            )
         self.voting.save()
-        # Store de por preferencia
-        self.question_by_preference = QuestionByPreference(desc="qwerty")
-        self.question_by_preference.save()
-        self.voting_by_preference = VotingByPreference(
-            pk=5001,
-            name="voting example",
-            question=self.question_by_preference,
-            start_date=timezone.now(),
-        )
-        self.voting_by_preference.save()
-        # Store de yes no
-        self.question_yes_no = QuestionYesNo(desc="qwerty")
-        self.question_yes_no.save()
-        self.voting_yes_no = VotingYesNo(
-            pk=5001,
-            name="voting example",
-            question=self.question_yes_no,
-            start_date=timezone.now(),
-        )
-        self.voting_yes_no.save()
+        self.voting.question.set([self.question])
 
     def tearDown(self):
         super().tearDown()
 
     def gen_voting(self, pk):
-        voting = Voting(
-            pk=pk,
-            name="v1",
-            question=self.question,
-            start_date=timezone.now(),
-            end_date=timezone.now() + datetime.timedelta(days=1),
-        )
+        voting = Voting(pk=pk, name='v1', start_date=timezone.now(), end_date=timezone.now() + datetime.timedelta(days=1))
         voting.save()
+        voting.question.set([self.question])
+        voting.save()
+
+
 
     def gen_voting_by_preference(self, pk):
         voting_by_preference = VotingByPreference(
