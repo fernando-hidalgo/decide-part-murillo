@@ -117,6 +117,7 @@
         <!-- Voting -->
         <div v-if="!userHasVoted && !signup">
             <h1>[[ voting.id ]] - [[ voting.name ]]</h1>
+            <a>cambio de prueba</a>
             <h2>[[ voting.question.desc ]]</h2>
             <form v-for="opt in voting.question.options" :key="opt.number">
                 <div class="form-group">
