@@ -71,7 +71,8 @@ class QuestionOptionYesNo(models.Model):
 
     def str(self):
         return "{} ({})".format(self.option, self.number)
-    
+
+
 class QuestionOptionByPreference(models.Model):
     question = models.ForeignKey(
         QuestionByPreference, related_name="preferences", on_delete=models.CASCADE
@@ -319,9 +320,9 @@ class VotingYesNo(models.Model):
             else:
                 votes = 0
             if int(opt) == 1:
-                opts.append({"option": "Si", "votes": votes, "number":1})
+                opts.append({"option": "Si", "votes": votes, "number": 1})
             else:
-                opts.append({"option": "No", "votes": votes, "number":0})
+                opts.append({"option": "No", "votes": votes, "number": 0})
 
         data = {"escaños": self.escaños, "type": self.tallyType, "options": opts}
         postp = mods.post("postproc", json=data)
@@ -353,7 +354,7 @@ class VotingByPreference(models.Model):
         on_delete=models.SET_NULL,
     )
     auths = models.ManyToManyField(Auth, related_name="votingsbypreference")
-    
+
     tallyType = models.CharField(max_length=200, default="IDENTITY")
     escaños = models.IntegerField(default=10)
 
@@ -447,21 +448,28 @@ class VotingByPreference(models.Model):
 
     def do_postproc(self):
         tally = self.tally
-        options = self.question.preferences.all()
-
         opts = []
-        for opt in options:
-            if isinstance(tally, list):
-                votes = tally.count(opt.number)
-            else:
-                votes = 0
-            opts.append(
-                {
-                    "option": opt.option,
-                    "number": opt.number,
-                    "votes": votes,
-                }
-            )
+        diccionario_preferences = {}
+        options = self.question.preferences.all()
+        if isinstance(tally, list):
+            for t in range(len(tally)):
+                tally_str = str(tally[t])
+                tally_str_with_commas = tally_str.replace("10000", ",")
+                tally_list = [
+                    int(num) for num in tally_str_with_commas.split(",") if num
+                ]
+                for opt in options:
+                    key = opt.number
+                    if key in diccionario_preferences:
+                        diccionario_preferences[key] += tally_list[opt.number - 1]
+                    else:
+                        diccionario_preferences[key] = tally_list[opt.number - 1]
+
+        for key in diccionario_preferences:
+            votes = diccionario_preferences[key]
+            votes = votes / len(tally)
+            option = options.get(number=key)
+            opts.append({"option": option.option, "number": key, "votes": votes})
 
         data = {"escaños": self.escaños, "type": self.tallyType, "options": opts}
         postp = mods.post("postproc", json=data)
