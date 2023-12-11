@@ -1,5 +1,11 @@
 from django.db import models
 from django.db.models import JSONField
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.core.exceptions import ValidationError
+from store.models import Vote, VoteYN
+from django.db import transaction
+
 
 from base import mods
 from base.models import Auth, Key
@@ -11,7 +17,6 @@ class QuestionByPreference(models.Model):
 
     def __str__(self):
         return self.desc
-
 
 class Question(models.Model):
     desc = models.TextField()
@@ -94,10 +99,9 @@ class QuestionOptionByPreference(models.Model):
 class Voting(models.Model):
     name = models.CharField(max_length=200)
     desc = models.TextField(blank=True, null=True)
-    question = models.ForeignKey(
-        Question, related_name="voting", on_delete=models.CASCADE
-    )
-
+    question = models.ManyToManyField(Question, related_name="votings")  # Cambiada a ManyToMany
+    selected_option = models.ForeignKey(QuestionOption, related_name="selected_votings", null=True, blank=True,on_delete=models.SET_NULL)
+    
     start_date = models.DateTimeField(blank=True, null=True)
     end_date = models.DateTimeField(blank=True, null=True)
 
@@ -127,11 +131,11 @@ class Voting(models.Model):
         self.save()
 
     def get_votes(self, token=""):
-        # gettings votes from store
+        # Obtener votos desde el almacenamiento
         votes = mods.get(
             "store", params={"voting_id": self.id}, HTTP_AUTHORIZATION="Token " + token
         )
-        # anon votes
+        # Votos anónimos
         votes_format = []
         vote_list = []
         for vote in votes:
@@ -144,53 +148,77 @@ class Voting(models.Model):
             votes_format = []
         return vote_list
 
+
     def tally_votes(self, token=""):
-        """
-        The tally is a shuffle and then a decrypt
-        """
+        with transaction.atomic():
+            # Guarda la instancia de Voting antes de trabajar con las preguntas
+            self.save()
 
-        votes = self.get_votes(token)
+            # Accede a la opción seleccionada a través del campo 'selected_option'
+            selected_option = self.selected_option
 
-        auth = self.auths.first()
-        shuffle_url = "/shuffle/{}/".format(self.id)
-        decrypt_url = "/decrypt/{}/".format(self.id)
-        auths = [{"name": a.name, "url": a.url} for a in self.auths.all()]
+            if selected_option is not None:
+                selected_options = [selected_option]
+                votes = []
 
-        # first, we do the shuffle
-        data = {"msgs": votes}
-        response = mods.post(
-            "mixnet",
-            entry_point=shuffle_url,
-            baseurl=auth.url,
-            json=data,
-            response=True,
-        )
-        if response.status_code != 200:
-            # TODO: manage error
-            pass
+                for option in selected_options:
+                    votes.extend(option.votes.all())
 
-        # then, we can decrypt that
-        data = {"msgs": response.json()}
-        response = mods.post(
-            "mixnet",
-            entry_point=decrypt_url,
-            baseurl=auth.url,
-            json=data,
-            response=True,
-        )
+                auth = self.auths.first()
+                shuffle_url = "/shuffle/{}/".format(self.id)
+                decrypt_url = "/decrypt/{}/".format(self.id)
+                auths = [{"name": a.name, "url": a.url} for a in self.auths.all()]
 
-        if response.status_code != 200:
-            # TODO: manage error
-            pass
+                # first, we do the shuffle
+                data = {"msgs": votes}
+                response = mods.post(
+                    "mixnet",
+                    entry_point=shuffle_url,
+                    baseurl=auth.url,
+                    json=data,
+                    response=True,
+                )
+                if response.status_code != 200:
+                    # TODO: manage error
+                    pass
 
-        self.tally = response.json()
-        self.save()
+                # then, we can decrypt that
+                data = {"msgs": response.json()}
+                response = mods.post(
+                    "mixnet",
+                    entry_point=decrypt_url,
+                    baseurl=auth.url,
+                    json=data,
+                    response=True,
+                )
 
-        self.do_postproc()
+                if response.status_code != 200:
+                    # TODO: manage error
+                    pass
+
+                # Verifica que response.json() no sea None antes de asignarlo a self.tally
+                if response.json() is not None:
+                    self.tally = response.json()
+                    self.save()
+                    self.do_postproc()
+                else:
+                    # Manejo de error: imprime o registra un mensaje de error
+                    print("Error: response.json() es None en tally_votes")
+
+            else:
+                # Si selected_option es None, asigna una lista vacía a self.tally
+                self.tally = []
+                self.save()
+                self.do_postproc()
+
+
+
+
+
 
     def do_postproc(self):
         tally = self.tally
-        options = self.question.options.all()
+        options = self.question.first().options.all()
 
         opts = []
         for opt in options:

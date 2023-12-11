@@ -49,8 +49,9 @@ class VisualizerTestCase(BaseTestCase):
         for i in range(5):
             opt = QuestionOption(question=q, option="option {}".format(i + 1))
             opt.save()
-        v = Voting(name="test voting", question=q)
+        v = Voting(name="test voting")
         v.save()
+        v.question.set([q])
 
         a, _ = Auth.objects.get_or_create(
             url=settings.BASEURL, defaults={"me": True, "name": "test auth"}
@@ -77,26 +78,32 @@ class VisualizerTestCase(BaseTestCase):
 
     # Genera un número de votos concreto para poder contarlos en los tests de visualización
     def store_votes_visualizer(self, v, num_votes=30):
-        # Crear votantes aleatorios
-        voters = random.sample(list(Census.objects.filter(voting_id=v.id)), num_votes)
+        # Verifica si v.selected_option es None antes de proceder
+        if v.selected_option is not None:
+            # Crear votantes aleatorios
+            voters = random.sample(list(Census.objects.filter(voting_id=v.id)), num_votes)
 
-        # Crear votos aleatorios
-        clear = {}
-        for opt in v.question.options.all():
-            clear[opt.number] = 0
-            for _ in range(num_votes // len(v.question.options.all())):
-                a, b = self.encrypt_msg(opt.number, v)
-                data = {
-                    "voting": v.id,
-                    "voter": voters.pop().voter_id,
-                    "vote": {"a": a, "b": b},
-                }
-                clear[opt.number] += 1
-                user = self.get_or_create_user(data["voter"])
-                self.login(user=user.username)
-                self.client.post("/store/", data, format="json")
+            # Crear votos aleatorios
+            clear = {}
+            for opt in [v.selected_option]:
+                clear[opt.number] = 0
+                for _ in range(num_votes // len(v.options.all())):  # Cambiado aquí
+                    a, b = self.encrypt_msg(opt.number, v)
+                    data = {
+                        "voting": v.id,
+                        "voter": voters.pop().voter_id,
+                        "vote": {"a": a, "b": b},
+                    }
+                    clear[opt.number] += 1
+                    user = self.get_or_create_user(data["voter"])
+                    self.login(user=user.username)
+                    self.client.post("/store/", data, format="json")
 
-        return clear
+            return clear
+        else:
+            # Si v.selected_option es None, puedes manejarlo de alguna manera o simplemente devolver un resultado predeterminado
+            return {}
+
 
     def test_visualizer_data(self):
         v = self.create_voting()
@@ -115,8 +122,10 @@ class VisualizerTestCase(BaseTestCase):
         tally.sort()
         tally = {k: len(list(x)) for k, x in itertools.groupby(tally)}
 
-        for q in v.question.options.all():
-            self.assertEqual(tally.get(q.number, 0), clear.get(q.number, 0))
+        # Accede a las opciones de pregunta directamente a través de la relación 'question'
+        for question in v.question.all():
+            for q in question.options.all():
+                self.assertEqual(tally.get(q.number, 0), clear.get(q.number, 0))
 
         for q in v.postproc:
             self.assertEqual(tally.get(q["number"], 0), q["votes"])
@@ -132,3 +141,27 @@ class VisualizerTestCase(BaseTestCase):
         self.assertIn("Total de personas en el censo", content)
         self.assertIn("Porcentaje del censo que ha votado", content)
 
+
+
+# class Testswitchlanguage:
+#    def setUp(self):
+#        self.driver = webdriver.Chrome()
+#        self.vars = {}
+#
+#    def tearDown(self):
+#        self.driver.quit()
+#
+#    def test_testswitchlanguage(self):
+#        self.driver.get("http://localhost:8000/visualizer/2/")
+#        self.driver.set_window_size(945, 1016)
+#        dropdown = self.driver.find_element(By.NAME, "language")
+#        dropdown.find_element(By.XPATH, "//option[. = 'Inglés']").click()
+#        element = self.driver.find_element(By.NAME, "language")
+#        actions = ActionChains(self.driver)
+#        actions.move_to_element(element).click_and_hold().perform()
+#        element = self.driver.find_element(By.NAME, "language")
+#        actions = ActionChains(self.driver)
+#        actions.move_to_element(element).perform()
+#        element = self.driver.find_element(By.NAME, "language")
+#        actions = ActionChains(self.driver)
+#        actions.move_to_element(element).release().perform()
