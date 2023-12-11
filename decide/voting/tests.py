@@ -117,7 +117,6 @@ class VotingTestCase(BaseTestCase):
         voter = voters.pop()
 
         clear = {}
-        
         # Verifica si v.selected_option es None antes de iterar
         if v.selected_option is not None:
             for opt in [v.selected_option]:
