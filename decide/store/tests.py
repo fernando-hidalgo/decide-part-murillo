@@ -28,11 +28,7 @@ class StoreTextCase(BaseTestCase):
         super().setUp()
         self.question = Question(desc="qwerty")
         self.question.save()
-        self.voting = Voting(
-            pk=5001, 
-            name='voting example', 
-            start_date=timezone.now()
-            )
+        self.voting = Voting(pk=5001, name='voting example', start_date=timezone.now())
         self.voting.save()
         self.voting.question.set([self.question])
 
