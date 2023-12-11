@@ -132,7 +132,6 @@ class VotingTestCase(BaseTestCase):
                     self.login(user=user.username)
                     voter = voters.pop()
                     mods.post("store", json=data)
-        
         return clear
 
     def store_votes_yes_no(self, v):

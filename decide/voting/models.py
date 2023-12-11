@@ -1,9 +1,6 @@
 from django.db import models
 from django.db.models import JSONField
-from django.dispatch import receiver
-
-
-
+from django.db import transaction
 from base import mods
 from base.models import Auth, Key
 from store.models import VoteByPreference
