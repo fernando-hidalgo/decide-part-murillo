@@ -120,12 +120,12 @@
             <h2>[[ voting.question.desc ]]</h2>
             <form>
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" v-model="selected" id="optionYes" value="yes" required>
+                    <input class="form-check-input" type="radio" v-model="selected" id="optionYes" value="optionYes" required>
                     <label class="form-check-label" for="optionYes">{% trans "Yes" %}</label>
                 </div>
 
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" v-model="selected" id="optionNo" value="no" required>
+                    <input class="form-check-input" type="radio" v-model="selected" id="optionNo" value="optionNo" required>
                     <label class="form-check-label" for="optionNo">{% trans "No" %}</label>
                 </div>
 
@@ -175,7 +175,7 @@
             data() {
                 return {
                     voting: voting,
-                    selected:[],
+                    selected:null,
                     signup: true,
                     successVote: false,
                     alertShow: false,
@@ -296,7 +296,7 @@
                             voter: this.user.id,
                             token: this.token
                         }
-                        this.postData("{% url "gateway" "store" "/preference/" %}", data)
+                        this.postData("{% url "gateway" "store" "/yesno/" %}", data)
                             .then(data => {
                                 this.successVote = true;
                                 this.alertShow = false;
@@ -328,7 +328,7 @@
                             voter: this.user.id,
                             token: this.token
                         }
-                        this.postData("{% url "gateway" "store" "/preference/" %}", data)
+                        this.postData("{% url "gateway" "store" "/yesno/" %}", data)
                             .then(data => {
                                 this.successVote = true;
                                 this.alertShow = false;
