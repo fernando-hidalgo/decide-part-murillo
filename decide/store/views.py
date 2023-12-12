@@ -219,7 +219,9 @@ class StoreByPreferenceView(generics.ListAPIView):
 
         # the user is in the census
         perms = mods.get(
-            "census/preference/{}".format(vid), params={"voter_id": uid}, response=True
+            "census/bypreference/{}".format(vid),
+            params={"voter_id": uid},
+            response=True,
         )
         if perms.status_code == 401:
             # print("por aqui 65")
