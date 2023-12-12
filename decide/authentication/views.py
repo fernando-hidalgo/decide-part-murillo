@@ -6,6 +6,7 @@ from rest_framework.status import (
 )
 from rest_framework.views import APIView
 from rest_framework.authtoken.models import Token
+from django.contrib.auth import login, authenticate
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404, render, redirect
@@ -115,3 +116,41 @@ class RegisterUserView(APIView):
 
         messages.success(request, "User created successfully")
         return redirect("home")
+
+class LoginView(APIView):
+    def post(self, request):
+        username = request.data.get("username", "")
+        password = request.data.get("password", "")
+
+        if not username or not password:
+            return Response({}, status=HTTP_400_BAD_REQUEST)
+
+        user = authenticate(request, username=username, password=password)
+
+        if user:
+            login(request, user)
+            token, created = Token.objects.get_or_create(user=user)
+            return Response({"token": token.key}, status=HTTP_200_OK)
+        else:
+            return Response({}, status=HTTP_400_BAD_REQUEST)
+
+class LoginUserView(APIView):
+    def get(self, request):
+        if request.user.is_authenticated:
+            return Response({"message": "Ya has iniciado sesión."}, status=HTTP_200_OK)
+        return render(request, "login.html")
+
+    def post(self, request):
+        username = request.data.get("username", "")
+        password = request.data.get("password", "")
+
+        if not username or not password:
+            return Response({"message": "Por favor, proporciona tanto el nombre de usuario como la contraseña."}, status=HTTP_400_BAD_REQUEST)
+
+        user = authenticate(request, username=username, password=password)
+
+        if user:
+            login(request, user)
+            return Response({"message": "Inicio de sesión exitoso."}, status=HTTP_200_OK)
+        else:
+            return Response({"message": "Nombre de usuario o contraseña incorrectos."}, status=HTTP_400_BAD_REQUEST)
