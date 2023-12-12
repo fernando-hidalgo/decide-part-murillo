@@ -51,6 +51,7 @@ class QuestionYesNoAdmin(admin.ModelAdmin):
     list_filter = (StartedFilter,)
     search_fields = ("desc",)
 
+
 class QuestionOptionByPreferenceInline(admin.TabularInline):
     model = QuestionOptionByPreference
 
@@ -118,7 +119,6 @@ class VotingByPreferenceAdmin(admin.ModelAdmin):
     date_hierarchy = "start_date"
     list_filter = (StartedFilter,)
     search_fields = ("name",)
-    search_fields = ("name",)
 
     def start(modeladmin, request, queryset):
         for v in queryset.all():
@@ -133,7 +133,6 @@ class VotingByPreferenceAdmin(admin.ModelAdmin):
 
     def tally(ModelAdmin, request, queryset):
         for v in queryset.filter(end_date__lt=timezone.now()):
-            token = request.session.get("auth-token", "")
             token = request.session.get("auth-token", "")
             v.tally_votes(token)
 

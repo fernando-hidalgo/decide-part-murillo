@@ -67,16 +67,9 @@
                 <label for="id_password_conf" class="required">Confirm password:</label> <input type="password" name="password_conf" placeholder="Required" autocomplete="current-password" required="" id="id_password">
               </div>
 
-              {% if register_success %}
-              <div class="submit-row">
-                <p class="success">{{register_success}}</p>
-              </div>
-              {% endif %}
-              {% if not register_success %}
               <div class="submit-row">
                 <input type="submit" value="Register">
               </div>
-              {% endif %}
             </form>
 
             </div>

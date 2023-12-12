@@ -1,9 +1,5 @@
 from django.db import models
 from django.db.models import JSONField
-from django.db.models.signals import post_save
-from django.dispatch import receiver
-from django.core.exceptions import ValidationError
-from store.models import Vote, VoteYN
 
 from base import mods
 from base.models import Auth, Key
@@ -75,7 +71,8 @@ class QuestionOptionYesNo(models.Model):
 
     def str(self):
         return "{} ({})".format(self.option, self.number)
-    
+
+
 class QuestionOptionByPreference(models.Model):
     question = models.ForeignKey(
         QuestionByPreference, related_name="preferences", on_delete=models.CASCADE
@@ -202,9 +199,15 @@ class Voting(models.Model):
                 votes = tally.count(opt.number)
             else:
                 votes = 0
-            opts.append({"option": opt.option, "number": opt.number, "votes": votes})
+            opts.append(
+                {
+                    "option": opt.option,
+                    "number": opt.number,
+                    "votes": votes,
+                }
+            )
 
-        data = {"type": "IDENTITY", "options": opts}
+        data = {"escaños": self.escaños, "type": self.tallyType, "options": opts}
         postp = mods.post("postproc", json=data)
 
         self.postproc = postp
@@ -234,6 +237,9 @@ class VotingYesNo(models.Model):
     )
     auths = models.ManyToManyField(Auth, related_name="votingsyesno")
 
+    tallyType = models.CharField(max_length=200, default="IDENTITY")
+    escaños = models.IntegerField(default=10)
+
     tally = JSONField(blank=True, null=True)
     postproc = JSONField(blank=True, null=True)
 
@@ -255,7 +261,7 @@ class VotingYesNo(models.Model):
     def get_votes(self, token=""):
         # gettings votes from store
         votes = mods.get(
-            "store",
+            "store/yesno",
             params={"voting_id": self.id},
             HTTP_AUTHORIZATION="Token " + token,
         )
@@ -298,12 +304,27 @@ class VotingYesNo(models.Model):
             # TODO: manage error
             pass
 
+        # then, we can decrypt that
+        data = {"msgs": response.json()}
+        response = mods.post(
+            "mixnet",
+            entry_point=decrypt_url,
+            baseurl=auth.url,
+            json=data,
+            response=True,
+        )
+
+        if response.status_code != 200:
+            # TODO: manage error
+            pass
+
         self.tally = response.json()
         self.save()
 
         self.do_postproc()
 
     def do_postproc(self):
+
         tally = self.tally
         options = self.question.pregYN.all()
 
@@ -314,11 +335,11 @@ class VotingYesNo(models.Model):
             else:
                 votes = 0
             if int(opt) == 1:
-                opts.append({"option": "Si", "votes": votes})
+                opts.append({"option": "Si", "votes": votes, "number": 1})
             else:
-                opts.append({"option": "No", "votes": votes})
+                opts.append({"option": "No", "votes": votes, "number": 0})
 
-        data = {"type": "IDENTITY", "options": opts}
+        data = {"escaños": self.escaños, "type": self.tallyType, "options": opts}
         postp = mods.post("postproc", json=data)
 
         self.postproc = postp
@@ -348,6 +369,9 @@ class VotingByPreference(models.Model):
         on_delete=models.SET_NULL,
     )
     auths = models.ManyToManyField(Auth, related_name="votingsbypreference")
+
+    tallyType = models.CharField(max_length=200, default="IDENTITY")
+    escaños = models.IntegerField(default=10)
 
     tally = JSONField(blank=True, null=True)
     postproc = JSONField(blank=True, null=True)
@@ -439,17 +463,30 @@ class VotingByPreference(models.Model):
 
     def do_postproc(self):
         tally = self.tally
-        options = self.question.preferences.all()
-
         opts = []
-        for opt in options:
-            if isinstance(tally, list):
-                votes = tally.count(opt.number)
-            else:
-                votes = 0
-            opts.append({"option": opt.option, "number": opt.number, "votes": votes})
+        diccionario_preferences = {}
+        options = self.question.preferences.all()
+        if isinstance(tally, list):
+            for t in range(len(tally)):
+                tally_str = str(tally[t])
+                tally_str_with_commas = tally_str.replace("10000", ",")
+                tally_list = [
+                    int(num) for num in tally_str_with_commas.split(",") if num
+                ]
+                for opt in options:
+                    key = opt.number
+                    if key in diccionario_preferences:
+                        diccionario_preferences[key] += tally_list[opt.number - 1]
+                    else:
+                        diccionario_preferences[key] = tally_list[opt.number - 1]
 
-        data = {"type": "IDENTITY", "options": opts}
+        for key in diccionario_preferences:
+            votes = diccionario_preferences[key]
+            votes = votes / len(tally)
+            option = options.get(number=key)
+            opts.append({"option": option.option, "number": key, "votes": votes})
+
+        data = {"escaños": self.escaños, "type": self.tallyType, "options": opts}
         postp = mods.post("postproc", json=data)
 
         self.postproc = postp

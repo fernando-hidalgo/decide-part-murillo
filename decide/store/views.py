@@ -106,8 +106,8 @@ class StoreYNView(generics.ListAPIView):
         * vote: { "a": int, "b": int }
         """
 
-        vid = request.date.get("voting_yesno")
-        voting = mods.get("voting_yesno", params={"id": vid})
+        vid = request.data.get("voting")
+        voting = mods.get("voting/yesno", params={"id": vid})
         if not voting or not isinstance(voting, list):
             return Response({}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -143,7 +143,7 @@ class StoreYNView(generics.ListAPIView):
 
         # the user is in the census
         perms = mods.get(
-            "census/{}".format(vid), params={"voter_id": uid}, response=True
+            "census/yesno/{}".format(vid), params={"voter_id": uid}, response=True
         )
         if perms.status_code == 401:
             # print("por aqui 65")
@@ -153,7 +153,7 @@ class StoreYNView(generics.ListAPIView):
         b = vote.get("b")
 
         defs = {"a": a, "b": b}
-        (v,) = VoteYN.objects.get_or_create(
+        v, _ = VoteYN.objects.get_or_create(
             voting_yesno_id=vid, voter_yesno_id=uid, defaults=defs
         )
         v.a = a
@@ -181,15 +181,14 @@ class StoreByPreferenceView(generics.ListAPIView):
         * voter: id
         * vote: { "a": int, "b": int }
         """
-
-        vid = request.data.get("voting_preference")
-        voting = mods.get("voting_preference", params={"id": vid})
-        if not voting or not isinstance(voting, list):
+        vid = request.data.get("voting")
+        voting_preference = mods.get("voting/preference", params={"id": vid})
+        if not voting_preference or not isinstance(voting_preference, list):
             # print("por aqui 35")
             return Response({}, status=status.HTTP_401_UNAUTHORIZED)
-        start_date = voting[0].get("start_date", None)
+        start_date = voting_preference[0].get("start_date", None)
         # print ("Start date: "+  start_date)
-        end_date = voting[0].get("end_date", None)
+        end_date = voting_preference[0].get("end_date", None)
         # print ("End date: ", end_date)
         not_started = not start_date or timezone.now() < parse_datetime(start_date)
         # print (not_started)
@@ -220,7 +219,9 @@ class StoreByPreferenceView(generics.ListAPIView):
 
         # the user is in the census
         perms = mods.get(
-            "census/{}".format(vid), params={"voter_id": uid}, response=True
+            "census/bypreference/{}".format(vid),
+            params={"voter_id": uid},
+            response=True,
         )
         if perms.status_code == 401:
             # print("por aqui 65")
