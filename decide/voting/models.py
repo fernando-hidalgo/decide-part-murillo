@@ -261,7 +261,7 @@ class VotingYesNo(models.Model):
     def get_votes(self, token=""):
         # gettings votes from store
         votes = mods.get(
-            "store",
+            "store/yesno",
             params={"voting_id": self.id},
             HTTP_AUTHORIZATION="Token " + token,
         )
@@ -304,12 +304,27 @@ class VotingYesNo(models.Model):
             # TODO: manage error
             pass
 
+        # then, we can decrypt that
+        data = {"msgs": response.json()}
+        response = mods.post(
+            "mixnet",
+            entry_point=decrypt_url,
+            baseurl=auth.url,
+            json=data,
+            response=True,
+        )
+
+        if response.status_code != 200:
+            # TODO: manage error
+            pass
+
         self.tally = response.json()
         self.save()
 
         self.do_postproc()
 
     def do_postproc(self):
+
         tally = self.tally
         options = self.question.pregYN.all()
 
