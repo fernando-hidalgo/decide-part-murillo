@@ -13,11 +13,11 @@ from django.db import IntegrityError
 from django.shortcuts import get_object_or_404, render, redirect
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.contrib.auth.password_validation import CommonPasswordValidator
+from rest_framework.permissions import IsAdminUser
 from django.contrib import messages
 import difflib
 
 from .serializers import UserSerializer
-
 
 class GetUserView(APIView):
     def post(self, request):
@@ -58,6 +58,15 @@ class RegisterView(APIView):
         except IntegrityError:
             return Response({}, status=HTTP_400_BAD_REQUEST)
         return Response({"user_pk": user.pk, "token": token.key}, HTTP_201_CREATED)
+
+
+class UserList(APIView):
+    permission_classes = [IsAdminUser]  # Restringir acceso a usuarios admin
+
+    def get(self, request):
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data)
 
 
 class RegisterUserView(APIView):
