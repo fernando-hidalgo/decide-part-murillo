@@ -80,7 +80,7 @@ class CensusByPreferenceAdmin(admin.ModelAdmin):
         sheet = workbook.active
 
         sheet.append(
-            ["ID Votacion", "ID Votante"]
+            ["ID Votacion", "ID Votante", "Grupo"]
         )  # El append funciona en filas, de izquierda a derecha
 
         for elemento in queryset:
