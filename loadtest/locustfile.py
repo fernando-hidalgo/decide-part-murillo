@@ -81,6 +81,7 @@ class DefUsers(SequentialTaskSet):
             {
                 "username": self.username,
                 "email": f"{self.username}@example.com",
+                "email_conf": f"{self.username}@example.com",
                 "password": "ThisIsATestPasswordThatIsSecure",
                 "password_conf": "ThisIsATestPasswordThatIsSecure",
             },

@@ -68,8 +68,9 @@ class RegisterUserView(APIView):
         username = request.data.get("username", "")
         pwd = request.data.get("password", "")
         email = request.data.get("email", "")
+        confirm_email = request.data.get("email_conf", "")
         confirm_pwd = request.data.get("password_conf", "")
-        if not username or not pwd or not email or not confirm_pwd:
+        if not username or not pwd or not email or not confirm_pwd or not confirm_email:
             return Response({}, status=HTTP_400_BAD_REQUEST)
 
         error_messages = []
@@ -89,6 +90,9 @@ class RegisterUserView(APIView):
 
         if pwd != confirm_pwd:
             error_messages.append("Passwords do not match. Please try again.")
+
+        if email != confirm_email:
+            error_messages.append("Emails do not match. Please try again.")
 
         try:
             validator = CommonPasswordValidator()
