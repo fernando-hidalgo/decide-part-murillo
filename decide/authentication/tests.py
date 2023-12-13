@@ -138,6 +138,7 @@ class AuthTestCase(APITestCase):
         data = {
             "username": "new_user",
             "email": "new_user@example.com",
+            "email_conf": "new_user@example.com",
             "password": "thispasswordisactuallysecure123",
             "password_conf": "thispasswordisactuallysecure123",
         }
@@ -156,6 +157,7 @@ class AuthTestCase(APITestCase):
         data = {
             "username": "voter1",
             "email": "new_user@example.com",
+            "email_conf": "new_user@example.com",
             "password": "thispasswordisactuallysecure123",
             "password_conf": "thispasswordisactuallysecure123",
         }
@@ -170,6 +172,7 @@ class AuthTestCase(APITestCase):
         data = {
             "username": "user1",
             "email": "new_user@example.com",
+            "email_conf": "new_user@example.com",
             "password": "A7iN6Gr",
             "password_conf": "A7iN6Gr",
         }
@@ -183,6 +186,7 @@ class AuthTestCase(APITestCase):
         data = {
             "username": "user1",
             "email": "new_user@example.com",
+            "email_conf": "new_user@example.com",
             "password": "2746724732476427641761",
             "password_conf": "2746724732476427641761",
         }
@@ -199,6 +203,7 @@ class AuthTestCase(APITestCase):
         data = {
             "username": "user1",
             "email": "new_user@example.com",
+            "email_conf": "new_user@example.com",
             "password": "ASanspid31240HBAD",
             "password_conf": "A7iN6Grwtwret",
         }
@@ -207,11 +212,26 @@ class AuthTestCase(APITestCase):
         self.assertContains(response, "Passwords do not match. Please try again.")
         self.assertFalse(User.objects.filter(username="user1").exists())
 
+    def test_register_different_email(self):
+        url = "/authentication/registeruser/"
+        data = {
+            "username": "user1",
+            "email": "new_user@example.com",
+            "email_conf": "news_user@example.com",
+            "password": "ASanspid31240HBAD",
+            "password_conf": "ASanspid31240HBAD",
+        }
+        response = self.client.post(url, data)
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Emails do not match. Please try again.")
+        self.assertFalse(User.objects.filter(username="user1").exists())
+
     def test_register_common_password(self):
         url = "/authentication/registeruser/"
         data = {
             "username": "user1",
             "email": "new_user@example.com",
+            "email_conf": "new_user@example.com",
             "password": "password1234",
             "password_conf": "password1234",
         }
@@ -227,6 +247,7 @@ class AuthTestCase(APITestCase):
         data = {
             "username": "asgrhsoifdhg234653",
             "email": "new_user@example.com",
+            "email_conf": "new_user@example.com",
             "password": "asgrhsoifdhg23465312",
             "password_conf": "asgrhsoifdhg23465312",
         }

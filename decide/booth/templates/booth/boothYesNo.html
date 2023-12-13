@@ -119,21 +119,20 @@
             <h1>[[ voting.id ]] - [[ voting.name ]]</h1>
             <h2>[[ voting.question.desc ]]</h2>
             <form>
-                <div class="form-group"  v-for="opt in voting.question.preferences" :key="opt.number">
-
-                        <label :for="'q' + opt.number">[[ opt.option ]]</label>
-                        <input type="number" v-model="selected[opt.number]"
-                                :id="'q' + opt.number"
-                                name="question"
-                                min="1"
-                                :max="voting.question.preferences.length"
-                                @input="checkUniqueness(opt.number)"
-                                required>
-
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" v-model="selected" id="optionYes" value="1" required>
+                    <label class="form-check-label" for="optionYes">{% trans "Yes" %}</label>
                 </div>
+
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" v-model="selected" id="optionNo" value="2" required>
+                    <label class="form-check-label" for="optionNo">{% trans "No" %}</label>
+                </div>
+
                 <button class="btn btn-primary mt-3" v-on:click="decideSend">
                     {% trans "Vote" %}
                 </button>
+            </form>
         </div>
 
         <div v-else-if="userHasVoted && !signup">
@@ -176,7 +175,7 @@
             data() {
                 return {
                     voting: voting,
-                    selected:[],
+                    selected:null,
                     signup: true,
                     successVote: false,
                     alertShow: false,
@@ -277,64 +276,38 @@
                 decideEncrypt() {
 
                     var selectedArray = this.selected.toString();
-                    var cont = 0;
-                    var size = voting.question.preferences.length;
-                    for (var i = 1; i <= voting.question.preferences.length+1; i++) {
-                        if(selectedArray.includes(i)){
-                            cont++;
-                        } else{
-                            break;
-                        }
-                    }
-                    if(cont==size) {
-                        while(selectedArray.includes(",")){
+                    while(selectedArray.includes(",")){
                         selectedArray=selectedArray.replace(",","10000");
-                        }
-
-                        var bigmsg = BigInt.fromJSONObject(selectedArray.toString());
-                        var cipher = ElGamal.encrypt(this.bigpk, bigmsg);
-                        return cipher;
-                    } else {
-                        alert('Please fill in all inputs');
-                        return -1;
                     }
 
+                    var bigmsg = BigInt.fromJSONObject(selectedArray.toString());
+                    var cipher = ElGamal.encrypt(this.bigpk, bigmsg);
+                    return cipher;
                 },
                 decideSend(evt) {
                     evt.preventDefault();
-                    if (Object.values(this.selected).some(value => value === '')) {
-                        // Display an alert for incomplete inputs
-                        alert('Please fill in all inputs');
-                    }else {
-                        if (this.userHasVoted){
-                            this.updateVote();
-                        } else {
-                            var v = this.decideEncrypt();
-                            if(v!=-1){
-                                var data = {
-                                vote: {a: v.alpha.toString(), b: v.beta.toString()},
-                                voting: this.voting.id,
-                                voter: this.user.id,
-                                token: this.token
-                                }
-                                this.postData("{% url "gateway" "store" "/preference/" %}", data)
-                                    .then(data => {
-                                    this.successVote = true;
-                                    this.alertShow = false;
-                                    this.showAlert("success", '{% trans "Congratulations. Your vote has been sent" %}');
-                                    this.userHasVoted = true;
-                                    this.alreadyVoted = true;
-                                    })
-                                .catch(error => {
-                                    this.succesVote = false;
-                                    this.showAlert("danger", '{% trans "Error: " %}' + error);
-                                });
-
-                            }
-
-
+                    if (this.userHasVoted){
+                        this.updateVote();
+                    } else {
+                        var v = this.decideEncrypt();
+                        var data = {
+                            vote: {a: v.alpha.toString(), b: v.beta.toString()},
+                            voting: this.voting.id,
+                            voter: this.user.id,
+                            token: this.token
                         }
-
+                        this.postData("{% url "gateway" "store" "/yesno/" %}", data)
+                            .then(data => {
+                                this.successVote = true;
+                                this.alertShow = false;
+                                this.showAlert("success", '{% trans "Congratulations. Your vote has been sent" %}');
+                                this.userHasVoted = true;
+                                this.alreadyVoted = true;
+                            })
+                            .catch(error => {
+                                this.succesVote = false;
+                                this.showAlert("danger", '{% trans "Error: " %}' + error);
+                            });
                     }
                 },
                 showAlert(lvl, msg) {
@@ -347,39 +320,26 @@
                     this.userHasVoted = false;
                 },
 
-
-                checkUniqueness(number) {
-                    const selectedValues = Object.values(this.selected);
-                    const set = new Set(selectedValues);
-
-                    if (selectedValues.length > set.size) {
-                        this.selected[number] = '';
-                    }
-                },
-
                 updateVote(){
                     var v = this.decideEncrypt();
-                        if(v!=-1){
-                            var data = {
+                        var data = {
                             vote: {a: v.alpha.toString(), b: v.beta.toString()},
                             voting: this.voting.id,
                             voter: this.user.id,
                             token: this.token
-                            }
-                            this.postData("{% url "gateway" "store" "/preference/" %}", data)
-                                .then(data => {
+                        }
+                        this.postData("{% url "gateway" "store" "/yesno/" %}", data)
+                            .then(data => {
                                 this.successVote = true;
                                 this.alertShow = false;
-                                this.showAlert("success", '{% trans "Congratulations. Your vote has been sent" %}');
+                                this.showAlert("success", '{% trans "Congratulations. Your vote has been changed" %}');
                                 this.userHasVoted = true;
                                 this.alreadyVoted = true;
-                                })
-                                .catch(error => {
+                            })
+                            .catch(error => {
                                 this.succesVote = false;
                                 this.showAlert("danger", '{% trans "Error: " %}' + error);
-                                });
-
-                            }
+                            });
                 }
             },
         }).mount('#app-booth')
