@@ -12,7 +12,16 @@ from .models import Census, CensusByPreference, CensusYesNo
 from base.tests import BaseTestCase
 from datetime import datetime
 
-from voting.models import Voting, Question, QuestionOption, VotingByPreference, QuestionByPreference, QuestionOptionByPreference, VotingYesNo, QuestionYesNo
+from voting.models import (
+    Voting,
+    Question,
+    QuestionOption,
+    VotingByPreference,
+    QuestionByPreference,
+    QuestionOptionByPreference,
+    VotingYesNo,
+    QuestionYesNo,
+)
 from base.models import Auth
 from django.conf import settings
 from openpyxl import Workbook, load_workbook
@@ -22,6 +31,80 @@ from django.urls import reverse
 
 from django.contrib.admin.sites import AdminSite
 from django.contrib import messages
+
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from django.contrib.auth.models import User
+import time
+
+# class CensusFrontendTest(StaticLiveServerTestCase):
+#     def setUp(self):
+#         self.driver = webdriver.Chrome()
+#         self.admin_user = User.objects.create_superuser(
+#             username='admin',
+#             email='admin@test.com',
+#             password='secret'
+#         )
+
+#         # Crear una pregunta y opciones para la votación
+#         question = Question.objects.create(desc="Descripción de la pregunta")
+#         QuestionOption.objects.create(question=question, option="Opción 1")
+#         QuestionOption.objects.create(question=question, option="Opción 2")
+
+#         # Crear una votación
+#         self.voting = Voting.objects.create(
+#             name="Votación de Prueba",
+#             desc="Descripción de la Votación",
+#             question=question
+#         )
+
+#         # (Opcional) Crear otros usuarios para añadir al censo
+#         self.user1 = User.objects.create_user(username='user1', password='password1', email='user1@test.com')
+#         self.user2 = User.objects.create_user(username='user2', password='password2', email= 'user2@gmail.com')
+#         # ... crea más usuarios según sea necesario
+
+#     def test_admin_login_and_access_census(self):
+#         self.driver.get(self.live_server_url + '/admin')  # URL de inicio de sesión del admin
+#         username_input = self.driver.find_element(By.NAME, 'username')
+#         password_input = self.driver.find_element(By.NAME, 'password')
+#         username_input.send_keys('admin')
+#         password_input.send_keys('secret')
+#         time.sleep(30)
+#         login_button = self.driver.find_element(By.CSS_SELECTOR, "form input[type='submit']")
+#         login_button.click()
+
+#         wait = WebDriverWait(self.driver, 10)  # Define un tiempo máximo de espera de 10 segundos
+#         # # Esperar a que el botón de inicio de sesión esté presente y hacer clic
+#         # login_button = wait.until(
+#         #     EC.presence_of_element_located((By.XPATH, '//input[@type="submit" and @value="Iniciar sesión"]'))
+#         # )
+#         # login_button.click()
+
+#         url = self.live_server_url + '/census/admin/'
+
+#         # Agrega las credenciales en la URL
+
+#         self.driver.get(url)
+
+#         # Esperar a que se cargue la página de administración de censos
+
+#         # Buscar y rellenar los campos del formulario
+#         voting_id_input = wait.until(EC.presence_of_element_located((By.ID, 'id_voting_id')))
+#         voter_id_input = wait.until(EC.presence_of_element_located((By.ID, 'id_voter_id')))
+#         voting_id_input.send_keys('1')
+#         voter_id_input.send_keys('1')
+#         submit_button = wait.until(EC.presence_of_element_located((By.ID, 'submit_button')))
+#         submit_button.click()
+
+#     def tearDown(self):
+#         # Limpiar los datos
+#         self.driver.quit()
+#         User.objects.all().delete()
+#         Question.objects.all().delete()
+#         Voting.objects.all().delete()
+#         Census.objects.all().delete()
 
 
 class CensusTestCase(BaseTestCase):
@@ -332,6 +415,7 @@ class AdminReuseCensusActionTest(TestCase):
         # Debe haber 2 censos con el mismo votante: El original y el creado reutilizando el previo
         self.assertEqual(len(Census.objects.filter(voter_id=census.voter_id)), 2)
 
+
 class CensusByPreferenceTestCase(BaseTestCase):
     def setUp(self):
         super().setUp()
@@ -356,15 +440,21 @@ class CensusByPreferenceTestCase(BaseTestCase):
         self.assertEqual(response.json(), "Valid voter")
 
     def test_list_voting(self):
-        response = self.client.get("/census/bypreference/?voting_id={}".format(1), format="json")
+        response = self.client.get(
+            "/census/bypreference/?voting_id={}".format(1), format="json"
+        )
         self.assertEqual(response.status_code, 401)
 
         self.login(user="noadmin")
-        response = self.client.get("/census/bypreference/?voting_id={}".format(1), format="json")
+        response = self.client.get(
+            "/census/bypreference/?voting_id={}".format(1), format="json"
+        )
         self.assertEqual(response.status_code, 403)
 
         self.login()
-        response = self.client.get("/census/bypreference/?voting_id={}".format(1), format="json")
+        response = self.client.get(
+            "/census/bypreference/?voting_id={}".format(1), format="json"
+        )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"voters": [1]})
 
@@ -393,13 +483,18 @@ class CensusByPreferenceTestCase(BaseTestCase):
         self.login()
         response = self.client.post("/census/bypreference/", data, format="json")
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(len(data.get("voters")), CensusByPreference.objects.count() - 1)
+        self.assertEqual(
+            len(data.get("voters")), CensusByPreference.objects.count() - 1
+        )
 
     def test_destroy_voter(self):
         data = {"voters": [1], "voting_id": 1}
-        response = self.client.delete("/census/bypreference/{}/".format(1), data, format="json")
+        response = self.client.delete(
+            "/census/bypreference/{}/".format(1), data, format="json"
+        )
         self.assertEqual(response.status_code, 204)
         self.assertEqual(0, CensusByPreference.objects.count())
+
 
 class CensusByPreferenceTest(StaticLiveServerTestCase):
     def setUp(self):
@@ -444,7 +539,8 @@ class CensusByPreferenceTest(StaticLiveServerTestCase):
         self.cleaner.find_element(By.NAME, "_save").click()
 
         self.assertTrue(
-            self.cleaner.current_url == self.live_server_url + "/admin/census/censusbypreference"
+            self.cleaner.current_url
+            == self.live_server_url + "/admin/census/censusbypreference"
         )
 
     def createCensusEmptyError(self):
@@ -505,6 +601,7 @@ class CensusByPreferenceTest(StaticLiveServerTestCase):
             == self.live_server_url + "/admin/census/censusbypreference/add"
         )
 
+
 class CensusByPreferenceImportViewTest(BaseTestCase):
     def setUp(self):
         super().setUp()
@@ -514,7 +611,12 @@ class CensusByPreferenceImportViewTest(BaseTestCase):
         q.save()
 
         options = [
-            QuestionOptionByPreference(question=q, option=f"option {i + 1}", preference=secrets.randbelow(10) + 1) for i in range(3)
+            QuestionOptionByPreference(
+                question=q,
+                option=f"option {i + 1}",
+                preference=secrets.randbelow(10) + 1,
+            )
+            for i in range(3)
         ]
         QuestionOptionByPreference.objects.bulk_create(options)
 
@@ -564,10 +666,13 @@ class CensusByPreferenceImportViewTest(BaseTestCase):
         ]
         self.assertEqual([str(msg) for msg in messages], expected_messages)
 
+
 class ByPreferenceAdminExportToExcelTest(TestCase):
     def setUp(self):
         self.site = AdminSite()
-        self.model_admin = CensusByPreferenceAdmin(model=CensusByPreference, admin_site=self.site)
+        self.model_admin = CensusByPreferenceAdmin(
+            model=CensusByPreference, admin_site=self.site
+        )
         self.census = CensusByPreference.objects.create(voter_id=1, voting_id=1)
 
     def test_export_to_excel(self):
@@ -609,10 +714,13 @@ class ByPreferenceAdminExportToExcelTest(TestCase):
         self.assertEqual(sheet["A2"].value, self.census.voting_id)
         self.assertEqual(sheet["B2"].value, self.census.voter_id)
 
+
 class ByPreferenceAdminReuseCensusActionTest(TestCase):
     def setUp(self):
         self.site = AdminSite()
-        self.model_admin = CensusByPreferenceAdmin(model=CensusByPreference, admin_site=self.site)
+        self.model_admin = CensusByPreferenceAdmin(
+            model=CensusByPreference, admin_site=self.site
+        )
 
     def test_reuse_action(self):
         census = CensusByPreference.objects.create(voter_id=1, voting_id=1)
@@ -624,18 +732,27 @@ class ByPreferenceAdminReuseCensusActionTest(TestCase):
             request
         )  # Necesario para testear código con mensajes
 
-        self.model_admin.reuse_action(request, CensusByPreference.objects.filter(pk=census.pk))
+        self.model_admin.reuse_action(
+            request, CensusByPreference.objects.filter(pk=census.pk)
+        )
 
         # Llama de nuevo, para cubrir el código del caso donde Censo ya está presente en BD
-        self.model_admin.reuse_action(request, CensusByPreference.objects.filter(pk=census.pk))
+        self.model_admin.reuse_action(
+            request, CensusByPreference.objects.filter(pk=census.pk)
+        )
 
         # Llama una última vez, para cubrir el código del caso donde Censo tenga ID nulo
         request.POST["id_to_reuse"] = None
-        self.model_admin.reuse_action(request, CensusByPreference.objects.filter(pk=census.pk))
+        self.model_admin.reuse_action(
+            request, CensusByPreference.objects.filter(pk=census.pk)
+        )
 
         # Debe haber 2 censos con el mismo votante: El original y el creado reutilizando el previo
-        self.assertEqual(len(CensusByPreference.objects.filter(voter_id=census.voter_id)), 2)
-        
+        self.assertEqual(
+            len(CensusByPreference.objects.filter(voter_id=census.voter_id)), 2
+        )
+
+
 class CensusYesNoTestCase(BaseTestCase):
     def setUp(self):
         super().setUp()

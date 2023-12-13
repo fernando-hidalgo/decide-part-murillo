@@ -43,10 +43,10 @@ class QuestionOption(models.Model):
     number = models.PositiveIntegerField(blank=True, null=True)
     option = models.TextField()
 
-    def save(self):
+    def save(self, *args, **kwargs):
         if not self.number:
-            self.number = self.question.options.count() + 2
-        return super().save()
+            self.number = self.question.options.count() + 1
+        super(QuestionOption, self).save(*args, **kwargs)
 
     def __str__(self):
         return "{} ({})".format(self.option, self.number)
