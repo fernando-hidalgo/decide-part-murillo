@@ -3,7 +3,7 @@ from django.db.models import JSONField
 
 from base import mods
 from base.models import Auth, Key
-from store.models import VoteByPreference
+from store.models import VoteByPreference, VoteYN
 
 
 class QuestionByPreference(models.Model):
@@ -260,11 +260,17 @@ class VotingYesNo(models.Model):
 
     def get_votes(self, token=""):
         # gettings votes from store
-        votes = mods.get(
-            "store/yesno",
-            params={"voting_id": self.id},
-            HTTP_AUTHORIZATION="Token " + token,
-        )
+        auxvoting = VoteYN.objects.filter(voting_yesno_id=self.id)
+        votes = []
+        for vote in auxvoting:
+            voting_data = {
+                "id": vote.id,
+                "voting_yesno_id": vote.voting_yesno_id,
+                "voter_yesno_id": vote.voter_yesno_id,
+                "a": vote.a,
+                "b": vote.b,
+            }
+            votes.append(voting_data)
 
         # anon votes
         votes_format = []
@@ -326,7 +332,9 @@ class VotingYesNo(models.Model):
     def do_postproc(self):
 
         tally = self.tally
-        options = self.question.pregYN.all()
+        options = [1, 2]
+
+        print(options)
 
         opts = []
         for opt in options:
