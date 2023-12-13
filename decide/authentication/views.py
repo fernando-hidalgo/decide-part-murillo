@@ -18,8 +18,6 @@ from django.contrib import messages
 import difflib
 
 from .serializers import UserSerializer
-from rest_framework import generics
-
 
 class GetUserView(APIView):
     def post(self, request):
@@ -65,7 +63,7 @@ class RegisterView(APIView):
 class UserList(APIView):
     permission_classes = [IsAdminUser]  # Restringir acceso a usuarios admin
 
-    def get(self, request, format=None):
+    def get(self, request):
         users = User.objects.all()
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data)
