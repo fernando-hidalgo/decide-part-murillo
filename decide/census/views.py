@@ -104,6 +104,7 @@ class CensusImportView(TemplateView):
             for row in sheet.iter_rows(min_row=2, values_only=True):
                 voting_id = row[0]
                 voter_id = row[1]
+                group = row[2]
 
                 # Comprobar si ya existe un objeto con la misma pareja de voting_id y voter_id
                 existing_census = Census.objects.filter(
@@ -111,11 +112,11 @@ class CensusImportView(TemplateView):
                 ).first()
 
                 if not existing_census:
-                    Census.objects.create(voting_id=voting_id, voter_id=voter_id)
+                    Census.objects.create(voting_id=voting_id, voter_id=voter_id, group=group)
                 else:
                     messages.error(
                         request,
-                        f"Ya existe un registro para la pareja de voting_id={voting_id} y voter_id={voter_id}",
+                        f"Ya existe un registro para la pareja de voting_id={voting_id}, voter_id={voter_id} y group={group}",
                     )
 
             messages.success(request, "Importación finalizada")
@@ -174,10 +175,11 @@ class CensusByPreferenceImportView(TemplateView):
             for row in sheet.iter_rows(min_row=2, values_only=True):
                 voting_id = row[0]
                 voter_id = row[1]
+                group = row[2]
 
                 # Comprobar si ya existe un objeto con la misma pareja de voting_id y voter_id
                 existing_census = CensusByPreference.objects.filter(
-                    voting_id=voting_id, voter_id=voter_id
+                    voting_id=voting_id, voter_id=voter_id, group=group
                 ).first()
 
                 if not existing_census:
@@ -187,13 +189,12 @@ class CensusByPreferenceImportView(TemplateView):
                 else:
                     messages.error(
                         request,
-                        f"Ya existe un registro para la pareja de voting_id={voting_id} y voter_id={voter_id}",
+                        f"Ya existe un registro para la pareja de voting_id={voting_id}, voter_id={voter_id} y grupo={group}",
                     )
 
             messages.success(request, "Importación finalizada")
-            return HttpResponseRedirect("/census/import/")
-
-
+            return HttpResponseRedirect("/census/bypreference/import/")
+          
 class CensusYesNoCreate(generics.ListCreateAPIView):
     permission_classes = (UserIsStaff,)
 

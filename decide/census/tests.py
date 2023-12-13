@@ -300,13 +300,14 @@ class CensusImportViewTest(BaseTestCase):
 
     def test_census_import_view(self):
         self.create_voting()
+        test_group="Test Group"
 
         workbook = Workbook()
         sheet = workbook.active
-        sheet.append(["Voting ID", "Voter ID"])
-        sheet.append([1, 1])
-        sheet.append([1, 2])
-        sheet.append([1, 1])  # Censo repetido, dará error
+        sheet.append(["Voting ID", "Voter ID", "Group"])
+        sheet.append([1, 1, test_group])
+        sheet.append([1, 2, test_group])
+        sheet.append([1, 1, test_group])  # Censo repetido, dará error
 
         file_buffer = BytesIO()
         workbook.save(file_buffer)
@@ -329,7 +330,7 @@ class CensusImportViewTest(BaseTestCase):
 
         messages = list(response.context["messages"])
         expected_messages = [
-            "Ya existe un registro para la pareja de voting_id=1 y voter_id=1",
+            "Ya existe un registro para la pareja de voting_id=1, voter_id=1 y group=Test Group",
             "Importación finalizada",
         ]
         self.assertEqual([str(msg) for msg in messages], expected_messages)
@@ -625,13 +626,14 @@ class CensusByPreferenceImportViewTest(BaseTestCase):
 
     def test_census_import_view(self):
         self.create_voting()
+        test_group = "Test Group"
 
         workbook = Workbook()
         sheet = workbook.active
-        sheet.append(["Voting ID", "Voter ID"])
-        sheet.append([1, 1])
-        sheet.append([1, 2])
-        sheet.append([1, 1])  # Censo repetido, dará error
+        sheet.append(["Voting ID", "Voter ID", "Group"])
+        sheet.append([1, 1, test_group])
+        sheet.append([1, 2, test_group])
+        sheet.append([1, 1, test_group])  # Censo repetido, dará error
 
         file_buffer = BytesIO()
         workbook.save(file_buffer)
@@ -654,7 +656,7 @@ class CensusByPreferenceImportViewTest(BaseTestCase):
 
         messages = list(response.context["messages"])
         expected_messages = [
-            "Ya existe un registro para la pareja de voting_id=1 y voter_id=1",
+            "Ya existe un registro para la pareja de voting_id=1, voter_id=1 y group=Test Group",
             "Importación finalizada",
         ]
         self.assertEqual([str(msg) for msg in messages], expected_messages)
