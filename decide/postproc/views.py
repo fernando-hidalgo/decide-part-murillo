@@ -21,28 +21,23 @@ class PostProcView(APIView):
     def apply_hont(self, options, escaños):
 
         votos = [opt["votes"] for opt in options]
-        total_escaños = escaños  
-        resultados = (
-            []
-        )  
+        total_escaños = escaños
+        resultados = []
 
-        
         for opt in options:
             resultados.append({**opt, "seats": 0})
 
-        
         if total_escaños > 0:
-            
-            while total_escaños >0:
+
+            while total_escaños > 0:
                 max_lista = max(votos)
                 index_max = votos.index(max_lista)
                 resultados[index_max]["seats"] += 1
                 votos[index_max] = options[index_max]["votes"] / (
                     resultados[index_max]["seats"] + 1
                 )
-                total_escaños -=1
+                total_escaños -= 1
 
-            
             resultados.sort(key=lambda x: -x["seats"])
 
         return Response(resultados)
@@ -60,13 +55,14 @@ class PostProcView(APIView):
                 max_lista = max(votos)
                 index_max = votos.index(max_lista)
                 resultados[index_max]["seats"] += 1
-                votos[index_max] = votos[index_max] / (2 * resultados[index_max]["seats"] + 1)
+                votos[index_max] = votos[index_max] / (
+                    2 * resultados[index_max]["seats"] + 1
+                )
                 total_escaños -= 1
 
             resultados.sort(key=lambda x: -x["seats"])
 
         return Response(resultados)
-
 
     def post(self, request):
         """
