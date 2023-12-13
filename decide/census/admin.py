@@ -23,11 +23,11 @@ class CensusAdmin(admin.ModelAdmin):
         sheet = workbook.active
 
         sheet.append(
-            ["ID Votacion", "ID Votante"]
+            ["ID Votacion", "ID Votante", "Grupo"]
         )  # El append funciona en filas, de izquierda a derecha
 
         for elemento in queryset:
-            sheet.append([elemento.voting_id, elemento.voter_id])
+            sheet.append([elemento.voting_id, elemento.voter_id, elemento.group])
 
         response = HttpResponse(
             content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
@@ -47,16 +47,17 @@ class CensusAdmin(admin.ModelAdmin):
 
             for census in queryset.all():
                 if Census.objects.filter(
-                    voting_id=reuse_voting_id, voter_id=census.voter_id
+                    voting_id=reuse_voting_id, voter_id=census.voter_id, group=census.group
                 ).exists():
                     messages.error(
                         request,
-                        f"Ya existe Censo con voter_id {census.voter_id} y voting_id {reuse_voting_id} en la base de datos.",
+                        f"Ya existe Censo con voter_id {census.voter_id}, voting_id {reuse_voting_id} y group {census.group} en la base de datos.",
                     )
                     continue  # Salta al siguiente censo en lugar de intentar guardarlo
                 re_census = Census()
                 re_census.voter_id = census.voter_id
                 re_census.voting_id = reuse_voting_id
+                re_census.group = census.group
                 re_census.save()
         else:
             messages.error(
@@ -80,11 +81,11 @@ class CensusByPreferenceAdmin(admin.ModelAdmin):
         sheet = workbook.active
 
         sheet.append(
-            ["ID Votacion", "ID Votante"]
+            ["ID Votacion", "ID Votante", "Grupo"]
         )  # El append funciona en filas, de izquierda a derecha
 
         for elemento in queryset:
-            sheet.append([elemento.voting_id, elemento.voter_id])
+            sheet.append([elemento.voting_id, elemento.voter_id, elemento.group])
 
         response = HttpResponse(
             content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
