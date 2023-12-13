@@ -42,10 +42,10 @@
 
             <div id="content-main">
 
-            {% if error_messages %}
-            <ul class="errorlist">
-            {% for error in error_messages %}
-              <li>{{ error }}</li>
+            {% if messages %}
+            <ul class="messages">
+            {% for message in messages %}
+              <li>{{ message }}</li>
             {% endfor %}
             </ul>
             {% endif %}

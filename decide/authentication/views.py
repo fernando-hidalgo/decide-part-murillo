@@ -142,4 +142,5 @@ class LoginUserView(APIView):
             messages.success(request, "Login done successfully")
             return redirect("home")
         else:
-            return Response({"message": "Nombre de usuario o contraseña incorrectos."}, status=HTTP_400_BAD_REQUEST)
+            messages.error(request, "Error en el inicio de sesión")
+            return render(request,"login.html")
