@@ -132,8 +132,6 @@ class LoginUserView(APIView):
         username = request.data.get("username", "")
         password = request.data.get("password", "")
 
-        if not username or not password:
-            return Response({"message": "Por favor, proporciona tanto el nombre de usuario como la contraseña."}, status=HTTP_400_BAD_REQUEST)
 
         user = authenticate(request, username=username, password=password)
 
