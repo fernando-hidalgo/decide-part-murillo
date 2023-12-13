@@ -334,8 +334,6 @@ class VotingYesNo(models.Model):
         tally = self.tally
         options = [1, 2]
 
-        print(options)
-
         opts = []
         for opt in options:
             if isinstance(tally, list):
