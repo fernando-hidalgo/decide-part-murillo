@@ -1,5 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.status import (
+    HTTP_200_OK,
     HTTP_201_CREATED,
     HTTP_400_BAD_REQUEST,
     HTTP_401_UNAUTHORIZED,
@@ -117,23 +118,6 @@ class RegisterUserView(APIView):
         messages.success(request, "User created successfully")
         return redirect("home")
 
-class LoginView(APIView):
-    def post(self, request):
-        username = request.data.get("username", "")
-        password = request.data.get("password", "")
-
-        if not username or not password:
-            return Response({}, status=HTTP_400_BAD_REQUEST)
-
-        user = authenticate(request, username=username, password=password)
-
-        if user:
-            login(request, user)
-            token, created = Token.objects.get_or_create(user=user)
-            return Response({"token": token.key}, status=HTTP_200_OK)
-        else:
-            return Response({}, status=HTTP_400_BAD_REQUEST)
-
 class LoginUserView(APIView):
     def get(self, request):
         if request.user.is_authenticated:
@@ -151,6 +135,7 @@ class LoginUserView(APIView):
 
         if user:
             login(request, user)
-            return Response({"message": "Inicio de sesión exitoso."}, status=HTTP_200_OK)
+            messages.success(request, "Login done successfully")
+            return redirect("home")
         else:
             return Response({"message": "Nombre de usuario o contraseña incorrectos."}, status=HTTP_400_BAD_REQUEST)
