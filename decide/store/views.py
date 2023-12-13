@@ -147,7 +147,7 @@ class StoreYNView(generics.ListAPIView):
         )
         if perms.status_code == 401:
             # print("por aqui 65")
-            return Response({}, status=status.HTTP_401UNAUTHORIZED)
+            return Response({}, status=status.HTTP_401_UNAUTHORIZED)
 
         a = vote.get("a")
         b = vote.get("b")

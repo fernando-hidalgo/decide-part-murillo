@@ -127,6 +127,7 @@
                                 name="question"
                                 min="1"
                                 :max="voting.question.preferences.length"
+                                @input="checkUniqueness(opt.number)"
                                 required>
 
                 </div>
@@ -276,38 +277,64 @@
                 decideEncrypt() {
 
                     var selectedArray = this.selected.toString();
-                    while(selectedArray.includes(",")){
+                    var cont = 0;
+                    var size = voting.question.preferences.length;
+                    for (var i = 1; i <= voting.question.preferences.length+1; i++) {
+                        if(selectedArray.includes(i)){
+                            cont++;
+                        } else{
+                            break;
+                        }
+                    }
+                    if(cont==size) {
+                        while(selectedArray.includes(",")){
                         selectedArray=selectedArray.replace(",","10000");
+                        }
+
+                        var bigmsg = BigInt.fromJSONObject(selectedArray.toString());
+                        var cipher = ElGamal.encrypt(this.bigpk, bigmsg);
+                        return cipher;
+                    } else {
+                        alert('Please fill in all inputs');
+                        return -1;
                     }
 
-                    var bigmsg = BigInt.fromJSONObject(selectedArray.toString());
-                    var cipher = ElGamal.encrypt(this.bigpk, bigmsg);
-                    return cipher;
                 },
                 decideSend(evt) {
                     evt.preventDefault();
-                    if (this.userHasVoted){
-                        this.updateVote();
-                    } else {
-                        var v = this.decideEncrypt();
-                        var data = {
-                            vote: {a: v.alpha.toString(), b: v.beta.toString()},
-                            voting: this.voting.id,
-                            voter: this.user.id,
-                            token: this.token
+                    if (Object.values(this.selected).some(value => value === '')) {
+                        // Display an alert for incomplete inputs
+                        alert('Please fill in all inputs');
+                    }else {
+                        if (this.userHasVoted){
+                            this.updateVote();
+                        } else {
+                            var v = this.decideEncrypt();
+                            if(v!=-1){
+                                var data = {
+                                vote: {a: v.alpha.toString(), b: v.beta.toString()},
+                                voting: this.voting.id,
+                                voter: this.user.id,
+                                token: this.token
+                                }
+                                this.postData("{% url "gateway" "store" "/preference/" %}", data)
+                                    .then(data => {
+                                    this.successVote = true;
+                                    this.alertShow = false;
+                                    this.showAlert("success", '{% trans "Congratulations. Your vote has been sent" %}');
+                                    this.userHasVoted = true;
+                                    this.alreadyVoted = true;
+                                    })
+                                .catch(error => {
+                                    this.succesVote = false;
+                                    this.showAlert("danger", '{% trans "Error: " %}' + error);
+                                });
+
+                            }
+
+
                         }
-                        this.postData("{% url "gateway" "store" "/preference/" %}", data)
-                            .then(data => {
-                                this.successVote = true;
-                                this.alertShow = false;
-                                this.showAlert("success", '{% trans "Congratulations. Your vote has been sent" %}');
-                                this.userHasVoted = true;
-                                this.alreadyVoted = true;
-                            })
-                            .catch(error => {
-                                this.succesVote = false;
-                                this.showAlert("danger", '{% trans "Error: " %}' + error);
-                            });
+
                     }
                 },
                 showAlert(lvl, msg) {
@@ -320,26 +347,39 @@
                     this.userHasVoted = false;
                 },
 
+
+                checkUniqueness(number) {
+                    const selectedValues = Object.values(this.selected);
+                    const set = new Set(selectedValues);
+
+                    if (selectedValues.length > set.size) {
+                        this.selected[number] = '';
+                    }
+                },
+
                 updateVote(){
                     var v = this.decideEncrypt();
-                        var data = {
+                        if(v!=-1){
+                            var data = {
                             vote: {a: v.alpha.toString(), b: v.beta.toString()},
                             voting: this.voting.id,
                             voter: this.user.id,
                             token: this.token
-                        }
-                        this.postData("{% url "gateway" "store" "/preference/" %}", data)
-                            .then(data => {
+                            }
+                            this.postData("{% url "gateway" "store" "/preference/" %}", data)
+                                .then(data => {
                                 this.successVote = true;
                                 this.alertShow = false;
-                                this.showAlert("success", '{% trans "Congratulations. Your vote has been changed" %}');
+                                this.showAlert("success", '{% trans "Congratulations. Your vote has been sent" %}');
                                 this.userHasVoted = true;
                                 this.alreadyVoted = true;
-                            })
-                            .catch(error => {
+                                })
+                                .catch(error => {
                                 this.succesVote = false;
                                 this.showAlert("danger", '{% trans "Error: " %}' + error);
-                            });
+                                });
+
+                            }
                 }
             },
         }).mount('#app-booth')
