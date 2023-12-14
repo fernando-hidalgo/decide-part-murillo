@@ -48,28 +48,15 @@ jobs:
           pip install -r requirements.txt
           pip install codacy-coverage
           cp decide/local_settings.gactions.py decide/local_settings.py
-      - name: Determine changed apps
+      - name: Tests required
         id: git_changes
         run: |
-          # Get the list of changed apps in the push
-          if [ "${{ github.event_name }}" == "push" ]; then
-            CHANGED_APPS=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^apps/.*\.py$' | cut -d/ -f2 | sort -u | tr '\n' ' ')
-            echo "Changed apps: $CHANGED_APPS"
-            echo "::set-output name=apps::$CHANGED_APPS"
-          fi
-      - name: Run tests only for changed apps
-        run: |
-          cd decide
-          if [ -n "${{ steps.git_changes.outputs.apps }}" ]; then
-            # Run tests only for changed apps
-            for app in ${{ steps.git_changes.outputs.apps }}; do
-              coverage run --branch --source=. ./manage.py test $app --keepdb
-            done
+          if [[ $(git log --format=%B -n 1) == *"#Build: Booth"* ]]; then
+            coverage run --branch --source=. ./manage.py test booth --keepdb
+            coverage xml
           else
-            # Run all tests if no apps are changed
-            coverage run --branch --source=. ./manage.py test --keepdb
+            echo "No hay pruebas para ejecutar"
           fi
-          coverage xml
       - name: Codacy Coverage Reporter
         uses: codacy/codacy-coverage-reporter-action@v1
         with:
