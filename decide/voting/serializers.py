@@ -4,11 +4,15 @@ from .models import (
     Question,
     QuestionYesNo,
     QuestionOption,
-    Voting,
-    VotingYesNo,
+    QuestionMultiChoice,
+    QuestionOptionMultiChoice,
     QuestionByPreference,
     QuestionOptionByPreference,
+    Voting,
+    VotingYesNo,
     VotingByPreference,
+    VotingMultiChoice,
+
 )
 from base.serializers import KeySerializer, AuthSerializer
 
@@ -22,6 +26,11 @@ class QuestionOptionByPreferenceSerializer(serializers.HyperlinkedModelSerialize
     class Meta:
         model = QuestionOptionByPreference
         fields = ("number", "option", "preference")
+
+class QuestionOptionMultiChoiceSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = QuestionOptionMultiChoice
+        fields = ("number", "option")
 
 class QuestionSerializer(serializers.HyperlinkedModelSerializer):
     options = QuestionOptionSerializer(many=True)
@@ -41,6 +50,13 @@ class QuestionByPreferenceSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = QuestionByPreference
         fields = ("desc", "preferences")
+
+class QuestionMultiChoiceSerializer(serializers.HyperlinkedModelSerializer):
+    multichoices = QuestionOptionMultiChoiceSerializer(many=True)
+
+    class Meta:
+        model = QuestionMultiChoice
+        fields = ("desc", "multichoices")
 
 class VotingSerializer(serializers.HyperlinkedModelSerializer):
     question = QuestionSerializer(many=False)
@@ -103,6 +119,26 @@ class VotingByPreferenceSerializer(serializers.HyperlinkedModelSerializer):
             "postproc",
         )
 
+class VotingMultiChoiceSerializer(serializers.HyperlinkedModelSerializer):
+    question = QuestionMultiChoiceSerializer(many=False)
+    pub_key = KeySerializer()
+    auths = AuthSerializer(many=True)
+
+    class Meta:
+        model = VotingMultiChoice
+        fields = (
+            "id",
+            "name",
+            "desc",
+            "question",
+            "start_date",
+            "end_date",
+            "pub_key",
+            "auths",
+            "tally",
+            "postproc",
+        )
+
 
 class SimpleVotingSerializer(serializers.HyperlinkedModelSerializer):
     question = QuestionSerializer(many=False)
@@ -123,4 +159,11 @@ class SimpleVotingByPreferenceSerializer(serializers.HyperlinkedModelSerializer)
 
     class Meta:
         model = VotingByPreference
+        fields = ("name", "desc", "question", "start_date", "end_date")
+
+class SimpleVotingMultiChoiceSerializer(serializers.HyperlinkedModelSerializer):
+    question = QuestionMultiChoiceSerializer(many=False)
+
+    class Meta:
+        model = VotingMultiChoice
         fields = ("name", "desc", "question", "start_date", "end_date")
