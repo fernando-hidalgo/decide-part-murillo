@@ -492,7 +492,12 @@ class VotingByPreference(models.Model):
             option = options.get(number=key)
             opts.append({"option": option.option, "number": key, "votes": votes})
 
-        data = {"escaños": self.escaños, "type": self.tallyType, "options": opts}
+        data = {
+            "escaños": self.escaños,
+            "type": self.tallyType,
+            "options": opts,
+            "preference": True,
+        }
         postp = mods.post("postproc", json=data)
 
         self.postproc = postp
