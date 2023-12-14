@@ -5,7 +5,6 @@ on:
     branches:
       - develop
       - smart-jobs-config
-      - feature/MRL19-interfaz-varias-preguntas-votacion
   pull_request:
     branches:
       - develop
@@ -18,7 +17,7 @@ jobs:
   build:
     strategy:
       matrix:
-        pyversion: ['3.8', '3.9']
+        pyversion: ['3.10', '3.11']
 
     runs-on: ubuntu-latest
 
