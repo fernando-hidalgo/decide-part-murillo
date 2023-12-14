@@ -12,7 +12,7 @@ from rest_framework.status import (
 )
 
 from base.perms import UserIsStaff
-from .models import Census, CensusByPreference, CensusYesNo
+from .models import Census, CensusByPreference, CensusYesNo, CensusMultiChoice
 from django.contrib import messages
 import openpyxl
 from django.http import HttpResponseRedirect
@@ -261,3 +261,75 @@ class CensusYesNoImportView(TemplateView):
 
             messages.success(request, "Importación finalizada")
             return HttpResponseRedirect("/census/import/")
+
+class CensusMultiChoiceCreate(generics.ListCreateAPIView):
+    permission_classes = (UserIsStaff,)
+
+    def create(self, request, *args, **kwargs):
+        voting_id = request.data.get("voting_id")
+        voters = request.data.get("voters")
+        try:
+            for voter in voters:
+                census = CensusMultiChoice(voting_id=voting_id, voter_id=voter)
+                census.save()
+        except IntegrityError:
+            return Response("Error try to create census", status=ST_409)
+        return Response("Census of multiple choice created", status=ST_201)
+
+    def list(self, request, *args, **kwargs):
+        voting_id = request.GET.get("voting_id")
+        voters = CensusMultiChoice.objects.filter(voting_id=voting_id).values_list(
+            "voter_id", flat=True
+        )
+        return Response({"voters": voters})
+
+
+class CensusMultiChoiceDetail(generics.RetrieveDestroyAPIView):
+    def destroy(self, request, voting_id, *args, **kwargs):
+        voters = request.data.get("voters")
+        census = CensusMultiChoice.objects.filter(
+            voting_id=voting_id, voter_id__in=voters
+        )
+        census.delete()
+        return Response("Voters deleted from census by multiple choice", status=ST_204)
+
+    def retrieve(self, request, voting_id, *args, **kwargs):
+        voter = request.GET.get("voter_id")
+        try:
+            CensusMultiChoice.objects.get(voting_id=voting_id, voter_id=voter)
+        except ObjectDoesNotExist:
+            return Response("Invalid voter", status=ST_401)
+        return Response("Valid voter")
+
+
+class CensusMultiChoiceImportView(TemplateView):
+    template_name = "census/import_census.html"
+
+    def post(self, request, *args, **kwargs):
+        if request.method == "POST" and request.FILES["census_file"]:
+            census_file = request.FILES["census_file"]
+            workbook = openpyxl.load_workbook(census_file)
+            sheet = workbook.active
+
+            for row in sheet.iter_rows(min_row=2, values_only=True):
+                voting_id = row[0]
+                voter_id = row[1]
+                group = row[2]
+
+                # Comprobar si ya existe un objeto con la misma pareja de voting_id y voter_id
+                existing_census = CensusMultiChoice.objects.filter(
+                    voting_id=voting_id, voter_id=voter_id, group=group
+                ).first()
+
+                if not existing_census:
+                    CensusMultiChoice.objects.create(
+                        voting_id=voting_id, voter_id=voter_id, group=group
+                    )
+                else:
+                    messages.error(
+                        request,
+                        f"Ya existe un registro para la pareja de voting_id={voting_id}, voter_id={voter_id} y grupo={group}",
+                    )
+
+            messages.success(request, "Importación finalizada")
+            return HttpResponseRedirect("/census/multichoice/import/")
