@@ -86,7 +86,7 @@ jobs:
           fi
       - name: Codacy Coverage Reporter
         uses: codacy/codacy-coverage-reporter-action@v1
-        if: env.Run_Codacy == "no"
+        if: env.Run_Codacy == 'no'
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
           coverage-reports: decide/coverage.xml
