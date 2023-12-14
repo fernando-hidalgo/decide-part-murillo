@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - docker-images-config
+      - master
 
   pull_request:
     branches:
@@ -64,4 +65,4 @@ jobs:
         context: ./docker/
         file: ./docker/Dockerfile
         push: true
-        tags: user/app:latest
+        tags: agudevbon/decide-part-murillo
