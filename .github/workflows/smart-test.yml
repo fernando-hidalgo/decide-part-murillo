@@ -84,6 +84,7 @@ jobs:
             echo "Run_Codacy=no" >> $GITHUB_ENV
           fi
       - name: env test
+        run: |
           echo ${{env.Run_Codacy}}
       - name: Codacy Coverage Reporter
         if: env.Run_Codacy == 'no'
