@@ -81,14 +81,5 @@ jobs:
             coverage xml
           else
             echo "No hay pruebas para ejecutar"
-            echo "Run_Codacy=no" >> $GITHUB_ENV
+            echo "Run_Codacy='no'" >> $GITHUB_ENV
           fi
-      - name: env test
-        run: |
-          echo ${{env.Run_Codacy}}
-      - name: Codacy Coverage Reporter
-        if: env.Run_Codacy == 'no'
-        uses: codacy/codacy-coverage-reporter-action@v1
-        with:
-          project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
-          coverage-reports: decide/coverage.xml
