@@ -36,9 +36,7 @@ jobs:
         run: |
           pwd
           ls -a
-          cd ..
-          ls -a
-          cd docker
+          cd loadtest
           echo "Desplegando en el directorio"
           pwd
       -
