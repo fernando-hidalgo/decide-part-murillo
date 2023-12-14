@@ -19,4 +19,10 @@ urlpatterns = [
         views.VotingByPreferenceUpdate.as_view(),
         name="votingbypreference",
     ),
+    path("multichoice/", views.VotingMultiChoiceView.as_view(), name="votingmultichoice"),
+    path(
+        "multichoice/<int:voting_multichoice_id>/",
+        views.VotingMultiChoiceUpdate.as_view(),
+        name="votingmultichoice",
+    ),
 ]
