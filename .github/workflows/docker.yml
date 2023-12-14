@@ -36,6 +36,8 @@ jobs:
         run: |
           pwd
           ls -a
+          cd ..
+          ls -a
           cd docker
           echo "Desplegando en el directorio"
           pwd
