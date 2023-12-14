@@ -84,7 +84,7 @@ jobs:
             echo "Run_Codacy=no" >> $GITHUB_ENV
           fi
       - name: Codacy Coverage Reporter
-        if: env.Run_Codacy == 'no'
+        if: $Run_Codacy == 'no'
         uses: codacy/codacy-coverage-reporter-action@v1
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
