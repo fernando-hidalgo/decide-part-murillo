@@ -34,6 +34,7 @@ jobs:
       -
         name: Seting directory
         run: |
+          pwd
           cd docker
           echo "Desplegando en el directorio"
           pwd
