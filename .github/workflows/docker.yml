@@ -36,7 +36,7 @@ jobs:
         run: |
           pwd
           ls -a
-          cd loadtest
+          cd decide
           echo "Desplegando en el directorio"
           pwd
       -
