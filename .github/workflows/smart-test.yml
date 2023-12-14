@@ -50,7 +50,6 @@ jobs:
           cd decide
           python manage.py migrate
       - name: Tests required
-        id: git_changes
         run: |
           cd decide
           if [[ $(git log --format=%B -n 1) == *"#Build: Authentication"* ]]; then
@@ -85,8 +84,8 @@ jobs:
             echo "Run_Codacy=no" >> $GITHUB_ENV
           fi
       - name: Codacy Coverage Reporter
-        uses: codacy/codacy-coverage-reporter-action@v1
         if: env.Run_Codacy == 'no'
+        uses: codacy/codacy-coverage-reporter-action@v1
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
           coverage-reports: decide/coverage.xml
