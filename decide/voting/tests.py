@@ -23,6 +23,9 @@ from voting.models import (
     QuestionByPreference,
     QuestionOptionByPreference,
     VotingByPreference,
+    QuestionMultiChoice,
+    QuestionOptionMultiChoice,
+    VotingMultiChoice
 )
 
 from django.contrib.admin.sites import AdminSite
@@ -85,6 +88,25 @@ class VotingTestCase(BaseTestCase):
             )
             opt.save()
         v = VotingByPreference(name="test voting", question=q)
+        v.save()
+
+        a, _ = Auth.objects.get_or_create(
+            url=settings.BASEURL, defaults={"me": True, "name": "test auth"}
+        )
+        a.save()
+        v.auths.add(a)
+
+        return v
+
+    def create_voting_multichoice(self):
+        q = QuestionMultiChoice(desc="test question")
+        q.save()
+        for i in range(5):
+            opt = QuestionOptionMultiChoice(
+                multichoice=i, question=q, option="option {}".format(i + 1)
+            )
+            opt.save()
+        v = VotingMultiChoice(name="test voting", question=q)
         v.save()
 
         a, _ = Auth.objects.get_or_create(
@@ -159,6 +181,28 @@ class VotingTestCase(BaseTestCase):
         clear = {}
 
         for opt in v.question.preferences.all():
+            clear[opt.number] = 0
+            for i in range(random.randint(0, 5)):
+                a, b = self.encrypt_msg(opt.number, v)
+                data = {
+                    "voting": v.id,
+                    "voter": voter.voter_id,
+                    "vote": {"a": a, "b": b},
+                }
+                clear[opt.number] += 1
+                user = self.get_or_create_user(voter.voter_id)
+                self.login(user=user.username)
+                voter = voters.pop()
+                mods.post("store", json=data)
+        return clear
+
+    def store_votes_multichoice(self, v):
+        voters = list(Census.objects.filter(voting_id=v.id))
+        voter = voters.pop()
+
+        clear = {}
+
+        for opt in v.question.multichoices.all():
             clear[opt.number] = 0
             for i in range(random.randint(0, 5)):
                 a, b = self.encrypt_msg(opt.number, v)
@@ -274,6 +318,24 @@ class VotingTestCase(BaseTestCase):
         for q in v.postproc:
             self.assertEqual(tally.get(q["number"], 0), q["votes"])
 
+    def test_complete_voting_multichoice(self):
+        v = self.create_voting_multichoice()
+        self.create_voters(v)
+
+        v.create_pubkey()
+        v.start_date = timezone.now()
+        v.save()
+
+        self.login()  # set token
+        v.tally_votes(self.token)
+
+        tally = v.tally
+        tally.sort()
+        tally = {k: len(list(x)) for k, x in itertools.groupby(tally)}
+
+        for q in v.postproc:
+            self.assertEqual(tally.get(q["number"], 0), q["votes"])
+
     def test_create_voting_from_api(self):
         data = {"name": "Example"}
         response = self.client.post("/voting/", data, format="json")
@@ -348,6 +410,32 @@ class VotingTestCase(BaseTestCase):
         }
 
         response = self.client.post("/voting/preference/", data, format="json")
+        self.assertEqual(response.status_code, 201)
+
+    def test_create_voting_multichoice_from_api(self):
+        data = {"name": "Example"}
+
+        response = self.client.post("/voting/multichoice/", data, format="json")
+        self.assertEqual(response.status_code, 401)
+
+        # login with user no admin
+        self.login(user="noadmin")
+        response = mods.post("voting/multichoice", params=data, response=True)
+        self.assertEqual(response.status_code, 403)
+
+        # login with user admin
+        self.login()
+        response = mods.post("voting/multichoice", params=data, response=True)
+        self.assertEqual(response.status_code, 400)
+
+        data = {
+            "name": "Example",
+            "desc": "Description example",
+            "question": "I prefer",
+            "question_opt": ["cat", "dog", "rabbit"],
+        }
+
+        response = self.client.post("/voting/multichoice/", data, format="json")
         self.assertEqual(response.status_code, 201)
 
     def test_update_voting(self):
@@ -642,6 +730,111 @@ class VotingTestCase(BaseTestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.json(), "Voting already tallied")
 
+    def test_update_voting_multichoice(self):
+        votingMultiChoice = self.create_voting_multichoice()
+
+        data = {"action": "start"}
+        # response = self.client.post('/voting/{}/'.format(voting.pk), data, format='json')
+        # self.assertEqual(response.status_code, 401)
+
+        # login with user no admin
+        self.login(user="noadmin")
+        response = self.client.put(
+            "/voting/multichoice/{}/".format(votingMultiChoice.pk), data, format="json"
+        )
+        self.assertEqual(response.status_code, 403)
+
+        # login with user admin
+        self.login()
+        data = {"action": "bad"}
+        response = self.client.put(
+            "/voting/multichoice/{}/".format(votingMultiChoice.pk), data, format="json"
+        )
+        self.assertEqual(response.status_code, 400)
+
+        # STATUS VOTING: not started
+        for action in ["stop", "tally"]:
+            data = {"action": action}
+            response = self.client.put(
+                "/voting/multichoice/{}/".format(votingMultiChoice.pk),
+                data,
+                format="json",
+            )
+            self.assertEqual(response.status_code, 400)
+            self.assertEqual(response.json(), "Voting is not started")
+
+        data = {"action": "start"}
+        response = self.client.put(
+            "/voting/multichoice/{}/".format(votingMultiChoice.pk), data, format="json"
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), "Voting started")
+
+        # STATUS VOTING: started
+        data = {"action": "start"}
+        response = self.client.put(
+            "/voting/multichoice/{}/".format(votingMultiChoice.pk), data, format="json"
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json(), "Voting already started")
+
+        data = {"action": "tally"}
+        response = self.client.put(
+            "/voting/multichoice/{}/".format(votingMultiChoice.pk), data, format="json"
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json(), "Voting is not stopped")
+
+        data = {"action": "stop"}
+        response = self.client.put(
+            "/voting/multichoice/{}/".format(votingMultiChoice.pk), data, format="json"
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), "Voting stopped")
+
+        # STATUS VOTING: stopped
+        data = {"action": "start"}
+        response = self.client.put(
+            "/voting/multichoice/{}/".format(votingMultiChoice.pk), data, format="json"
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json(), "Voting already started")
+
+        data = {"action": "stop"}
+        response = self.client.put(
+            "/voting/multichoice/{}/".format(votingMultiChoice.pk), data, format="json"
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json(), "Voting already stopped")
+
+        data = {"action": "tally"}
+        response = self.client.put(
+            "/voting/multichoice/{}/".format(votingMultiChoice.pk), data, format="json"
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), "Voting tallied")
+
+        # STATUS VOTING: tallied
+        data = {"action": "start"}
+        response = self.client.put(
+            "/voting/multichoice/{}/".format(votingMultiChoice.pk), data, format="json"
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json(), "Voting already started")
+
+        data = {"action": "stop"}
+        response = self.client.put(
+            "/voting/multichoice/{}/".format(votingMultiChoice.pk), data, format="json"
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json(), "Voting already stopped")
+
+        data = {"action": "tally"}
+        response = self.client.put(
+            "/voting/multichoice/{}/".format(votingMultiChoice.pk), data, format="json"
+        )
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json(), "Voting already tallied")
 
 class LogInSuccessTests(StaticLiveServerTestCase):
     def setUp(self):
