@@ -1,20 +1,23 @@
 from rest_framework.response import Response
 from rest_framework.status import (
+    HTTP_200_OK,
     HTTP_201_CREATED,
     HTTP_400_BAD_REQUEST,
     HTTP_401_UNAUTHORIZED,
 )
 from rest_framework.views import APIView
 from rest_framework.authtoken.models import Token
+from django.contrib.auth import login, authenticate
 from django.contrib.auth.models import User
 from django.db import IntegrityError
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.contrib.auth.password_validation import CommonPasswordValidator
+from rest_framework.permissions import IsAdminUser
+from django.contrib import messages
 import difflib
 
 from .serializers import UserSerializer
-
 
 class GetUserView(APIView):
     def post(self, request):
@@ -57,6 +60,15 @@ class RegisterView(APIView):
         return Response({"user_pk": user.pk, "token": token.key}, HTTP_201_CREATED)
 
 
+class UserList(APIView):
+    permission_classes = [IsAdminUser]  # Restringir acceso a usuarios admin
+
+    def get(self, request):
+        users = User.objects.all()
+        serializer = UserSerializer(users, many=True)
+        return Response(serializer.data)
+
+
 class RegisterUserView(APIView):
     def get(self, request):
         return render(request, "register.html")
@@ -65,8 +77,9 @@ class RegisterUserView(APIView):
         username = request.data.get("username", "")
         pwd = request.data.get("password", "")
         email = request.data.get("email", "")
+        confirm_email = request.data.get("email_conf", "")
         confirm_pwd = request.data.get("password_conf", "")
-        if not username or not pwd or not email or not confirm_pwd:
+        if not username or not pwd or not email or not confirm_pwd or not confirm_email:
             return Response({}, status=HTTP_400_BAD_REQUEST)
 
         error_messages = []
@@ -86,6 +99,9 @@ class RegisterUserView(APIView):
 
         if pwd != confirm_pwd:
             error_messages.append("Passwords do not match. Please try again.")
+
+        if email != confirm_email:
+            error_messages.append("Emails do not match. Please try again.")
 
         try:
             validator = CommonPasswordValidator()
@@ -111,5 +127,27 @@ class RegisterUserView(APIView):
             token, _ = Token.objects.get_or_create(user=user)
         except IntegrityError:
             return Response({}, status=HTTP_400_BAD_REQUEST)
-        register_success = "Your account has been created successfully!"
-        return render(request, "register.html", {"register_success": register_success})
+
+        messages.success(request, "User created successfully")
+        return redirect("home")
+
+class LoginUserView(APIView):
+    def get(self, request):
+        if request.user.is_authenticated:
+            return Response({"message": "Ya has iniciado sesión."}, status=HTTP_200_OK)
+        return render(request, "login.html")
+
+    def post(self, request):
+        username = request.data.get("username", "")
+        password = request.data.get("password", "")
+
+
+        user = authenticate(request, username=username, password=password)
+
+        if user:
+            login(request, user)
+            messages.success(request, "Login done successfully")
+            return redirect("home")
+        else:
+            messages.error(request, "Error en el inicio de sesión")
+            return render(request,"login.html")
