@@ -48,9 +48,14 @@ jobs:
           pip install -r requirements.txt
           pip install codacy-coverage
           cp decide/local_settings.gactions.py decide/local_settings.py
+      - name: Run migrations (unnecessary)
+        run: |
+          cd decide
+          python manage.py migrate
       - name: Tests required
         id: git_changes
         run: |
+          cd decide
           if [[ $(git log --format=%B -n 1) == *"#Build: Booth"* ]]; then
             coverage run --branch --source=. ./manage.py test booth --keepdb
             coverage xml
