@@ -15,7 +15,7 @@ jobs:
     steps:
       -
         name: Install Docker
-        runs: |
+        run: |
           sudo apt-get update
           sudo apt-get install -y docker
 
@@ -33,7 +33,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
         name: Seting directory
-        runs: |
+        run: |
           cd docker
           echo "Desplegando en el directorio"
           pwd
