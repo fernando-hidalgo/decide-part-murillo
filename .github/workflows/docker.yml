@@ -58,16 +58,10 @@ jobs:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
     -
-      name: Seting directory
-      run: |
-        pwd
-        ls -a
-        cd decide
-        echo "Desplegando en el directorio"
-        pwd
-    -
       name: Build and push
       uses: docker/build-push-action@v5
       with:
+        context: ./docker/
+        file: ./docker/Dockerfile
         push: true
         tags: user/app:latest
