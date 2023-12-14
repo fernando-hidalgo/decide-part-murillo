@@ -55,9 +55,34 @@ jobs:
       - name: Tests required
         id: git_changes
         run: |
+          pwd
           cd decide
-          if [[ $(git log --format=%B -n 1) == *"#Build: Booth"* ]]; then
+          if [[ $(git log --format=%B -n 1) == *"#Build: Authentication"* ]]; then
+            coverage run --branch --source=. ./manage.py test authentication --keepdb
+            coverage xml
+          elif [[ $(git log --format=%B -n 1) == *"#Build: Base"* ]]; then
+            coverage run --branch --source=. ./manage.py test base --keepdb
+            coverage xml
+          elif [[ $(git log --format=%B -n 1) == *"#Build: Booth"* ]]; then
             coverage run --branch --source=. ./manage.py test booth --keepdb
+            coverage xml
+          elif [[ $(git log --format=%B -n 1) == *"#Build: Census"* ]]; then
+            coverage run --branch --source=. ./manage.py test census --keepdb
+            coverage xml
+          elif [[ $(git log --format=%B -n 1) == *"#Build: Mixnet"* ]]; then
+            coverage run --branch --source=. ./manage.py test mixnet --keepdb
+            coverage xml
+          elif [[ $(git log --format=%B -n 1) == *"#Build: Postproc"* ]]; then
+            coverage run --branch --source=. ./manage.py test postproc --keepdb
+            coverage xml
+          elif [[ $(git log --format=%B -n 1) == *"#Build: Store"* ]]; then
+            coverage run --branch --source=. ./manage.py test store --keepdb
+            coverage xml
+          elif [[ $(git log --format=%B -n 1) == *"#Build: Visualizer"* ]]; then
+            coverage run --branch --source=. ./manage.py test visualizer --keepdb
+            coverage xml
+          elif [[ $(git log --format=%B -n 1) == *"#Build: Voting"* ]]; then
+            coverage run --branch --source=. ./manage.py test voting --keepdb
             coverage xml
           else
             echo "No hay pruebas para ejecutar"
