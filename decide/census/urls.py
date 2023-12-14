@@ -10,6 +10,7 @@ urlpatterns = [
         name="census_by_preference_create",
     ),
     path("yesno/", views.CensusYesNoCreate.as_view(), name="census_yesno_create"),
+    path("multichoice/", views.CensusMultiChoiceCreate.as_view(), name="census_multichoice_create"),
     path("<int:voting_id>/", views.CensusDetail.as_view(), name="census_detail"),
     path(
         "bypreference/<int:voting_id>/",
@@ -20,6 +21,11 @@ urlpatterns = [
         "yesno/<int:voting_id>/",
         views.CensusYesNoDetail.as_view(),
         name="census_yesno_detail",
+    ),
+    path(
+        "multichoice/<int:voting_id>/",
+        views.CensusMultiChoiceDetail.as_view(),
+        name="census_multichoice_detail",
     ),
     path("import/", views.CensusImportView.as_view(), name="import_census"),
     path("admin/", views.CensusAdminView.as_view(), name="admin_census"),
@@ -34,5 +40,10 @@ urlpatterns = [
         "yesno/import/",
         views.CensusYesNoImportView.as_view(),
         name="import_census_yesno",
+    ),
+    path(
+        "multichoice/import/",
+        views.CensusMultiChoiceImportView.as_view(),
+        name="import_census_multichoice",
     ),
 ]
