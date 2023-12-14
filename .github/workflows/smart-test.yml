@@ -83,8 +83,10 @@ jobs:
             echo "No hay pruebas para ejecutar"
             echo "Run_Codacy=no" >> $GITHUB_ENV
           fi
+      - name: env test
+          echo ${{env.Run_Codacy}}
       - name: Codacy Coverage Reporter
-        if: $Run_Codacy == 'no'
+        if: env.Run_Codacy == 'no'
         uses: codacy/codacy-coverage-reporter-action@v1
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
