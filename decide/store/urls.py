@@ -8,4 +8,7 @@ urlpatterns = [
     path(
         "preference/", views.StoreByPreferenceView.as_view(), name="storebypreference"
     ),
+    path(
+        "multichoice/", views.StoreMultiChoiceView.as_view(), name="storemultichoice"
+    ),
 ]
