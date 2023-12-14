@@ -3,11 +3,8 @@ name: Build Test
 on:
   push:
     branches:
-      - develop
-      - smart-jobs-config
-  pull_request:
-    branches:
-      - develop
+      - 'feature/MRL*'
+      - smart-jobs-config-bis
   workflow_call:
     secrets:
       CODACY_PROJECT_TOKEN:
