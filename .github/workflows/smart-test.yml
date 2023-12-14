@@ -52,7 +52,6 @@ jobs:
       - name: Tests required
         id: git_changes
         run: |
-          pwd
           cd decide
           if [[ $(git log --format=%B -n 1) == *"#Build: Authentication"* ]]; then
             coverage run --branch --source=. ./manage.py test authentication --keepdb
