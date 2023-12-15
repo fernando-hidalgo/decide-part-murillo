@@ -1,0 +1,212 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Administración del Censo</title>
+    <link rel="stylesheet" href="https://unpkg.com/bootstrap/dist/css/bootstrap.min.css">
+    <script src="https://unpkg.com/vue@latest"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Administración del Censo</h1>
+        <div>
+            <h2>Lista de votaciones</h2>
+
+        </div>
+
+        <ul id="censusList" class="list-group">
+            <!-- Los elementos se añadirán mediante JS -->
+        </ul>
+    </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            fetchAllVoters().then(voters => {
+            allVoters = voters;
+            Promise.all([fetchAllVotings(), fetchCensuses()])
+                .then(([votings, censuses]) => {
+                    const votingsWithCensus = mergeVotingsAndCensuses(votings, censuses);
+                    displayVotings(votingsWithCensus);
+                });
+            });
+});
+
+
+function mergeVotingsAndCensuses(votings, censuses) {
+    // Transforma los censuses en un objeto agrupado por voting_id
+    const censusesGrouped = censuses.reduce((acc, census) => {
+        if (!acc[census.voting_id]) {
+            acc[census.voting_id] = [];
+        }
+        acc[census.voting_id].push(census.voter_id);
+        return acc;
+    }, {});
+
+    // Fusiona los votings con los censuses
+    return votings.map(voting => ({
+        voting_id: voting.id,
+        voters: censusesGrouped[voting.id] || [],
+        name: voting.name // Usa los votantes del censo si existen
+    }));
+}
+
+function displayVotings(votingsWithCensus) {
+    const censusList = document.getElementById('censusList');
+    censusList.innerHTML = ''; // Limpiar lista actual
+    console.log("Voting with census"+votingsWithCensus)
+    votingsWithCensus.forEach(voting => {
+        const listItem = document.createElement('li');
+        listItem.className = 'list-group-item';
+
+        const votingTitle = document.createElement('h3');
+        votingTitle.textContent = `Votación: ${voting.name}`;
+
+        // Filtrar votantes disponibles para esta votación
+        const availableVoters = getAvailableVotersForVoting(voting.voting_id, votingsWithCensus);
+        availableVoters.forEach( voter => { console.log("AVAILABLE IN "+voting.name + " "+voter.username)
+        });
+
+
+        // Botón para mostrar/ocultar votantes
+        const button = document.createElement('button');
+        button.textContent = "Mostrar/Ocultar votantes"; // Usar el nombre de la votación
+        button.className = 'btn btn-info';
+        button.onclick = () => toggleVoters(votersList);
+
+        console.log(voting)
+        // Lista de votantes
+        const votersList = document.createElement('ul');
+        votersList.id = `voters-${voting.voting_id}`;
+        votersList.className = 'voters-list';
+        votersList.style.display = 'none';
+
+        voting.voters.forEach(voterId => {
+            const voterItem = document.createElement('li');
+            voterItem.textContent = `Votante ID: ${voterId}`;
+            votersList.appendChild(voterItem);
+        });
+
+        // Crear un desplegable para los votantes disponibles
+        const votersSelect = document.createElement('select');
+        availableVoters.forEach(voter => {
+            const option = document.createElement('option');
+            option.value = voter.id;
+            option.textContent = voter.username; // Asegúrate de que 'name' es la propiedad correcta
+            votersSelect.appendChild(option);
+        });
+
+        // Botón para añadir nuevo censo
+        const addCensusButton = document.createElement('button');
+        addCensusButton.textContent = 'Añadir Votante';
+        addCensusButton.className = 'btn btn-success';
+        addCensusButton.onclick = () => {
+            console.log(voting.voting_id+" "+ votersSelect.value);
+            addCensus(voting.voting_id, votersSelect.value);
+        }
+        listItem.appendChild(votingTitle);
+        listItem.appendChild(button);
+        listItem.appendChild(votersSelect);
+        listItem.appendChild(addCensusButton);
+
+        listItem.appendChild(votersList);
+        censusList.appendChild(listItem);
+    });
+}
+
+function toggleVoters(votersList) {
+    const displayStyle = votersList.style.display;
+    votersList.style.display = displayStyle === 'none' ? 'block' : 'none';
+}
+
+let allVoters = []; // Aquí almacenarás todos los votantes posibles
+
+function fetchAllVoters() {
+    return fetch('/authentication/user')
+        .then(response => response.json())
+        .then(data => {
+            console.log("Votantes obtenidos:", data); // Verifica los datos obtenidos
+            return data;
+        })
+        .catch(error => {
+            console.error('Error al obtener votantes:', error);
+            return [];
+        });
+}
+
+function getAvailableVotersForVoting(votingId, votingsWithCensus) {
+    const assignedVoters = votingsWithCensus.find(voting => voting.voting_id === votingId).voters;
+    const availableVoters = allVoters.filter(voter => !assignedVoters.includes(voter.id));
+    console.log("Votantes disponibles para la votación", votingId, ":", availableVoters);
+    return availableVoters;
+}
+
+
+function fetchAllVotings() {
+    return fetch('/voting/')
+        .then(response => response.json())
+        .catch(error => {
+            console.error('Error al obtener votaciones:', error);
+            return [];
+        });
+}
+
+function fetchCensuses() {
+    return fetch('/census/api/census/')
+        .then(response => response.json())
+        .catch(error => {
+            console.error('Error al obtener censos:', error);
+            return [];
+        });
+}
+
+function groupByVotingId(data) {
+    return data.reduce((acc, { voting_id, voter_id }) => {
+        if (!acc[voting_id]) {
+            acc[voting_id] = [];
+        }
+        acc[voting_id].push(voter_id);
+        return acc;
+    }, {});
+}
+
+
+function reFresh(){
+location.reload(true)
+}
+
+function addCensus(votingId, voterId) {
+    const payload = {
+        voting_id: votingId,
+        voter_id: voterId // Enviando como una lista ya que el backend espera una lista
+    };
+
+    fetch('/census/create/', {  // Asegúrate de usar la URL correcta
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'        },
+        body: JSON.stringify(payload)
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Error al crear el censo');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Censo creado:', data);
+        this.reFresh();
+        // Aquí puedes realizar acciones adicionales tras la creación exitosa del censo
+    })
+    .catch(error => {
+        console.error('Error:', error);
+    });
+}
+
+
+
+
+    </script>
+
+</body>
+</html>
