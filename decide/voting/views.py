@@ -27,7 +27,6 @@ from .serializers import (
     VotingSerializer,
     VotingYesNoSerializer,
     VotingMultiChoiceSerializer,
-
 )
 from base.perms import UserIsStaff
 from base.models import Auth
@@ -40,7 +39,6 @@ class VotingView(generics.ListCreateAPIView):
     filterset_fields = ("id",)
 
     def get(self, request, *args, **kwargs):
-        idpath = kwargs.get("voting_id")
         self.queryset = Voting.objects.all()
         version = request.version
         if version not in settings.ALLOWED_VERSIONS:
@@ -136,7 +134,6 @@ class VotingYNView(generics.ListCreateAPIView):
     filterset_fields = ("id",)
 
     def get(self, request, *args, **kwargs):
-        idpath = kwargs.get("voting_yesno_id")
         self.queryset = VotingYesNo.objects.all()
         version = request.version
         if version not in settings.ALLOWED_VERSIONS:
@@ -177,7 +174,6 @@ class VotingByPreferenceView(generics.ListCreateAPIView):
     filterset_fields = ("id",)
 
     def get(self, request, *args, **kwargs):
-        idpath = kwargs.get("voting_by_preference_id")
         self.queryset = VotingByPreference.objects.all()
         version = request.version
         if version not in settings.ALLOWED_VERSIONS:
@@ -216,6 +212,7 @@ class VotingByPreferenceView(generics.ListCreateAPIView):
         voting.auths.add(auth)
         return Response({}, status=status.HTTP_201_CREATED)
 
+
 class VotingMultiChoiceView(generics.ListCreateAPIView):
     queryset = VotingMultiChoice.objects.all()
     serializer_class = VotingMultiChoiceSerializer
@@ -223,7 +220,6 @@ class VotingMultiChoiceView(generics.ListCreateAPIView):
     filterset_fields = ("id",)
 
     def get(self, request, *args, **kwargs):
-        idpath = kwargs.get("voting_multichoice_id")
         self.queryset = VotingMultiChoice.objects.all()
         version = request.version
         if version not in settings.ALLOWED_VERSIONS:
@@ -243,9 +239,10 @@ class VotingMultiChoiceView(generics.ListCreateAPIView):
         question = QuestionMultiChoice(desc=request.data.get("question"))
         question.save()
 
-        selected_options = []
         for idx, q_opt in enumerate(request.data.get("question_opt")):
-            opt = QuestionOptionMultiChoice(question=question, option=q_opt, number=idx, multichoice=idx)
+            opt = QuestionOptionMultiChoice(
+                question=question, option=q_opt, number=idx, multichoice=idx
+            )
             opt.save()
 
         voting = VotingMultiChoice(
@@ -365,6 +362,7 @@ class VotingByPreferenceUpdate(generics.RetrieveUpdateDestroyAPIView):
             msg = "Action not found, try with start, stop or tally"
             st = status.HTTP_400_BAD_REQUEST
         return Response(msg, status=st)
+
 
 class VotingMultiChoiceUpdate(generics.RetrieveUpdateDestroyAPIView):
     queryset = VotingMultiChoice.objects.all()

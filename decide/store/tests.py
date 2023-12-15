@@ -7,7 +7,12 @@ from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
 
 from .models import Vote, VoteByPreference, VoteYN, VoteMultiChoice
-from .serializers import VoteByPreferenceSerializer, VoteSerializer, VoteYNSerializer, VoteMultiChoiceSerializer
+from .serializers import (
+    VoteByPreferenceSerializer,
+    VoteSerializer,
+    VoteYNSerializer,
+    VoteMultiChoiceSerializer,
+)
 from base import mods
 from base.models import Auth
 from base.tests import BaseTestCase
@@ -535,7 +540,7 @@ class StoreTextCase(BaseTestCase):
         self.assertEqual(votes[0]["voter_id"], u)
 
     def test_hasvote_by_preference(self):
-        votings, voters = self.gen_votes_by_preferences()
+        voters = self.gen_votes_by_preferences()
         vo = VoteByPreference.objects.first()
         v = vo.voting_preference_id
         u = vo.voter_preference_id
@@ -572,7 +577,7 @@ class StoreTextCase(BaseTestCase):
         self.assertEqual(votes[0]["voter_preference_id"], u)
 
     def test_hasvote_yes_no(self):
-        votings, voters = self.gen_votes_yes_no()
+        voters = self.gen_votes_yes_no()
         vo = VoteYN.objects.first()
         v = vo.voting_yesno_id
         u = vo.voter_yesno_id
@@ -603,7 +608,7 @@ class StoreTextCase(BaseTestCase):
         self.assertEqual(votes[0]["voter_yesno_id"], u)
 
     def test_hasvote_multichoice(self):
-        votings, voters = self.gen_votes_multichoice()
+        voters = self.gen_votes_multichoice()
         vo = VoteMultiChoice.objects.first()
         v = vo.voting_multichoice_id
         u = vo.voter_multichoice_id
@@ -726,9 +731,7 @@ class StoreTextCase(BaseTestCase):
         census = CensusMultiChoice(voting_id=5001, voter_id=1)
         census.save()
         # not opened
-        self.voting_multichoice.start_date = timezone.now() + datetime.timedelta(
-            days=1
-        )
+        self.voting_multichoice.start_date = timezone.now() + datetime.timedelta(days=1)
         self.voting_multichoice.save()
         user = self.get_or_create_user(1)
         self.login(user=user.username)
@@ -736,9 +739,7 @@ class StoreTextCase(BaseTestCase):
         self.assertEqual(response.status_code, 401)
 
         # not closed
-        self.voting_multichoice.start_date = timezone.now() - datetime.timedelta(
-            days=1
-        )
+        self.voting_multichoice.start_date = timezone.now() - datetime.timedelta(days=1)
         self.voting_multichoice.save()
         self.voting_multichoice.end_date = timezone.now() + datetime.timedelta(days=1)
         self.voting_multichoice.save()

@@ -9,14 +9,11 @@ from .models import (
     QuestionMultiChoice,
     VotingByPreference,
     VotingMultiChoice,
-
 )
 from .models import Question
 from .models import Voting
 from .models import QuestionYesNo
 from .models import VotingYesNo
-from .models import QuestionMultiChoice
-from .models import VotingMultiChoice
 from .filters import StartedFilter
 
 from django.http import HttpResponse
@@ -61,6 +58,7 @@ class QuestionYesNoAdmin(admin.ModelAdmin):
 class QuestionOptionByPreferenceInline(admin.TabularInline):
     model = QuestionOptionByPreference
 
+
 class QuestionOptionMultiChoiceInline(admin.TabularInline):
     model = QuestionOptionMultiChoice
 
@@ -68,8 +66,10 @@ class QuestionOptionMultiChoiceInline(admin.TabularInline):
 class QuestionByPreferenceAdmin(admin.ModelAdmin):
     inlines = [QuestionOptionByPreferenceInline]
 
+
 class QuestionMultiChoiceAdmin(admin.ModelAdmin):
     inlines = [QuestionOptionMultiChoiceInline]
+
 
 class VotingAdmin(admin.ModelAdmin):
     list_display = ("name", "start_date", "end_date")
@@ -149,6 +149,7 @@ class VotingByPreferenceAdmin(admin.ModelAdmin):
 
     actions = [start, stop, tally]
 
+
 class VotingMultiChoiceAdmin(admin.ModelAdmin):
     list_display = ("name", "start_date", "end_date")
     readonly_fields = ("start_date", "end_date", "pub_key", "tally", "postproc")
@@ -183,5 +184,3 @@ admin.site.register(Voting, VotingAdmin)
 admin.site.register(VotingYesNo, VotingAdmin)
 admin.site.register(VotingByPreference, VotingByPreferenceAdmin)
 admin.site.register(VotingMultiChoice, VotingMultiChoiceAdmin)
-
-

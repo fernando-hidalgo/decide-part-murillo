@@ -47,7 +47,9 @@ class CensusAdmin(admin.ModelAdmin):
 
             for census in queryset.all():
                 if Census.objects.filter(
-                    voting_id=reuse_voting_id, voter_id=census.voter_id, group=census.group
+                    voting_id=reuse_voting_id,
+                    voter_id=census.voter_id,
+                    group=census.group,
                 ).exists():
                     messages.error(
                         request,
@@ -73,7 +75,7 @@ class CensusAdmin(admin.ModelAdmin):
 
 class CensusByPreferenceAdmin(admin.ModelAdmin):
     list_display = ("voting_id", "voter_id", "group")
-    list_filter = ("voting_id","group")
+    list_filter = ("voting_id", "group")
     search_fields = ("voter_id",)
 
     def exportar_a_excel(modeladmin, request, queryset):
@@ -126,7 +128,8 @@ class CensusByPreferenceAdmin(admin.ModelAdmin):
 
     actions = [reuse_action, exportar_a_excel]
     action_form = ReuseActionForm
-    
+
+
 class CensusYesNoAdmin(admin.ModelAdmin):
     list_display = ("voting_id", "voter_id", "group")
     list_filter = ("voting_id", "group")
@@ -183,9 +186,10 @@ class CensusYesNoAdmin(admin.ModelAdmin):
     actions = [reuse_action, exportar_a_excel]
     action_form = ReuseActionForm
 
+
 class CensusMultiChoiceAdmin(admin.ModelAdmin):
     list_display = ("voting_id", "voter_id", "group")
-    list_filter = ("voting_id","group")
+    list_filter = ("voting_id", "group")
     search_fields = ("voter_id",)
 
     def exportar_a_excel(modeladmin, request, queryset):
@@ -237,11 +241,10 @@ class CensusMultiChoiceAdmin(admin.ModelAdmin):
     reuse_action.short_description = "Reutilizar Censo por preferencia"
 
     actions = [reuse_action, exportar_a_excel]
-    action_form = ReuseActionForm    
+    action_form = ReuseActionForm
+
 
 admin.site.register(Census, CensusAdmin)
 admin.site.register(CensusByPreference, CensusByPreferenceAdmin)
 admin.site.register(CensusYesNo, CensusYesNoAdmin)
 admin.site.register(CensusMultiChoice, CensusMultiChoiceAdmin)
-
-

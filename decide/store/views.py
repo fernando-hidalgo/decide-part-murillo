@@ -5,13 +5,16 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework import generics
 
-from .models import Vote, VoteYN, VoteMultiChoice
-from .serializers import VoteSerializer, VoteYNSerializer
-from .models import Vote, VoteByPreference, VoteMultiChoice
-from .serializers import VoteByPreferenceSerializer, VoteSerializer, VoteMultiChoiceSerializer
+from .models import Vote, VoteByPreference, VoteYN, VoteMultiChoice
+from .serializers import (
+    VoteByPreferenceSerializer,
+    VoteSerializer,
+    VoteMultiChoiceSerializer,
+    VoteYNSerializer,
+)
 from base import mods
 from base.perms import UserIsStaff
-from voting.models import VotingYesNo, VotingMultiChoice
+from voting.models import VotingMultiChoice
 
 
 class StoreView(generics.ListAPIView):
@@ -240,6 +243,7 @@ class StoreByPreferenceView(generics.ListAPIView):
         v.save()
 
         return Response({})
+
 
 class StoreMultiChoiceView(generics.ListAPIView):
     queryset = VoteMultiChoice.objects.all()

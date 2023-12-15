@@ -29,6 +29,7 @@ class Question(models.Model):
     def __str__(self):
         return self.desc
 
+
 class QuestionMultiChoice(models.Model):
     desc = models.TextField()
 
@@ -67,13 +68,14 @@ class QuestionOption(models.Model):
     def __str__(self):
         return "{} ({})".format(self.option, self.number)
 
+
 class QuestionOptionMultiChoice(models.Model):
     question = models.ForeignKey(
         QuestionMultiChoice, related_name="multichoices", on_delete=models.CASCADE
     )
     number = models.PositiveIntegerField(blank=True, null=True)
     option = models.TextField()
-    multichoice = models.PositiveIntegerField(blank=True, null= True)
+    multichoice = models.PositiveIntegerField(blank=True, null=True)
 
     def save(self):
         self.multichoice = 0
@@ -561,10 +563,11 @@ class VotingMultiChoice(models.Model):
     end_date = models.DateTimeField(blank=True, null=True)
 
     pub_key = models.OneToOneField(
-        Key, related_name="votingmultichoice",
-        blank=True, 
-        null=True, 
-        on_delete=models.SET_NULL
+        Key,
+        related_name="votingmultichoice",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
     )
     auths = models.ManyToManyField(Auth, related_name="votingsmultichoice")
 
@@ -673,7 +676,7 @@ class VotingMultiChoice(models.Model):
 
         self.postproc = postp
         self.save()
-    
+
     def vote_multi_choice(self, selected_options):
         """
         Permite a los usuarios votar por múltiples opciones.

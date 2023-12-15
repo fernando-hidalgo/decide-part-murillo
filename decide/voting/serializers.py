@@ -12,7 +12,6 @@ from .models import (
     VotingYesNo,
     VotingByPreference,
     VotingMultiChoice,
-
 )
 from base.serializers import KeySerializer, AuthSerializer
 
@@ -22,15 +21,18 @@ class QuestionOptionSerializer(serializers.HyperlinkedModelSerializer):
         model = QuestionOption
         fields = ("number", "option")
 
+
 class QuestionOptionByPreferenceSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = QuestionOptionByPreference
         fields = ("number", "option", "preference")
 
+
 class QuestionOptionMultiChoiceSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = QuestionOptionMultiChoice
         fields = ("number", "option")
+
 
 class QuestionSerializer(serializers.HyperlinkedModelSerializer):
     options = QuestionOptionSerializer(many=True)
@@ -39,10 +41,12 @@ class QuestionSerializer(serializers.HyperlinkedModelSerializer):
         model = Question
         fields = ("desc", "options")
 
+
 class QuestionYesNoSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = QuestionYesNo
         fields = ("desc", "optionYes", "optionNo")
+
 
 class QuestionByPreferenceSerializer(serializers.HyperlinkedModelSerializer):
     preferences = QuestionOptionByPreferenceSerializer(many=True)
@@ -51,12 +55,14 @@ class QuestionByPreferenceSerializer(serializers.HyperlinkedModelSerializer):
         model = QuestionByPreference
         fields = ("desc", "preferences")
 
+
 class QuestionMultiChoiceSerializer(serializers.HyperlinkedModelSerializer):
     multichoices = QuestionOptionMultiChoiceSerializer(many=True)
 
     class Meta:
         model = QuestionMultiChoice
         fields = ("desc", "multichoices")
+
 
 class VotingSerializer(serializers.HyperlinkedModelSerializer):
     question = QuestionSerializer(many=False)
@@ -98,7 +104,8 @@ class VotingYesNoSerializer(serializers.HyperlinkedModelSerializer):
             "tally",
             "postproc",
         )
-        
+
+
 class VotingByPreferenceSerializer(serializers.HyperlinkedModelSerializer):
     question = QuestionByPreferenceSerializer(many=False)
     pub_key = KeySerializer()
@@ -118,6 +125,7 @@ class VotingByPreferenceSerializer(serializers.HyperlinkedModelSerializer):
             "tally",
             "postproc",
         )
+
 
 class VotingMultiChoiceSerializer(serializers.HyperlinkedModelSerializer):
     question = QuestionMultiChoiceSerializer(many=False)
@@ -147,19 +155,22 @@ class SimpleVotingSerializer(serializers.HyperlinkedModelSerializer):
         model = Voting
         fields = ("name", "desc", "question", "start_date", "end_date")
 
+
 class SimpleVotingYesNoSerializer(serializers.HyperlinkedModelSerializer):
     question = QuestionYesNoSerializer(many=False)
 
     class Meta:
         model = VotingYesNo
         fields = ("name", "desc", "question", "start_date", "end_date")
-        
+
+
 class SimpleVotingByPreferenceSerializer(serializers.HyperlinkedModelSerializer):
     question = QuestionByPreferenceSerializer(many=False)
 
     class Meta:
         model = VotingByPreference
         fields = ("name", "desc", "question", "start_date", "end_date")
+
 
 class SimpleVotingMultiChoiceSerializer(serializers.HyperlinkedModelSerializer):
     question = QuestionMultiChoiceSerializer(many=False)

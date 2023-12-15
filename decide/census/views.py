@@ -112,7 +112,9 @@ class CensusImportView(TemplateView):
                 ).first()
 
                 if not existing_census:
-                    Census.objects.create(voting_id=voting_id, voter_id=voter_id, group=group)
+                    Census.objects.create(
+                        voting_id=voting_id, voter_id=voter_id, group=group
+                    )
                 else:
                     messages.error(
                         request,
@@ -194,7 +196,8 @@ class CensusByPreferenceImportView(TemplateView):
 
             messages.success(request, "Importación finalizada")
             return HttpResponseRedirect("/census/bypreference/import/")
-          
+
+
 class CensusYesNoCreate(generics.ListCreateAPIView):
     permission_classes = (UserIsStaff,)
 
@@ -261,6 +264,7 @@ class CensusYesNoImportView(TemplateView):
 
             messages.success(request, "Importación finalizada")
             return HttpResponseRedirect("/census/import/")
+
 
 class CensusMultiChoiceCreate(generics.ListCreateAPIView):
     permission_classes = (UserIsStaff,)
