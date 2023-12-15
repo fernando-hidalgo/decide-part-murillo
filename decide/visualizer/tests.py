@@ -317,8 +317,6 @@ class VisualizerTestCase(BaseTestCase):
         v.start_date = timezone.now()
         v.save()
 
-        clear = self.store_votes_visualizer(v)
-
         self.login()
 
         response_post = self.client.post(reverse("set_language"), {"language": "es"})
