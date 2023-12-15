@@ -48,7 +48,7 @@ class CensusYesNo(models.Model):
 
     class Meta:
         unique_together = (("voting_id", "voter_id"),)
-    
+
     def save(self, *args, **kwargs):
         is_new = not self.pk
         super().save(*args, **kwargs)
@@ -57,6 +57,23 @@ class CensusYesNo(models.Model):
             voter_id = self.voter_id
             voting_id = self.voting_id
             send_confirmation_email(self= self,user_id=voter_id, voting_id=voting_id, voting_type="Sí o No")
+
+class CensusMultiChoice(models.Model):
+    voting_id = models.PositiveIntegerField()
+    voter_id = models.PositiveIntegerField()
+    group = models.CharField(default="", max_length=50)
+
+    class Meta:
+        unique_together = (('voting_id', 'voter_id', 'group'),)
+
+    def save(self, *args, **kwargs):
+        is_new = not self.pk
+        super().save(*args, **kwargs)
+
+        if is_new:
+            voter_id = self.voter_id
+            voting_id = self.voting_id
+            send_confirmation_email(self= self,user_id=voter_id, voting_id=voting_id, voting_type="Multiple opcion")
 
 def send_confirmation_email(self, user_id, voting_id, voting_type):
         try:
@@ -95,4 +112,5 @@ def send_confirmation_email(self, user_id, voting_id, voting_type):
             email.attach_alternative(html_message, "text/html")
             email.send()
         except Exception as e:
-            print(f"Error al enviar el correo: {e}")
+            print(f"Error al enviar el correo: {e}") 
+
