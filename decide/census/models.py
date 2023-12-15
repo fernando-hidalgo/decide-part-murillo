@@ -31,6 +31,15 @@ class CensusByPreference(models.Model):
 
     class Meta:
         unique_together = (('voting_id', 'voter_id', "group"),)
+
+    def save(self, *args, **kwargs):
+        is_new = not self.pk
+        super().save(*args, **kwargs)
+
+        if is_new:
+            voter_id = self.voter_id
+            voting_id = self.voting_id
+            send_confirmation_email(self= self,user_id=voter_id, voting_id=voting_id, voting_type="Por preferencia")
         
 class CensusYesNo(models.Model):
     voting_id = models.PositiveIntegerField()
@@ -39,6 +48,15 @@ class CensusYesNo(models.Model):
 
     class Meta:
         unique_together = (("voting_id", "voter_id"),)
+    
+    def save(self, *args, **kwargs):
+        is_new = not self.pk
+        super().save(*args, **kwargs)
+
+        if is_new:
+            voter_id = self.voter_id
+            voting_id = self.voting_id
+            send_confirmation_email(self= self,user_id=voter_id, voting_id=voting_id, voting_type="Sí o No")
 
 def send_confirmation_email(self, user_id, voting_id, voting_type):
         try:
