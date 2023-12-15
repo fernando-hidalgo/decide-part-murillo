@@ -40,6 +40,7 @@ from django.contrib.admin.sites import AdminSite
 import json
 
 from django.urls import reverse
+from django.utils.translation import activate
 
 
 class VisualizerTestCase(BaseTestCase):
@@ -208,7 +209,7 @@ class VisualizerTestCase(BaseTestCase):
 
         return clear
 
-    def test_visualizer_data_spanish(self):
+    def test_visualizer_data(self):
         v = self.create_voting()
         self.create_voters(v)
 
@@ -230,9 +231,6 @@ class VisualizerTestCase(BaseTestCase):
 
         for q in v.postproc:
             self.assertEqual(tally.get(q["number"], 0), q["votes"])
-
-        response_post = self.client.post(reverse("set_language"), {"language": "es"})
-        self.assertEqual(response_post.status_code, 302)  # aseguro que esté en español
 
         response = self.client.get(f"/visualizer/{v.id}/")
         self.assertEqual(response.status_code, 200)
@@ -263,9 +261,6 @@ class VisualizerTestCase(BaseTestCase):
         for q in v.postproc:
             self.assertEqual(tally.get(q["number"], 0), q["votes"])
 
-        response_post = self.client.post(reverse("set_language"), {"language": "es"})
-        self.assertEqual(response_post.status_code, 302)  # aseguro que esté en español
-
         response = self.client.get(f"/visualizer/yesno/{v.id}/")
         self.assertEqual(response.status_code, 200)
 
@@ -277,7 +272,7 @@ class VisualizerTestCase(BaseTestCase):
         self.assertIn("Total de personas en el censo", content)
         self.assertIn("Porcentaje del censo que ha votado", content)
 
-    def test_visualizer_preference_data_english(self):
+    def test_visualizer_preference_data(self):
         v = self.create_voting_by_preference()
         self.create_voters_by_preference(v)
 
@@ -295,9 +290,6 @@ class VisualizerTestCase(BaseTestCase):
         for q in v.postproc:
             self.assertEqual(tally.get(q["number"], 0), q["votes"])
 
-        response_post = self.client.post(reverse("set_language"), {"language": "en"})
-        self.assertEqual(response_post.status_code, 302)  # aseguro que esté en español
-
         response = self.client.get(f"/visualizer/preference/{v.id}/")
         self.assertEqual(response.status_code, 200)
 
@@ -305,6 +297,6 @@ class VisualizerTestCase(BaseTestCase):
 
         content = response.content.decode("utf-8")
 
-        self.assertIn("Votes Scrutinizing", content)
-        self.assertIn("Total people in census", content)
-        self.assertIn("Percentage of the census that has voted", content)
+        self.assertIn("Recuento de votos", content)
+        self.assertIn("Total de personas en el censo", content)
+        self.assertIn("Porcentaje del censo que ha votado", content)
