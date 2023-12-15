@@ -162,6 +162,24 @@ USE_L10N = True
 
 USE_TZ = True
 
+# configuraciones django-parler
+PARLER_LANGUAGES = {
+    None: (
+        {
+            "code": "es",
+        },
+        {
+            "code": "en",
+        },
+    ),
+    "default": {
+        "fallback": "es",
+        "hide_untranslated": True,
+    },
+}
+
+PARLER_DEFAULT_LANGUAGE = "es"
+PARLER_SHOW_EXCLUDED_LANGUAGE_TABS = True
 
 TEST_RUNNER = "django_nose.NoseTestSuiteRunner"
 
