@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aviso de votación</title>
+</head>
+<body>
+    <p>Hola {{ first_name }} {{ last_name }},</p>
+    
+    <p>Te informamos que has sido añadido a la votación "{{ name }}". A continuación, te proporcionamos detalles sobre la votación:</p>
+    
+    <ul>
+        <li><strong>Nombre de la votación:</strong> {{ name }}</li>
+        <li><strong>Descripción:</strong> {{ desc }}</li>
+        <li><strong>Fecha de inicio:</strong> {{ start_date }}</li>
+        <li><strong>Fecha de fin:</strong> {{ end_date }}</li>
+    </ul>
+    
+    <p>¡Gracias por participar en la votación!</p>
+    
+    <p>Atentamente,<br>
+        El equipo de decide</p>
+</body>
+</html>

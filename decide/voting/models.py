@@ -142,8 +142,12 @@ class Voting(models.Model):
 
     tallyType = models.CharField(max_length=200, default="IDENTITY")
     escaños = models.IntegerField(default=10)
+
     tally = JSONField(blank=True, null=True)
     postproc = JSONField(blank=True, null=True)
+    mixnet_id = models.IntegerField(
+        editable=False, null=False, blank=False, default=setMixnetId
+    )
 
     def create_pubkey(self):
         if self.pub_key or not self.auths.count():
@@ -151,7 +155,7 @@ class Voting(models.Model):
 
         auth = self.auths.first()
         data = {
-            "voting": self.id,
+            "voting": self.mixnet_id,
             "auths": [{"name": a.name, "url": a.url} for a in self.auths.all()],
         }
         key = mods.post("mixnet", baseurl=auth.url, json=data)
@@ -186,8 +190,8 @@ class Voting(models.Model):
         votes = self.get_votes(token)
 
         auth = self.auths.first()
-        shuffle_url = "/shuffle/{}/".format(self.id)
-        decrypt_url = "/decrypt/{}/".format(self.id)
+        shuffle_url = "/shuffle/{}/".format(self.mixnet_id)
+        decrypt_url = "/decrypt/{}/".format(self.mixnet_id)
         auths = [{"name": a.name, "url": a.url} for a in self.auths.all()]
 
         # first, we do the shuffle
