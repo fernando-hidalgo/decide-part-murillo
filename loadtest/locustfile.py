@@ -145,6 +145,24 @@ class DefCensus(SequentialTaskSet):
         self.driver.quit()
 
 
+class DefBooth(TaskSet):
+    @task
+    def index(self):
+        self.client.get("/booth/{0}/".format(VOTING))
+
+
+class DefBoothYesNo(TaskSet):
+    @task
+    def index(self):
+        self.client.get("/booth/yesno/{0}/".format(VOTING))
+
+
+class DefBoothPreference(TaskSet):
+    @task
+    def index(self):
+        self.client.get("/booth/preference/{0}/".format(VOTING))
+
+
 class Visualizer(HttpUser):
     host = HOST
     tasks = [DefVisualizer]
@@ -166,4 +184,22 @@ class Users(HttpUser):
 class Census(HttpUser):
     host = HOST
     tasks = [DefCensus]
+    wait_time = between(3, 5)
+
+
+class Booth(HttpUser):
+    host = HOST
+    tasks = [DefBooth]
+    wait_time = between(3, 5)
+
+
+class BoothYesNo(HttpUser):
+    host = HOST
+    tasks = [DefBoothYesNo]
+    wait_time = between(3, 5)
+
+
+class BoothPreference(HttpUser):
+    host = HOST
+    tasks = [DefBoothPreference]
     wait_time = between(3, 5)
