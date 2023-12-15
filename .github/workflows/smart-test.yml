@@ -1,0 +1,85 @@
+name: Build Test
+
+on:
+  push:
+    branches:
+      - 'feature/MRL*'
+      - smart-jobs-config-bis
+  workflow_call:
+    secrets:
+      CODACY_PROJECT_TOKEN:
+        required: true
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        pyversion: ['3.10', '3.11']
+
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:11.18-bullseye
+        env:
+          POSTGRES_USER: decide
+          POSTGRES_PASSWORD: decide
+          POSTGRES_DB: decide
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - name: Check GitHub Status
+        uses: crazy-max/ghaction-github-status@v4
+      - uses: actions/checkout@v3
+      - name: Set up Python ${{matrix.pyversion}}
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{matrix.pyversion}}
+      - name: psycopg2 prerequisites
+        run: sudo apt-get install libpq-dev
+      - name: Install dependencies and config
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install codacy-coverage
+          cp decide/local_settings.gactions.py decide/local_settings.py
+      - name: Run migrations (unnecessary)
+        run: |
+          cd decide
+          python manage.py migrate
+      - name: Tests required
+        run: |
+          cd decide
+          if [[ $(git log --format=%B -n 1) == *"#Build: Authentication"* ]]; then
+            coverage run --branch --source=. ./manage.py test authentication --keepdb
+            coverage xml
+          elif [[ $(git log --format=%B -n 1) == *"#Build: Base"* ]]; then
+            coverage run --branch --source=. ./manage.py test base --keepdb
+            coverage xml
+          elif [[ $(git log --format=%B -n 1) == *"#Build: Booth"* ]]; then
+            coverage run --branch --source=. ./manage.py test booth --keepdb
+            coverage xml
+          elif [[ $(git log --format=%B -n 1) == *"#Build: Census"* ]]; then
+            coverage run --branch --source=. ./manage.py test census --keepdb
+            coverage xml
+          elif [[ $(git log --format=%B -n 1) == *"#Build: Mixnet"* ]]; then
+            coverage run --branch --source=. ./manage.py test mixnet --keepdb
+            coverage xml
+          elif [[ $(git log --format=%B -n 1) == *"#Build: Postproc"* ]]; then
+            coverage run --branch --source=. ./manage.py test postproc --keepdb
+            coverage xml
+          elif [[ $(git log --format=%B -n 1) == *"#Build: Store"* ]]; then
+            coverage run --branch --source=. ./manage.py test store --keepdb
+            coverage xml
+          elif [[ $(git log --format=%B -n 1) == *"#Build: Visualizer"* ]]; then
+            coverage run --branch --source=. ./manage.py test visualizer --keepdb
+            coverage xml
+          elif [[ $(git log --format=%B -n 1) == *"#Build: Voting"* ]]; then
+            coverage run --branch --source=. ./manage.py test voting --keepdb
+            coverage xml
+          else
+            echo "No hay pruebas para ejecutar"
+            echo "Run_Codacy='no'" >> $GITHUB_ENV
+          fi
