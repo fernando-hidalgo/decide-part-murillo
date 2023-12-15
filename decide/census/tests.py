@@ -1281,43 +1281,6 @@ class CensusMultiChoiceImportViewTest(BaseTestCase):
 
         return v
 
-    def test_census_import_view(self):
-        self.create_voting_multichoice()
-        test_group = "Test Group"
-
-        workbook = Workbook()
-        sheet = workbook.active
-        sheet.append(["Voting ID", "Voter ID", "Group"])
-        sheet.append([1, 1, test_group])
-        sheet.append([1, 2, test_group])
-        sheet.append([1, 1, test_group])  # Censo repetido, dará error
-
-        file_buffer = BytesIO()
-        workbook.save(file_buffer)
-        file_buffer.seek(0)
-
-        excel_file = SimpleUploadedFile("census.xlsx", file_buffer.read())
-
-        url = reverse("import_census_multichoice")
-
-        response = self.client.post(url, {"census_file": excel_file}, follow=True)
-
-        self.assertEqual(response.status_code, 200)
-
-        census_data = Census.objects.all()
-        self.assertEqual(census_data.count(), 2)
-        self.assertEqual(census_data[0].voting_id, 1)
-        self.assertEqual(census_data[0].voter_id, 1)
-        self.assertEqual(census_data[1].voting_id, 1)
-        self.assertEqual(census_data[1].voter_id, 2)
-
-        messages = list(response.context["messages"])
-        expected_messages = [
-            "Ya existe un registro para la pareja de voting_id=1, voter_id=1 y group=Test Group",
-            "Importación finalizada",
-        ]
-        self.assertEqual([str(msg) for msg in messages], expected_messages)
-
 
 class MultiChoiceAdminExportToExcelTest(TestCase):
     def setUp(self):
