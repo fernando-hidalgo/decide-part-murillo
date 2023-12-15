@@ -36,7 +36,6 @@ from django.contrib.admin.sites import AdminSite
 import json
 
 from django.urls import reverse
-from django.utils.translation import activate
 
 
 class VisualizerTestCase(BaseTestCase):
@@ -237,8 +236,6 @@ class VisualizerTestCase(BaseTestCase):
         v.start_date = timezone.now()
         v.save()
 
-        clear = self.store_votes_visualizer(v)
-
         self.login()
 
         response_post = self.client.post(reverse("set_language"), {"language": "es"})
@@ -251,9 +248,7 @@ class VisualizerTestCase(BaseTestCase):
             response,
             '<form action="/i18n/setlang/" method="post" style="display: inline;">',
         )
-        # self.assertContains(response, '<select name="language" onchange="javascript:form.submit()">')
         self.assertContains(response, '<option value="en" >Inglés</option>')
-        # self.assertContains(response, '<option value="es" selected="selected">Español</option>')
 
         html_content = response.content.decode("utf-8")
         self.assertIn("Resultados:", html_content)
@@ -278,9 +273,7 @@ class VisualizerTestCase(BaseTestCase):
             response,
             '<form action="/i18n/setlang/" method="post" style="display: inline;">',
         )
-        # self.assertContains(response, '<select name="language" onchange="javascript:form.submit()">')
         self.assertContains(response, '<option value="es" >Spanish</option>')
-        # self.assertContains(response, '<option value="es" selected="selected">Español</option>')
 
         html_content = response.content.decode("utf-8")
         self.assertIn("Results:", html_content)
