@@ -64,7 +64,7 @@ def send_confirmation_email(self, user_id, voting_id, voting_type):
             voting = Voting.objects.get(id=voting_id)
             subject = 'Añadido a votación '+ voting_type
             from_email = 'piezasrevive@outlook.com'
-            to_email = [user.email] 
+            to_email = [user.email]
             username = user.username
             first_name = user.first_name
             last_name = user.last_name
