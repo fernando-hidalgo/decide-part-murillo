@@ -66,6 +66,7 @@ msgstr "You have already voted."
 msgid "Edit Vote"
 msgstr "Edit Vote"
 
+
 #: booth/templates/booth/booth.html:244 booth/templates/booth/booth.html:260
 #: booth/templates/booth/booth.html:301 booth/templates/booth/booth.html:333
 #: booth/templates/booth/boothPreference.html:249
@@ -153,6 +154,7 @@ msgstr "Results:"
 
 #: visualizer/templates/visualizer/visualizer.html:32
 #: visualizer/templates/visualizer/visualizerYesNo.html:32
+#: visualizer/templates/visualizer/visualizer_preference.html:32
 msgid "Opción"
 msgstr "Options"
 
@@ -163,8 +165,31 @@ msgstr "Score"
 
 #: visualizer/templates/visualizer/visualizer.html:34
 #: visualizer/templates/visualizer/visualizerYesNo.html:34
+#: visualizer/templates/visualizer/visualizer_preference.html:34
 msgid "Votos"
 msgstr "Votes"
+
+#: visualizer/templates/visualizer/visualizer.html:45
+#: visualizer/templates/visualizer/visualizerYesNo.html:45
+#: visualizer/templates/visualizer/visualizer_preference.html:45
+msgid "Recuento de votos: "
+msgstr "Votes Scrutinizing"
+
+#: visualizer/templates/visualizer/visualizer.html:46
+#: visualizer/templates/visualizer/visualizerYesNo.html:46
+#: visualizer/templates/visualizer/visualizer_preference.html:46
+msgid "Total de personas en el censo:  "
+msgstr "Total people in census:"
+
+#: visualizer/templates/visualizer/visualizer.html:47
+#: visualizer/templates/visualizer/visualizerYesNo.html:47
+#: visualizer/templates/visualizer/visualizer_preference.html:47
+msgid "Porcentaje del censo que ha votado:"
+msgstr "Percentage of the census that has voted:"
+
+#: visualizer/templates/visualizer/visualizer_preference.html:33
+msgid "Puntuación media de preferencia"
+msgstr "Average preference score"
 
 #~ msgid "¡Debe iniciar sesión para poder acceder a la votación!"
 #~ msgstr "You must log in to access voting!"

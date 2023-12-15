@@ -153,6 +153,7 @@ msgstr "Resultados:"
 
 #: visualizer/templates/visualizer/visualizer.html:32
 #: visualizer/templates/visualizer/visualizerYesNo.html:32
+#: visualizer/templates/visualizer/visualizer_preference.html:32
 msgid "Opción"
 msgstr "Opción"
 
@@ -163,8 +164,31 @@ msgstr "Puntuación"
 
 #: visualizer/templates/visualizer/visualizer.html:34
 #: visualizer/templates/visualizer/visualizerYesNo.html:34
+#: visualizer/templates/visualizer/visualizer_preference.html:34
 msgid "Votos"
 msgstr "Votos"
+
+#: visualizer/templates/visualizer/visualizer.html:45
+#: visualizer/templates/visualizer/visualizerYesNo.html:45
+#: visualizer/templates/visualizer/visualizer_preference.html:45
+msgid "Recuento de votos: "
+msgstr "Recuento de votos: "
+
+#: visualizer/templates/visualizer/visualizer.html:46
+#: visualizer/templates/visualizer/visualizerYesNo.html:46
+#: visualizer/templates/visualizer/visualizer_preference.html:46
+msgid "Total de personas en el censo:  "
+msgstr "Total de personas en el censo:  "
+
+#: visualizer/templates/visualizer/visualizer.html:47
+#: visualizer/templates/visualizer/visualizerYesNo.html:47
+#: visualizer/templates/visualizer/visualizer_preference.html:47
+msgid "Porcentaje del censo que ha votado:"
+msgstr "Porcentaje del censo que ha votado:"
+
+#: visualizer/templates/visualizer/visualizer_preference.html:33
+msgid "Puntuación media de preferencia"
+msgstr "Puntuación media de preferencia"
 
 #~ msgid "¡Debe iniciar sesión para poder acceder a la votación!"
 #~ msgstr "¡Debe iniciar sesión para poder acceder a la votación!"
