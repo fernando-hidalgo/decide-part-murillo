@@ -35,6 +35,9 @@ from datetime import datetime
 from django.contrib.admin.sites import AdminSite
 import json
 
+from django.urls import reverse
+from django.utils.translation import activate
+
 
 class VisualizerTestCase(BaseTestCase):
     def setUp(self):
@@ -180,6 +183,9 @@ class VisualizerTestCase(BaseTestCase):
         for q in v.postproc:
             self.assertEqual(tally.get(q["number"], 0), q["votes"])
 
+        response_post = self.client.post(reverse("set_language"), {"language": "es"})
+        self.assertEqual(response_post.status_code, 302)  # aseguro que esté en español
+
         response = self.client.get(f"/visualizer/{v.id}/")
         self.assertEqual(response.status_code, 200)
 
@@ -209,6 +215,9 @@ class VisualizerTestCase(BaseTestCase):
         for q in v.postproc:
             self.assertEqual(tally.get(q["number"], 0), q["votes"])
 
+        response_post = self.client.post(reverse("set_language"), {"language": "es"})
+        self.assertEqual(response_post.status_code, 302)  # aseguro que esté en español
+
         response = self.client.get(f"/visualizer/preference/{v.id}/")
         self.assertEqual(response.status_code, 200)
 
@@ -219,3 +228,59 @@ class VisualizerTestCase(BaseTestCase):
         self.assertIn("Recuento de votos", content)
         self.assertIn("Total de personas en el censo", content)
         self.assertIn("Porcentaje del censo que ha votado", content)
+
+    def testSwitchToSpanish(self):
+        v = self.create_voting()
+        self.create_voters(v)
+
+        v.create_pubkey()
+        v.start_date = timezone.now()
+        v.save()
+
+        clear = self.store_votes_visualizer(v)
+
+        self.login()
+
+        response_post = self.client.post(reverse("set_language"), {"language": "es"})
+        self.assertEqual(response_post.status_code, 302)
+
+        response = self.client.get(f"/visualizer/{v.id}/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "Español")
+        self.assertContains(
+            response,
+            '<form action="/i18n/setlang/" method="post" style="display: inline;">',
+        )
+        # self.assertContains(response, '<select name="language" onchange="javascript:form.submit()">')
+        self.assertContains(response, '<option value="en" >Inglés</option>')
+        # self.assertContains(response, '<option value="es" selected="selected">Español</option>')
+
+        html_content = response.content.decode("utf-8")
+        self.assertIn("Resultados:", html_content)
+
+    def testSwitchToEnglish(self):
+        v = self.create_voting_by_preference()
+        self.create_voters_by_preference(v)
+
+        v.create_pubkey()
+        v.start_date = timezone.now()
+        v.save()
+
+        self.login()
+
+        response_post = self.client.post(reverse("set_language"), {"language": "en"})
+        self.assertEqual(response_post.status_code, 302)
+
+        response = self.client.get(f"/visualizer/preference/{v.id}/")
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "English")
+        self.assertContains(
+            response,
+            '<form action="/i18n/setlang/" method="post" style="display: inline;">',
+        )
+        # self.assertContains(response, '<select name="language" onchange="javascript:form.submit()">')
+        self.assertContains(response, '<option value="es" >Spanish</option>')
+        # self.assertContains(response, '<option value="es" selected="selected">Español</option>')
+
+        html_content = response.content.decode("utf-8")
+        self.assertIn("Results:", html_content)
