@@ -39,9 +39,6 @@ from datetime import datetime
 from django.contrib.admin.sites import AdminSite
 import json
 
-from django.urls import reverse
-from django.utils.translation import activate
-
 
 class VisualizerTestCase(BaseTestCase):
     def setUp(self):
