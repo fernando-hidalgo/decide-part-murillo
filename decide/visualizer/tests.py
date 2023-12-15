@@ -317,7 +317,20 @@ class VisualizerTestCase(BaseTestCase):
         v.start_date = timezone.now()
         v.save()
 
+        clear = self.store_votes_visualizer(v)
+
         self.login()
+        v.tally_votes(self.token)
+
+        tally = v.tally
+        tally.sort()
+        tally = {k: len(list(x)) for k, x in itertools.groupby(tally)}
+
+        for q in v.question.options.all():
+            self.assertEqual(tally.get(q.number, 0), clear.get(q.number, 0))
+
+        for q in v.postproc:
+            self.assertEqual(tally.get(q["number"], 0), q["votes"])
 
         response_post = self.client.post(reverse("set_language"), {"language": "es"})
         self.assertEqual(response_post.status_code, 302)
@@ -345,6 +358,14 @@ class VisualizerTestCase(BaseTestCase):
         v.save()
 
         self.login()
+        v.tally_votes(self.token)
+
+        tally = v.tally
+        tally.sort()
+        tally = {k: len(list(x)) for k, x in itertools.groupby(tally)}
+
+        for q in v.postproc:
+            self.assertEqual(tally.get(q["number"], 0), q["votes"])
 
         response_post = self.client.post(reverse("set_language"), {"language": "en"})
         self.assertEqual(response_post.status_code, 302)
