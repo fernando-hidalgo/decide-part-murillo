@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-11-15 08:16+0000\n"
+"POT-Creation-Date: 2023-12-15 21:16+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -23,37 +23,83 @@ msgid "Cambiar lenguaje"
 msgstr "Cambiar lenguaje"
 
 #: booth/templates/booth/booth.html:24
+#: booth/templates/booth/boothPreference.html:24
+#: booth/templates/booth/boothYesNo.html:24
 msgid "Logout"
 msgstr "Cerrar Sesión"
 
-#: booth/templates/booth/booth.html:29 booth/templates/booth/booth.html:110
-msgid "Login"
-msgstr "Inciar Sesión"
-
-#: booth/templates/booth/booth.html:75
-msgid "¡Debe iniciar sesión para poder acceder a la votación!"
-msgstr "¡Debe iniciar sesión para poder acceder a la votación!"
-
 #: booth/templates/booth/booth.html:91
+#: booth/templates/booth/boothPreference.html:91
+#: booth/templates/booth/boothYesNo.html:91
 msgid "Username"
 msgstr "Nombre de Usuario"
 
 #: booth/templates/booth/booth.html:101
+#: booth/templates/booth/boothPreference.html:101
+#: booth/templates/booth/boothYesNo.html:101
 msgid "Password"
 msgstr "Contraseña"
 
+#: booth/templates/booth/booth.html:110
+#: booth/templates/booth/boothPreference.html:110
+#: booth/templates/booth/boothYesNo.html:110
+msgid "Login"
+msgstr "Inciar Sesión"
+
 #: booth/templates/booth/booth.html:132
+#: booth/templates/booth/boothPreference.html:136
+#: booth/templates/booth/boothYesNo.html:134
 msgid "Vote"
 msgstr "Votar"
 
-#: booth/templates/booth/booth.html:235 booth/templates/booth/booth.html:246
-#: booth/templates/booth/booth.html:282
+#: booth/templates/booth/booth.html:138
+#: booth/templates/booth/boothPreference.html:142
+#: booth/templates/booth/boothYesNo.html:141
+msgid "You have already voted."
+msgstr "Ya has votado."
+
+#: booth/templates/booth/booth.html:141
+#: booth/templates/booth/boothPreference.html:145
+#: booth/templates/booth/boothYesNo.html:144
+#, fuzzy
+#| msgid "Vote"
+msgid "Edit Vote"
+msgstr "Votar"
+
+#: booth/templates/booth/booth.html:244 booth/templates/booth/booth.html:260
+#: booth/templates/booth/booth.html:301 booth/templates/booth/booth.html:333
+#: booth/templates/booth/boothPreference.html:249
+#: booth/templates/booth/boothPreference.html:264
+#: booth/templates/booth/boothPreference.html:331
+#: booth/templates/booth/boothPreference.html:380
+#: booth/templates/booth/boothYesNo.html:248
+#: booth/templates/booth/boothYesNo.html:263
+#: booth/templates/booth/boothYesNo.html:310
+#: booth/templates/booth/boothYesNo.html:342
 msgid "Error: "
 msgstr "Error: "
 
-#: booth/templates/booth/booth.html:278
+#: booth/templates/booth/booth.html:295
+#: booth/templates/booth/boothPreference.html:325
+#: booth/templates/booth/boothPreference.html:374
+#: booth/templates/booth/boothYesNo.html:304
 msgid "Congratulations. Your vote has been sent"
 msgstr "Enhorabuena. Tu voto ha sido emitido"
+
+#: booth/templates/booth/booth.html:327
+#: booth/templates/booth/boothYesNo.html:336
+#, fuzzy
+#| msgid "Congratulations. Your vote has been sent"
+msgid "Congratulations. Your vote has been changed"
+msgstr "Enhorabuena. Tu voto ha sido emitido"
+
+#: booth/templates/booth/boothYesNo.html:125
+msgid "Yes"
+msgstr "Si"
+
+#: booth/templates/booth/boothYesNo.html:130
+msgid "No"
+msgstr "No"
 
 #: decide/settings.py:149
 msgid "English"
@@ -63,26 +109,62 @@ msgstr "Inglés"
 msgid "Spanish"
 msgstr "Español"
 
+#: decide/templates/home.html:7
+msgid "Página Principal"
+msgstr "Página Principal"
+
+#: decide/templates/home.html:39
+msgid "Vistas"
+msgstr "Vistas"
+
+#: decide/templates/home.html:42
+msgid "Otras Vistas"
+msgstr "Otras Vistas"
+
+#: decide/templates/home.html:61
+msgid "Iniciar Sesión"
+msgstr "Iniciar Sesión"
+
+#: decide/templates/home.html:62
+msgid "Registrarse"
+msgstr "Registrarse"
+
+#: decide/templates/home.html:88
+msgid "Bienvenido a la página principal de Decide"
+msgstr "Bienvenido a la página principal de Decide"
+
 #: visualizer/templates/visualizer/visualizer.html:22
+#: visualizer/templates/visualizer/visualizerYesNo.html:22
+#: visualizer/templates/visualizer/visualizer_preference.html:22
 msgid "Votación no comenzada"
 msgstr "Votación no comenzada"
 
 #: visualizer/templates/visualizer/visualizer.html:23
+#: visualizer/templates/visualizer/visualizerYesNo.html:23
+#: visualizer/templates/visualizer/visualizer_preference.html:23
 msgid "Votación en curso"
 msgstr "Votación en curso"
 
 #: visualizer/templates/visualizer/visualizer.html:25
+#: visualizer/templates/visualizer/visualizerYesNo.html:25
+#: visualizer/templates/visualizer/visualizer_preference.html:25
 msgid "Resultados:"
 msgstr "Resultados:"
 
-#: visualizer/templates/visualizer/visualizer.html:30
+#: visualizer/templates/visualizer/visualizer.html:32
+#: visualizer/templates/visualizer/visualizerYesNo.html:32
 msgid "Opción"
 msgstr "Opción"
 
-#: visualizer/templates/visualizer/visualizer.html:31
+#: visualizer/templates/visualizer/visualizer.html:33
+#: visualizer/templates/visualizer/visualizerYesNo.html:33
 msgid "Puntuación"
 msgstr "Puntuación"
 
-#: visualizer/templates/visualizer/visualizer.html:32
+#: visualizer/templates/visualizer/visualizer.html:34
+#: visualizer/templates/visualizer/visualizerYesNo.html:34
 msgid "Votos"
 msgstr "Votos"
+
+#~ msgid "¡Debe iniciar sesión para poder acceder a la votación!"
+#~ msgstr "¡Debe iniciar sesión para poder acceder a la votación!"
