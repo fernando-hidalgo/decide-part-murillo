@@ -2,10 +2,18 @@ import secrets
 from django.test import TestCase
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 
+from django.core.mail import get_connection
+from django.core import mail
+
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
-from .admin import CensusAdmin, CensusByPreferenceAdmin, CensusYesNoAdmin, CensusMultiChoiceAdmin
+from .admin import (
+    CensusAdmin,
+    CensusByPreferenceAdmin,
+    CensusYesNoAdmin,
+    CensusMultiChoiceAdmin,
+)
 from django.http import HttpRequest
 
 from .models import Census, CensusByPreference, CensusYesNo, CensusMultiChoice
@@ -34,6 +42,10 @@ from django.urls import reverse
 
 from django.contrib.admin.sites import AdminSite
 from django.contrib import messages
+
+from django.contrib.auth.models import User
+from census.models import send_confirmation_email
+from django.test import override_settings
 
 # class CensusFrontendTest(StaticLiveServerTestCase):
 #     def setUp(self):
@@ -303,7 +315,7 @@ class CensusImportViewTest(BaseTestCase):
 
     def test_census_import_view(self):
         self.create_voting()
-        test_group="Test Group"
+        test_group = "Test Group"
 
         workbook = Workbook()
         sheet = workbook.active
@@ -1067,6 +1079,7 @@ class YesNoAdminReuseCensusActionTest(TestCase):
         # Debe haber 2 censos con el mismo votante: El original y el creado reutilizando el previo
         self.assertEqual(len(CensusYesNo.objects.filter(voter_id=census.voter_id)), 2)
 
+
 class CensusMultiChoiceTestCase(BaseTestCase):
     def setUp(self):
         super().setUp()
@@ -1134,9 +1147,7 @@ class CensusMultiChoiceTestCase(BaseTestCase):
         self.login()
         response = self.client.post("/census/multichoice/", data, format="json")
         self.assertEqual(response.status_code, 201)
-        self.assertEqual(
-            len(data.get("voters")), CensusMultiChoice.objects.count() - 1
-        )
+        self.assertEqual(len(data.get("voters")), CensusMultiChoice.objects.count() - 1)
 
     def test_destroy_voter(self):
         data = {"voters": [1], "voting_id": 1}
@@ -1366,3 +1377,78 @@ class MultiChoiceAdminReuseCensusActionTest(TestCase):
         self.assertEqual(
             len(CensusMultiChoice.objects.filter(voter_id=census.voter_id)), 2
         )
+
+
+@override_settings(EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend")
+class CensusEmailTestCase(TestCase):
+    def setUp(self):
+        self.question = Question(desc="test question")
+        self.question.save()
+
+        for i in range(5):
+            opt = QuestionOption(
+                question=self.question, option="option {}".format(i + 1)
+            )
+            opt.save()
+
+        self.voting = Voting(name="test voting", question=self.question)
+        self.voting.save()
+
+        auth, _ = Auth.objects.get_or_create(
+            url=settings.BASEURL, defaults={"me": True, "name": "test auth"}
+        )
+        auth.save()
+        self.voting.auths.add(auth)
+
+        # Se crea un usuario para usar en las pruebas
+        self.user = User.objects.create(
+            username="testuser", email="testuser@example.com"
+        )
+
+    def tearDown(self):
+        # Limpiar el outbox después de cada prueba
+        mail.outbox = []
+
+    def create_voters(self, model, group):
+        for i in range(100):
+            user, _ = User.objects.get_or_create(username=f"testvoter{i}")
+            user.is_active = True
+            user.save()
+            census = model(voter_id=user.id, voting_id=self.voting.id, group=group)
+            census.save()
+
+    def aux_send_confirmation_email(self, model, group, voting_type):
+        with self.settings(
+            EMAIL_BACKEND="django.core.mail.backends.locmem.EmailBackend"
+        ):
+            census = model.objects.create(
+                voting_id=self.voting.id, voter_id=self.user.id, group=group
+            )
+            send_confirmation_email(
+                census,
+                user_id=self.user.id,
+                voting_id=self.voting.id,
+                voting_type=voting_type,
+            )
+            self.assertEqual(len(mail.outbox), 2)
+            expected_subject = f"Añadido a votación {voting_type}"
+            self.assertEqual(mail.outbox[0].subject, expected_subject)
+            self.assertIn(self.user.email, mail.outbox[0].to)
+
+    def test_send_confirmation_email_normal(self):
+        self.create_voters(Census, "group1")
+        self.aux_send_confirmation_email(Census, "group1", "Normal")
+
+    def test_send_confirmation_email_preference(self):
+        self.create_voters(CensusByPreference, "group2")
+        self.aux_send_confirmation_email(
+            CensusByPreference, "group2", "Por preferencia"
+        )
+
+    def test_send_confirmation_email_yes_no(self):
+        self.create_voters(CensusYesNo, "group3")
+        self.aux_send_confirmation_email(CensusYesNo, "group3", "Sí o No")
+
+    def test_send_confirmation_email_multi_choice(self):
+        self.create_voters(CensusMultiChoice, "group4")
+        self.aux_send_confirmation_email(CensusMultiChoice, "group4", "Multiple opcion")
