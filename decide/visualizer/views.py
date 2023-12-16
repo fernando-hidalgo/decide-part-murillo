@@ -5,7 +5,7 @@ from django.http import Http404
 from django.db.models import Count
 
 from base import mods
-from census.models import Census, CensusByPreference, CensusYesNo
+from census.models import Census, CensusByPreference, CensusYesNo, CensusMultiChoice
 
 
 class VisualizerView(TemplateView):
@@ -74,6 +74,31 @@ class VisualizerViewPreference(TemplateView):
 
             # Contar el censo para la votación específica
             voters_count = CensusByPreference.objects.filter(voting_id=vid).aggregate(
+                total=Count("voter_id", distinct=True)
+            )["total"]
+            voters_count = voters_count if voters_count else 0
+            context["voters_count"] = voters_count
+
+        except Exception as e:
+            print(f"Error: {e}")
+            raise Http404
+
+        return context
+
+class VisualizerViewMultiChoice(TemplateView):
+    template_name = "visualizer/visualizerMultiChoice.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        vid = kwargs.get("voting_multichoice_id", 0)
+
+        try:
+            # Obtener la información de la votación
+            r = mods.get("voting/multichoice", params={"id": vid})
+            context["voting"] = json.dumps(r[0])
+
+            # Contar el censo para la votación específica
+            voters_count = CensusMultiChoice.objects.filter(voting_id=vid).aggregate(
                 total=Count("voter_id", distinct=True)
             )["total"]
             voters_count = voters_count if voters_count else 0
