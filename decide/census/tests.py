@@ -2,7 +2,6 @@ import secrets
 from django.test import TestCase
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
 
-from django.core.mail import get_connection
 from django.core import mail
 
 from selenium import webdriver
