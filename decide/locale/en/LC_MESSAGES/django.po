@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-15 21:16+0000\n"
+"POT-Creation-Date: 2023-12-16 11:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -28,6 +28,23 @@ msgstr "Switch language"
 msgid "Logout"
 msgstr "Logout"
 
+#: booth/templates/booth/booth.html:29 booth/templates/booth/booth.html:84
+#: booth/templates/booth/booth.html:110
+#: booth/templates/booth/boothPreference.html:29
+#: booth/templates/booth/boothPreference.html:84
+#: booth/templates/booth/boothPreference.html:110
+#: booth/templates/booth/boothYesNo.html:29
+#: booth/templates/booth/boothYesNo.html:84
+#: booth/templates/booth/boothYesNo.html:110
+msgid "Login"
+msgstr "Login"
+
+#: booth/templates/booth/booth.html:75
+#: booth/templates/booth/boothPreference.html:75
+#: booth/templates/booth/boothYesNo.html:75
+msgid "¡Debe iniciar sesión para poder acceder a la votación!"
+msgstr "You must log in to access voting!"
+
 #: booth/templates/booth/booth.html:91
 #: booth/templates/booth/boothPreference.html:91
 #: booth/templates/booth/boothYesNo.html:91
@@ -39,12 +56,6 @@ msgstr "Username"
 #: booth/templates/booth/boothYesNo.html:101
 msgid "Password"
 msgstr "Password"
-
-#: booth/templates/booth/booth.html:110
-#: booth/templates/booth/boothPreference.html:110
-#: booth/templates/booth/boothYesNo.html:110
-msgid "Login"
-msgstr "Login"
 
 #: booth/templates/booth/booth.html:132
 #: booth/templates/booth/boothPreference.html:136
@@ -65,7 +76,6 @@ msgstr "You have already voted."
 #| msgid "Vote"
 msgid "Edit Vote"
 msgstr "Edit Vote"
-
 
 #: booth/templates/booth/booth.html:244 booth/templates/booth/booth.html:260
 #: booth/templates/booth/booth.html:301 booth/templates/booth/booth.html:333
@@ -102,11 +112,98 @@ msgstr "Yes"
 msgid "No"
 msgstr "No"
 
-#: decide/settings.py:149
+#: census/templates/census/admin_census.html:17
+#: census/templates/census/admin_census.html:33
+msgid "Administración del Censo"
+msgstr "Census Administration"
+
+#: census/templates/census/admin_census.html:35
+msgid "Lista de votaciones"
+msgstr "Voting List"
+
+#: census/templates/census/admin_census.html:85
+#, fuzzy
+#| msgid "Puntuación"
+msgid "Votación:"
+msgstr "Score:"
+
+#: census/templates/census/aviso.html:19
+msgid "Aviso de votación"
+msgstr "Voting Warning"
+
+#: census/templates/census/aviso.html:32
+msgid "Hola"
+msgstr "Hello"
+
+#: census/templates/census/aviso.html:34
+msgid "Te informamos que has sido añadido a la votación"
+msgstr "We inform you that you have been added to the vote"
+
+#: census/templates/census/aviso.html:34
+msgid "A continuación, te proporcionamos detalles sobre la votación"
+msgstr "Below we provide you with details about the vote"
+
+#: census/templates/census/aviso.html:37
+msgid "Nombre de la votación"
+msgstr "Vote Name"
+
+#: census/templates/census/aviso.html:38
+#, fuzzy
+#| msgid "Opción"
+msgid "Descripción"
+msgstr "Description"
+
+#: census/templates/census/aviso.html:39
+msgid "Fecha de inicio"
+msgstr "Start Date"
+
+#: census/templates/census/aviso.html:40
+msgid "Fecha de fin"
+msgstr "Ending Date"
+
+#: census/templates/census/aviso.html:43
+msgid "¡Gracias por participar en la votación!"
+msgstr "Thank you for participating in the vote!"
+
+#: census/templates/census/aviso.html:45
+msgid "Atentamente"
+msgstr "Sincerely"
+
+#: census/templates/census/aviso.html:46
+msgid "El equipo de decide"
+msgstr "the Decide team"
+
+#: census/templates/census/import_census.html:11
+msgid "Importar Censo"
+msgstr "Import Census"
+
+#: census/templates/census/import_census.html:12
+msgid "El archivo debe ser de Excel (.xlsx)"
+msgstr "The file must be an Excel (.xlsx)"
+
+#: census/templates/census/import_census.html:14
+msgid "En la primera columna debe aparecer el ID de la votación"
+msgstr "The vote ID must appear in the first column"
+
+#: census/templates/census/import_census.html:15
+msgid "y en la segunda el ID del votante"
+msgstr "and in the second the voter ID"
+
+#: census/templates/census/import_census.html:17
+msgid ""
+"La primera fila del archivo será ignorada (Puedes colocar ahi los "
+"encabezados)."
+msgstr "The first row of the file will be ignored (You can place the headers)."
+
+#: census/templates/census/import_census.html:23
+msgid "Importar Censos"
+msgstr "Import Censuses"
+
+#: decide/settings.py:148
 msgid "English"
 msgstr "English"
 
-#: decide/settings.py:150
+#: decide/settings.py:149
 msgid "Spanish"
 msgstr "Spanish"
 
@@ -173,7 +270,7 @@ msgstr "Votes"
 #: visualizer/templates/visualizer/visualizerYesNo.html:45
 #: visualizer/templates/visualizer/visualizer_preference.html:45
 msgid "Recuento de votos: "
-msgstr "Votes Scrutinizing"
+msgstr "Votes Scrutinizing: "
 
 #: visualizer/templates/visualizer/visualizer.html:46
 #: visualizer/templates/visualizer/visualizerYesNo.html:46
@@ -190,6 +287,3 @@ msgstr "Percentage of the census that has voted:"
 #: visualizer/templates/visualizer/visualizer_preference.html:33
 msgid "Puntuación media de preferencia"
 msgstr "Average preference score"
-
-#~ msgid "¡Debe iniciar sesión para poder acceder a la votación!"
-#~ msgstr "You must log in to access voting!"
