@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 
 
 class BigBigField(models.TextField):
@@ -28,6 +29,10 @@ class Auth(models.Model):
     def __str__(self):
         return self.url
 
+    class Meta:
+        verbose_name = _("Auth")
+        verbose_name_plural = _("Auths")
+
 
 class Key(models.Model):
     p = BigBigField()
@@ -40,3 +45,7 @@ class Key(models.Model):
             return "{},{},{},{}".format(self.p, self.g, self.y, self.x)
         else:
             return "{},{},{}".format(self.p, self.g, self.y)
+
+    class Meta:
+        verbose_name = _("Key")
+        verbose_name_plural = _("Keys")
