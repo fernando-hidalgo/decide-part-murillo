@@ -5,6 +5,7 @@ from base import mods
 from base.models import Auth, Key
 from store.models import VoteByPreference, VoteYN
 from mixnet.models import Mixnet
+from django.utils.translation import gettext_lazy as _
 
 # Función set para utilizar el mixnet_id en cada votación
 def setMixnetId():
@@ -22,6 +23,10 @@ class QuestionByPreference(models.Model):
     def __str__(self):
         return self.desc
 
+    class Meta:
+        verbose_name = _("Question by Prefrence")
+        verbose_name_plural = _("Questions by Prefrence")
+
 
 class Question(models.Model):
     desc = models.TextField()
@@ -29,11 +34,20 @@ class Question(models.Model):
     def __str__(self):
         return self.desc
 
+    class Meta:
+        verbose_name = _("Question")
+        verbose_name_plural = _("Questions")
+
+
 class QuestionMultiChoice(models.Model):
     desc = models.TextField()
 
     def __str__(self):
         return self.desc
+
+    class Meta:
+        verbose_name = _("Question Multi-Choice")
+        verbose_name_plural = _("Questions Multi-Choice")
 
 
 # Modelo para preguntas de tipo si o no
@@ -51,6 +65,10 @@ class QuestionYesNo(models.Model):
     def __str__(self):
         return self.desc
 
+    class Meta:
+        verbose_name = _("Question Yes No")
+        verbose_name_plural = _("Questions Yes No")
+
 
 class QuestionOption(models.Model):
     question = models.ForeignKey(
@@ -67,13 +85,14 @@ class QuestionOption(models.Model):
     def __str__(self):
         return "{} ({})".format(self.option, self.number)
 
+
 class QuestionOptionMultiChoice(models.Model):
     question = models.ForeignKey(
         QuestionMultiChoice, related_name="multichoices", on_delete=models.CASCADE
     )
     number = models.PositiveIntegerField(blank=True, null=True)
     option = models.TextField()
-    multichoice = models.PositiveIntegerField(blank=True, null= True)
+    multichoice = models.PositiveIntegerField(blank=True, null=True)
 
     def save(self):
         self.multichoice = 0
@@ -253,6 +272,10 @@ class Voting(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = _("Voting")
+        verbose_name_plural = _("Votings")
+
 
 # Modelo para votaciones de tipo si o no
 class VotingYesNo(models.Model):
@@ -393,6 +416,10 @@ class VotingYesNo(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name = _("Voting Yes No")
+        verbose_name_plural = _("Votings Yes No")
 
 
 class VotingByPreference(models.Model):
@@ -549,6 +576,10 @@ class VotingByPreference(models.Model):
     def __str__(self):
         return self.name
 
+    class Meta:
+        verbose_name = _("Voting by Prefrence")
+        verbose_name_plural = _("Votings by Prefrence")
+
 
 class VotingMultiChoice(models.Model):
     name = models.CharField(max_length=200)
@@ -561,10 +592,11 @@ class VotingMultiChoice(models.Model):
     end_date = models.DateTimeField(blank=True, null=True)
 
     pub_key = models.OneToOneField(
-        Key, related_name="votingmultichoice",
-        blank=True, 
-        null=True, 
-        on_delete=models.SET_NULL
+        Key,
+        related_name="votingmultichoice",
+        blank=True,
+        null=True,
+        on_delete=models.SET_NULL,
     )
     auths = models.ManyToManyField(Auth, related_name="votingsmultichoice")
 
@@ -673,7 +705,7 @@ class VotingMultiChoice(models.Model):
 
         self.postproc = postp
         self.save()
-    
+
     def vote_multi_choice(self, selected_options):
         """
         Permite a los usuarios votar por múltiples opciones.
@@ -685,3 +717,7 @@ class VotingMultiChoice(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name = _("Voting Multi-Choice")
+        verbose_name_plural = _("Votings Multi-Choice")
