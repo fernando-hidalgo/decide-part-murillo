@@ -4,6 +4,8 @@ from django.template.loader import render_to_string
 from django.utils.html import strip_tags
 from voting.models import Voting
 from django.contrib.auth.models import User
+from django.utils.translation import gettext_lazy as _
+
 
 class Census(models.Model):
     voting_id = models.PositiveIntegerField()
@@ -12,6 +14,8 @@ class Census(models.Model):
 
     class Meta:
         unique_together = (("voting_id", "voter_id", "group"),)
+        verbose_name = _("Census")
+        verbose_name_plural = _("Censuses")
 
     def save(self, *args, **kwargs):
         is_new = not self.pk
@@ -20,8 +24,9 @@ class Census(models.Model):
         if is_new:
             voter_id = self.voter_id
             voting_id = self.voting_id
-            send_confirmation_email(self= self,user_id=voter_id, voting_id=voting_id, voting_type="Normal")
-
+            send_confirmation_email(
+                self=self, user_id=voter_id, voting_id=voting_id, voting_type="Normal"
+            )
 
 
 class CensusByPreference(models.Model):
@@ -30,7 +35,9 @@ class CensusByPreference(models.Model):
     group = models.CharField(default="", max_length=50)
 
     class Meta:
-        unique_together = (('voting_id', 'voter_id', "group"),)
+        unique_together = (("voting_id", "voter_id", "group"),)
+        verbose_name = _("Census By Preference")
+        verbose_name_plural = _("Censuses By Preference")
 
     def save(self, *args, **kwargs):
         is_new = not self.pk
@@ -39,8 +46,14 @@ class CensusByPreference(models.Model):
         if is_new:
             voter_id = self.voter_id
             voting_id = self.voting_id
-            send_confirmation_email(self= self,user_id=voter_id, voting_id=voting_id, voting_type="Por preferencia")
-        
+            send_confirmation_email(
+                self=self,
+                user_id=voter_id,
+                voting_id=voting_id,
+                voting_type="Por preferencia",
+            )
+
+
 class CensusYesNo(models.Model):
     voting_id = models.PositiveIntegerField()
     voter_id = models.PositiveIntegerField()
@@ -48,6 +61,8 @@ class CensusYesNo(models.Model):
 
     class Meta:
         unique_together = (("voting_id", "voter_id"),)
+        verbose_name = _("Census Yes No")
+        verbose_name_plural = _("Censuses Yes No")
 
     def save(self, *args, **kwargs):
         is_new = not self.pk
@@ -56,7 +71,10 @@ class CensusYesNo(models.Model):
         if is_new:
             voter_id = self.voter_id
             voting_id = self.voting_id
-            send_confirmation_email(self= self,user_id=voter_id, voting_id=voting_id, voting_type="Sí o No")
+            send_confirmation_email(
+                self=self, user_id=voter_id, voting_id=voting_id, voting_type="Sí o No"
+            )
+
 
 class CensusMultiChoice(models.Model):
     voting_id = models.PositiveIntegerField()
@@ -64,7 +82,9 @@ class CensusMultiChoice(models.Model):
     group = models.CharField(default="", max_length=50)
 
     class Meta:
-        unique_together = (('voting_id', 'voter_id', 'group'),)
+        unique_together = (("voting_id", "voter_id", "group"),)
+        verbose_name = _("Census Multi-Choice")
+        verbose_name_plural = _("Censuses Multi-Choice")
 
     def save(self, *args, **kwargs):
         is_new = not self.pk
@@ -73,44 +93,44 @@ class CensusMultiChoice(models.Model):
         if is_new:
             voter_id = self.voter_id
             voting_id = self.voting_id
-            send_confirmation_email(self= self,user_id=voter_id, voting_id=voting_id, voting_type="Multiple opcion")
-
-def send_confirmation_email(self, user_id, voting_id, voting_type):
-        try:
-            user = User.objects.get(id=user_id)
-            voting = Voting.objects.get(id=voting_id)
-            subject = 'Añadido a votación '+ voting_type
-            from_email = 'piezasrevive@outlook.com'
-            to_email = [user.email]
-            username = user.username
-            first_name = user.first_name
-            last_name = user.last_name
-            name = voting.name
-            desc = voting.desc
-            start_date = voting.start_date
-            end_date = voting.end_date
-            context = {
-                "username": username,
-                "first_name": first_name,
-                "last_name": last_name,
-                "name": name,
-                "desc": desc,
-                "start_date": start_date,
-                "end_date": end_date,
-            }
-
-            html_message = render_to_string('census/aviso.html', context)
-            plain_message = strip_tags(html_message)
-
-            email = EmailMultiAlternatives(
-                subject,
-                plain_message,
-                from_email,
-                to_email
+            send_confirmation_email(
+                self=self,
+                user_id=voter_id,
+                voting_id=voting_id,
+                voting_type="Multiple opcion",
             )
 
-            email.attach_alternative(html_message, "text/html")
-            email.send()
-        except Exception as e:
-            print(f"Error al enviar el correo: {e}") 
 
+def send_confirmation_email(self, user_id, voting_id, voting_type):
+    try:
+        user = User.objects.get(id=user_id)
+        voting = Voting.objects.get(id=voting_id)
+        subject = "Añadido a votación " + voting_type
+        from_email = "piezasrevive@outlook.com"
+        to_email = [user.email]
+        username = user.username
+        first_name = user.first_name
+        last_name = user.last_name
+        name = voting.name
+        desc = voting.desc
+        start_date = voting.start_date
+        end_date = voting.end_date
+        context = {
+            "username": username,
+            "first_name": first_name,
+            "last_name": last_name,
+            "name": name,
+            "desc": desc,
+            "start_date": start_date,
+            "end_date": end_date,
+        }
+
+        html_message = render_to_string("census/aviso.html", context)
+        plain_message = strip_tags(html_message)
+
+        email = EmailMultiAlternatives(subject, plain_message, from_email, to_email)
+
+        email.attach_alternative(html_message, "text/html")
+        email.send()
+    except Exception as e:
+        print(f"Error al enviar el correo: {e}")
