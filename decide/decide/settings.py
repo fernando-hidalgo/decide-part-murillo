@@ -142,8 +142,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
 
-LANGUAGE_CODE = "en"
-# LANGUAGE_CODE = "es"
+LANGUAGE_CODE = "es"
 
 LANGUAGES = [
     ("en", _("English")),
@@ -162,6 +161,24 @@ USE_L10N = True
 
 USE_TZ = True
 
+# configuraciones django-parler
+PARLER_LANGUAGES = {
+    None: (
+        {
+            "code": "es",
+        },
+        {
+            "code": "en",
+        },
+    ),
+    "default": {
+        "fallback": "es",
+        "hide_untranslated": True,
+    },
+}
+
+PARLER_DEFAULT_LANGUAGE = "es"
+PARLER_SHOW_EXCLUDED_LANGUAGE_TABS = True
 
 TEST_RUNNER = "django_nose.NoseTestSuiteRunner"
 
