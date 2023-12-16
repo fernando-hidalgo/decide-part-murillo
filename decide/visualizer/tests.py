@@ -297,3 +297,20 @@ class VisualizerTestCase(BaseTestCase):
         self.assertIn("Recuento de votos", content)
         self.assertIn("Total de personas en el censo", content)
         self.assertIn("Porcentaje del censo que ha votado", content)
+
+    # Tests Negativos para exception Http404
+
+    def test_visualizer_view_raises_http404(self):
+        v_id = 999
+        response = self.client.get(f"/visualizer/{v_id}/")
+        self.assertEqual(response.status_code, 404)
+
+    def test_visualizer_view_yesno_raises_http404(self):
+        v_id = 999
+        response = self.client.get(f"/visualizer/yesno/{v_id}/")
+        self.assertEqual(response.status_code, 404)
+
+    def test_visualizer_view_preference_raises_http404(self):
+        v_id = 999
+        response = self.client.get(f"/visualizer/preference/{v_id}/")
+        self.assertEqual(response.status_code, 404)
