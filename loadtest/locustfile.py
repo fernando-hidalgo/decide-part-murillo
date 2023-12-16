@@ -48,7 +48,6 @@ class DefVoters(SequentialTaskSet):
     @task
     def getuser(self):
         self.usr = self.client.post("/authentication/getuser/", self.token).json()
-        print(str(self.user))
 
     @task
     def voting(self):
@@ -62,6 +61,144 @@ class DefVoters(SequentialTaskSet):
                 {
                     "token": self.token.get("token"),
                     "vote": {"a": "12", "b": "64"},
+                    "voter": self.usr.get("id"),
+                    "voting": VOTING,
+                }
+            ),
+            headers=headers,
+        )
+
+    def on_quit(self):
+        self.voter = None
+
+
+class DefVotersYesNo(SequentialTaskSet):
+    def on_start(self):
+        with open("voters.json") as f:
+            self.voters = json.loads(f.read())
+        self.voter = choice(list(self.voters.items()))
+
+    @task
+    def login(self):
+        username, pwd = self.voter
+        self.token = self.client.post(
+            "/authentication/login/",
+            {
+                "username": username,
+                "password": pwd,
+            },
+        ).json()
+
+    @task
+    def getuser(self):
+        self.usr = self.client.post("/authentication/getuser/", self.token).json()
+
+    @task
+    def voting(self):
+        headers = {
+            "Authorization": "Token " + self.token.get("token"),
+            "content-type": "application/json",
+        }
+        self.client.post(
+            "/store/yesno/",
+            json.dumps(
+                {
+                    "token": self.token.get("token"),
+                    "vote": {
+                        "a": "64119368847335423641078646156828255749833202653731360808687267447782576175858",
+                        "b": "52007631667441025563156436855670910748550693138302081971963757824364607817458",
+                    },
+                    "voter": self.usr.get("id"),
+                    "voting": VOTING,
+                }
+            ),
+            headers=headers,
+        )
+
+    def on_quit(self):
+        self.voter = None
+
+
+class DefVotersPreference(SequentialTaskSet):
+    def on_start(self):
+        with open("voters.json") as f:
+            self.voters = json.loads(f.read())
+        self.voter = choice(list(self.voters.items()))
+
+    @task
+    def login(self):
+        username, pwd = self.voter
+        self.token = self.client.post(
+            "/authentication/login/",
+            {
+                "username": username,
+                "password": pwd,
+            },
+        ).json()
+
+    @task
+    def getuser(self):
+        self.usr = self.client.post("/authentication/getuser/", self.token).json()
+
+    @task
+    def voting(self):
+        headers = {
+            "Authorization": "Token " + self.token.get("token"),
+            "content-type": "application/json",
+        }
+        self.client.post(
+            "/store/preference/",
+            json.dumps(
+                {
+                    "token": self.token.get("token"),
+                    "vote": {
+                        "a": "69529957725889040311609873320104549818830701945574049611265050537691555907406",
+                        "b": "6543397338357564287800663518400903625081871529329623372835477067005646573025",
+                    },
+                    "voter": self.usr.get("id"),
+                    "voting": VOTING,
+                }
+            ),
+            headers=headers,
+        )
+
+    def on_quit(self):
+        self.voter = None
+
+
+class DefVotersMultichoice(SequentialTaskSet):
+    def on_start(self):
+        with open("voters.json") as f:
+            self.voters = json.loads(f.read())
+        self.voter = choice(list(self.voters.items()))
+
+    @task
+    def login(self):
+        username, pwd = self.voter
+        self.token = self.client.post(
+            "/authentication/login/",
+            {
+                "username": username,
+                "password": pwd,
+            },
+        ).json()
+
+    @task
+    def getuser(self):
+        self.usr = self.client.post("/authentication/getuser/", self.token).json()
+
+    @task
+    def voting(self):
+        headers = {
+            "Authorization": "Token " + self.token.get("token"),
+            "content-type": "application/json",
+        }
+        self.client.post(
+            "/store/multichoice/",
+            json.dumps(
+                {
+                    "token": self.token.get("token"),
+                    "vote": {"a": "658373672383", "b": "573615163433"},
                     "voter": self.usr.get("id"),
                     "voting": VOTING,
                 }
@@ -172,6 +309,24 @@ class Visualizer(HttpUser):
 class Voters(HttpUser):
     host = HOST
     tasks = [DefVoters]
+    wait_time = between(3, 5)
+
+
+class VotersYesNo(HttpUser):
+    host = HOST
+    tasks = [DefVotersYesNo]
+    wait_time = between(3, 5)
+
+
+class VotersPreference(HttpUser):
+    host = HOST
+    tasks = [DefVotersPreference]
+    wait_time = between(3, 5)
+
+
+class VotersMultichoice(HttpUser):
+    host = HOST
+    tasks = [DefVotersMultichoice]
     wait_time = between(3, 5)
 
 
