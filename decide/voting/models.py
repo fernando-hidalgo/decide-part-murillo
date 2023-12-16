@@ -599,7 +599,7 @@ class VotingMultiChoice(models.Model):
         for vote in votes:
             if isinstance(vote,dict):
                 for info in vote:
-                    if isinstance(info, str): 
+                    if isinstance(info,str): 
                         if info == "a" or info == "b":
                             votes_format.append(vote[info])
                 vote_list.append(votes_format)

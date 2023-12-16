@@ -304,7 +304,6 @@ class StoreMultiChoiceView(generics.ListAPIView):
             # print("por aqui 65")
             return Response({}, status=status.HTTP_401_UNAUTHORIZED)
 
-        
         v, _ = VoteMultiChoice.objects.get_or_create(
             voting_multichoice_id=vid, voter_multichoice_id=uid
         )
