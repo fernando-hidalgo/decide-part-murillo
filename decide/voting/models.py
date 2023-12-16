@@ -74,6 +74,7 @@ class QuestionOptionMultiChoice(models.Model):
     number = models.PositiveIntegerField(blank=True, null=True)
     option = models.TextField()
     multichoice = models.PositiveIntegerField(blank=True, null= True)
+    selected = models.BooleanField(default=False)
 
     def save(self):
         self.multichoice = 0
