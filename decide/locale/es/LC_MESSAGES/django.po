@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-12-15 15:26+0000\n"
+"POT-Creation-Date: 2023-12-15 21:16+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -56,7 +56,7 @@ msgstr "Votar"
 #: booth/templates/booth/boothPreference.html:142
 #: booth/templates/booth/boothYesNo.html:141
 msgid "You have already voted."
-msgstr "Ya has votado"
+msgstr "Ya has votado."
 
 #: booth/templates/booth/booth.html:141
 #: booth/templates/booth/boothPreference.html:145
@@ -108,6 +108,30 @@ msgstr "Inglés"
 #: decide/settings.py:150
 msgid "Spanish"
 msgstr "Español"
+
+#: decide/templates/home.html:7
+msgid "Página Principal"
+msgstr "Página Principal"
+
+#: decide/templates/home.html:39
+msgid "Vistas"
+msgstr "Vistas"
+
+#: decide/templates/home.html:42
+msgid "Otras Vistas"
+msgstr "Otras Vistas"
+
+#: decide/templates/home.html:61
+msgid "Iniciar Sesión"
+msgstr "Iniciar Sesión"
+
+#: decide/templates/home.html:62
+msgid "Registrarse"
+msgstr "Registrarse"
+
+#: decide/templates/home.html:88
+msgid "Bienvenido a la página principal de Decide"
+msgstr "Bienvenido a la página principal de Decide"
 
 #: visualizer/templates/visualizer/visualizer.html:22
 #: visualizer/templates/visualizer/visualizerYesNo.html:22
