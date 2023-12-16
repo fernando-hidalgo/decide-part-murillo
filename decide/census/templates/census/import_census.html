@@ -8,19 +8,19 @@
 
 {% block content %}
   <div class="voting container">
-    <h3>Importar Censo</h3>
-    <p>El archivo debe ser de Excel (.xlsx)</p>
+    <h3>{% trans "Importar Censo" %}</h3>
+    <p>{% trans "El archivo debe ser de Excel (.xlsx)" %}</p>
     <p>
-      En la primera columna debe aparecer el ID de la votación <b>(voting_id)</b>,
-      y en la segunda el ID del votante <b>(voter_id)</b>.
+      {% trans "En la primera columna debe aparecer el ID de la votación" %} <b>(voting_id)</b>,
+      {% trans "y en la segunda el ID del votante"%} <b>(voter_id)</b>.
     </p>
-    <p>La primera fila del archivo será ignorada (Puedes colocar ahi los encabezados).</p>
+    <p>{% trans "La primera fila del archivo será ignorada (Puedes colocar ahi los encabezados)." %}</p>
     <hr />
 
     <form method="post" enctype="multipart/form-data">
       {% csrf_token %}
       <input type="file" name="census_file" accept=".xlsx" />
-      <button class="btn btn-primary btn-sm" type="submit">Importar Censos</button>
+      <button class="btn btn-primary btn-sm" type="submit">{% trans "Importar Censos" %}</button>
     </form>
   </div>
 
