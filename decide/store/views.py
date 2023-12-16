@@ -304,15 +304,13 @@ class StoreMultiChoiceView(generics.ListAPIView):
             # print("por aqui 65")
             return Response({}, status=status.HTTP_401_UNAUTHORIZED)
 
-        a = vote.get("a")
-        b = vote.get("b")
-
-        defs = {"a": a, "b": b}
+        
         v, _ = VoteMultiChoice.objects.get_or_create(
-            voting_multichoice_id=vid, voter_multichoice_id=uid, defaults=defs
+            voting_multichoice_id=vid, voter_multichoice_id=uid
         )
-        v.a = a
-        v.b = b
+        
+        for option, value in vote.items():
+            setattr(v, option, value)
 
         v.save()
 
