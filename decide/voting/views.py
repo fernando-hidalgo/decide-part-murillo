@@ -243,9 +243,12 @@ class VotingMultiChoiceView(generics.ListCreateAPIView):
         question = QuestionMultiChoice(desc=request.data.get("question"))
         question.save()
 
-        selected_options = []
+        selected_options = request.data.get("selectedOptions", [])
+
         for idx, q_opt in enumerate(request.data.get("question_opt")):
-            opt = QuestionOptionMultiChoice(question=question, option=q_opt, number=idx, multichoice=idx)
+            is_selected = idx in selected_options
+
+            opt = QuestionOptionMultiChoice(question=question, option=q_opt, number=idx, multichoice=idx, selected=is_selected)
             opt.save()
 
         voting = VotingMultiChoice(
