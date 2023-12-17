@@ -88,7 +88,7 @@ ROOT_URLCONF = "decide.urls"
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [],
+        "DIRS": [os.path.join(BASE_DIR, "decide", "templates")],
         "APP_DIRS": True,
         "OPTIONS": {
             "context_processors": [
@@ -142,8 +142,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/2.0/topics/i18n/
 
-LANGUAGE_CODE = "en"
-# LANGUAGE_CODE = "es"
+LANGUAGE_CODE = "es"
 
 LANGUAGES = [
     ("en", _("English")),
@@ -162,6 +161,24 @@ USE_L10N = True
 
 USE_TZ = True
 
+# configuraciones django-parler
+PARLER_LANGUAGES = {
+    None: (
+        {
+            "code": "es",
+        },
+        {
+            "code": "en",
+        },
+    ),
+    "default": {
+        "fallback": "es",
+        "hide_untranslated": True,
+    },
+}
+
+PARLER_DEFAULT_LANGUAGE = "es"
+PARLER_SHOW_EXCLUDED_LANGUAGE_TABS = True
 
 TEST_RUNNER = "django_nose.NoseTestSuiteRunner"
 
@@ -195,3 +212,10 @@ if os.path.exists("config.jsonnet"):
 INSTALLED_APPS = INSTALLED_APPS + MODULES
 
 MESSAGE_STORAGE = "django.contrib.messages.storage.cookie.CookieStorage"
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'piezasrevive@gmail.com'
+EMAIL_HOST_PASSWORD = 'xslu yzaf johs avva'

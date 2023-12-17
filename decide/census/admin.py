@@ -1,5 +1,6 @@
 from django.contrib import admin
-from .models import Census
+
+from .models import Census, CensusYesNo, CensusByPreference, CensusMultiChoice
 from django.contrib import messages
 from django.contrib.admin.helpers import ActionForm
 from django import forms
@@ -13,8 +14,122 @@ class ReuseActionForm(ActionForm):
 
 
 class CensusAdmin(admin.ModelAdmin):
-    list_display = ("voting_id", "voter_id")
-    list_filter = ("voting_id",)
+    list_display = ("voting_id", "voter_id", "group")
+    list_filter = ("voting_id", "group")
+    search_fields = ("voter_id",)
+
+    def exportar_a_excel(modeladmin, request, queryset):
+        workbook = Workbook()
+        sheet = workbook.active
+
+        sheet.append(
+            ["ID Votacion", "ID Votante", "Grupo"]
+        )  # El append funciona en filas, de izquierda a derecha
+
+        for elemento in queryset:
+            sheet.append([elemento.voting_id, elemento.voter_id, elemento.group])
+
+        response = HttpResponse(
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+        response["Content-Disposition"] = "attachment; filename=exportacion_censo.xlsx"
+        workbook.save(response)
+
+        return response
+
+    exportar_a_excel.short_description = "Exportar a Excel"
+
+    def reuse_action(modeladmin, request, queryset):
+        reuse_voting_id = request.POST.get("id_to_reuse")
+
+        if reuse_voting_id is not None and reuse_voting_id.strip():
+            modeladmin.message_user(request, f"ID introducido: {reuse_voting_id}")
+
+            for census in queryset.all():
+                if Census.objects.filter(
+                    voting_id=reuse_voting_id, voter_id=census.voter_id, group=census.group
+                ).exists():
+                    messages.error(
+                        request,
+                        f"Ya existe Censo con voter_id {census.voter_id}, voting_id {reuse_voting_id} y group {census.group} en la base de datos.",
+                    )
+                    continue  # Salta al siguiente censo en lugar de intentar guardarlo
+                re_census = Census()
+                re_census.voter_id = census.voter_id
+                re_census.voting_id = reuse_voting_id
+                re_census.group = census.group
+                re_census.save()
+        else:
+            messages.error(
+                request,
+                "Error: Formulario no válido. Asegúrate de ingresar un ID válido.",
+            )
+
+    reuse_action.short_description = "Reutilizar Censo"
+
+    actions = [reuse_action, exportar_a_excel]
+    action_form = ReuseActionForm
+
+
+class CensusByPreferenceAdmin(admin.ModelAdmin):
+    list_display = ("voting_id", "voter_id", "group")
+    list_filter = ("voting_id","group")
+    search_fields = ("voter_id",)
+
+    def exportar_a_excel(modeladmin, request, queryset):
+        workbook = Workbook()
+        sheet = workbook.active
+
+        sheet.append(
+            ["ID Votacion", "ID Votante", "Grupo"]
+        )  # El append funciona en filas, de izquierda a derecha
+
+        for elemento in queryset:
+            sheet.append([elemento.voting_id, elemento.voter_id, elemento.group])
+
+        response = HttpResponse(
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+        response["Content-Disposition"] = "attachment; filename=exportacion_censo.xlsx"
+        workbook.save(response)
+
+        return response
+
+    exportar_a_excel.short_description = "Exportar a Excel"
+
+    def reuse_action(modeladmin, request, queryset):
+        reuse_voting_id = request.POST.get("id_to_reuse")
+
+        if reuse_voting_id is not None and reuse_voting_id.strip():
+            modeladmin.message_user(request, f"ID introducido: {reuse_voting_id}")
+
+            for census in queryset.all():
+                if CensusByPreference.objects.filter(
+                    voting_id=reuse_voting_id, voter_id=census.voter_id
+                ).exists():
+                    messages.error(
+                        request,
+                        f"Ya existe Censo con voter_id {census.voter_id} y voting_id {reuse_voting_id} en la base de datos.",
+                    )
+                    continue  # Salta al siguiente censo en lugar de intentar guardarlo
+                re_census = CensusByPreference()
+                re_census.voter_id = census.voter_id
+                re_census.voting_id = reuse_voting_id
+                re_census.save()
+        else:
+            messages.error(
+                request,
+                "Error: Formulario no válido. Asegúrate de ingresar un ID válido.",
+            )
+
+    reuse_action.short_description = "Reutilizar Censo por preferencia"
+
+    actions = [reuse_action, exportar_a_excel]
+    action_form = ReuseActionForm
+    
+class CensusYesNoAdmin(admin.ModelAdmin):
+    list_display = ("voting_id", "voter_id", "group")
+    list_filter = ("voting_id", "group")
     search_fields = ("voter_id",)
 
     def exportar_a_excel(modeladmin, request, queryset):
@@ -45,7 +160,7 @@ class CensusAdmin(admin.ModelAdmin):
             modeladmin.message_user(request, f"ID introducido: {reuse_voting_id}")
 
             for census in queryset.all():
-                if Census.objects.filter(
+                if CensusYesNo.objects.filter(
                     voting_id=reuse_voting_id, voter_id=census.voter_id
                 ).exists():
                     messages.error(
@@ -53,7 +168,7 @@ class CensusAdmin(admin.ModelAdmin):
                         f"Ya existe Censo con voter_id {census.voter_id} y voting_id {reuse_voting_id} en la base de datos.",
                     )
                     continue  # Salta al siguiente censo en lugar de intentar guardarlo
-                re_census = Census()
+                re_census = CensusYesNo()
                 re_census.voter_id = census.voter_id
                 re_census.voting_id = reuse_voting_id
                 re_census.save()
@@ -68,5 +183,65 @@ class CensusAdmin(admin.ModelAdmin):
     actions = [reuse_action, exportar_a_excel]
     action_form = ReuseActionForm
 
+class CensusMultiChoiceAdmin(admin.ModelAdmin):
+    list_display = ("voting_id", "voter_id", "group")
+    list_filter = ("voting_id","group")
+    search_fields = ("voter_id",)
+
+    def exportar_a_excel(modeladmin, request, queryset):
+        workbook = Workbook()
+        sheet = workbook.active
+
+        sheet.append(
+            ["ID Votacion", "ID Votante", "Grupo"]
+        )  # El append funciona en filas, de izquierda a derecha
+
+        for elemento in queryset:
+            sheet.append([elemento.voting_id, elemento.voter_id, elemento.group])
+
+        response = HttpResponse(
+            content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+        response["Content-Disposition"] = "attachment; filename=exportacion_censo.xlsx"
+        workbook.save(response)
+
+        return response
+
+    exportar_a_excel.short_description = "Exportar a Excel"
+
+    def reuse_action(modeladmin, request, queryset):
+        reuse_voting_id = request.POST.get("id_to_reuse")
+
+        if reuse_voting_id is not None and reuse_voting_id.strip():
+            modeladmin.message_user(request, f"ID introducido: {reuse_voting_id}")
+
+            for census in queryset.all():
+                if CensusMultiChoice.objects.filter(
+                    voting_id=reuse_voting_id, voter_id=census.voter_id
+                ).exists():
+                    messages.error(
+                        request,
+                        f"Ya existe Censo con voter_id {census.voter_id} y voting_id {reuse_voting_id} en la base de datos.",
+                    )
+                    continue  # Salta al siguiente censo en lugar de intentar guardarlo
+                re_census = CensusMultiChoice()
+                re_census.voter_id = census.voter_id
+                re_census.voting_id = reuse_voting_id
+                re_census.save()
+        else:
+            messages.error(
+                request,
+                "Error: Formulario no válido. Asegúrate de ingresar un ID válido.",
+            )
+
+    reuse_action.short_description = "Reutilizar Censo por preferencia"
+
+    actions = [reuse_action, exportar_a_excel]
+    action_form = ReuseActionForm    
 
 admin.site.register(Census, CensusAdmin)
+admin.site.register(CensusByPreference, CensusByPreferenceAdmin)
+admin.site.register(CensusYesNo, CensusYesNoAdmin)
+admin.site.register(CensusMultiChoice, CensusMultiChoiceAdmin)
+
+

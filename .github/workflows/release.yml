@@ -13,6 +13,11 @@ jobs:
     uses: fernando-hidalgo/decide-part-murillo/.github/workflows/django.yml@master
     secrets:
       CODACY_PROJECT_TOKEN: ${{secrets.CODACY_PROJECT_TOKEN}}
+  genDocker:
+    uses: fernando-hidalgo/decide-part-murillo/.github/workflows/docker.yml@master
+    secrets:
+      DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+      DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
 
   release:
     needs: buildTest
