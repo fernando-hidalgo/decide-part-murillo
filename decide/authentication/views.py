@@ -8,6 +8,8 @@ from rest_framework.status import (
 from rest_framework.views import APIView
 from rest_framework.authtoken.models import Token
 from django.contrib.auth import login, authenticate
+from django.contrib.auth.views import LogoutView
+from django.urls import reverse_lazy
 from django.contrib.auth.models import User
 from django.db import IntegrityError
 from django.shortcuts import get_object_or_404, render, redirect
@@ -25,18 +27,10 @@ class GetUserView(APIView):
         tk = get_object_or_404(Token, key=key)
         return Response(UserSerializer(tk.user, many=False).data)
 
-
-class LogoutView(APIView):
-    def post(self, request):
-        key = request.data.get("token", "")
-        try:
-            tk = Token.objects.get(key=key)
-            tk.delete()
-        except ObjectDoesNotExist:
-            pass
-
-        return Response({})
-
+class LogoutUserView(APIView):
+    def get(self, request, *args, **kwargs):
+        response = LogoutView.as_view(next_page=reverse_lazy('home'))(request, *args, **kwargs)
+        return response
 
 class RegisterView(APIView):
     def post(self, request):
