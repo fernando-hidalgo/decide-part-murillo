@@ -433,6 +433,7 @@ class VotingTestCase(BaseTestCase):
             "desc": "Description example",
             "question": "I prefer",
             "question_opt": ["cat", "dog", "rabbit"],
+            "selected": ["cat", "dog"]
         }
 
         response = self.client.post("/voting/multichoice/", data, format="json")

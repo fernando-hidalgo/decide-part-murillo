@@ -93,6 +93,7 @@ class QuestionOptionMultiChoice(models.Model):
     number = models.PositiveIntegerField(blank=True, null=True)
     option = models.TextField()
     multichoice = models.PositiveIntegerField(blank=True, null=True)
+    selected = models.BooleanField(default=False)
 
     def save(self):
         self.multichoice = 0
@@ -605,17 +606,13 @@ class VotingMultiChoice(models.Model):
     tally = JSONField(blank=True, null=True)
     postproc = JSONField(blank=True, null=True)
 
-    mixnet_id = models.IntegerField(
-        editable=False, null=False, blank=False, default=setMixnetId
-    )
-
     def create_pubkey(self):
         if self.pub_key or not self.auths.count():
             return
 
         auth = self.auths.first()
         data = {
-            "voting": self.mixnet_id,
+            "voting": self.id,
             "auths": [{"name": a.name, "url": a.url} for a in self.auths.all()],
         }
         key = mods.post("mixnet", baseurl=auth.url, json=data)
@@ -633,13 +630,13 @@ class VotingMultiChoice(models.Model):
         votes_format = []
         vote_list = []
         for vote in votes:
-            for info in vote:
-                if info == "a":
-                    votes_format.append(vote[info])
-                if info == "b":
-                    votes_format.append(vote[info])
-            vote_list.append(votes_format)
-            votes_format = []
+            if isinstance(vote,dict):
+                for info in vote:
+                    if isinstance(info,str): 
+                        if info == "a" or info == "b":
+                            votes_format.append(vote[info])
+                vote_list.append(votes_format)
+                votes_format = []
         return vote_list
 
     def tally_votes(self, token=""):
@@ -650,8 +647,8 @@ class VotingMultiChoice(models.Model):
         votes = self.get_votes(token)
 
         auth = self.auths.first()
-        shuffle_url = "/shuffle/{}/".format(self.mixnet_id)
-        decrypt_url = "/decrypt/{}/".format(self.mixnet_id)
+        shuffle_url = "/shuffle/{}/".format(self.id)
+        decrypt_url = "/decrypt/{}/".format(self.id)
         auths = [{"name": a.name, "url": a.url} for a in self.auths.all()]
 
         # first, we do the shuffle
