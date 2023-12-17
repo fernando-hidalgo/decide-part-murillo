@@ -57,10 +57,16 @@
                     </li>
                     <!-- Puedes agregar más elementos aquí según sea necesario -->
                 </ul>
+                {% if user.is_authenticated %}
+                <div class="d-flex ms-auto">
+                    <a href="{%url 'logout' %}" class="btn btn-outline-light me-2" type="button">{% trans 'Cerrar Sesión'%}</a>
+                </div>
+                {%else %}
                 <div class="d-flex ms-auto">
                     <a href="/authentication/loginuser" class="btn btn-outline-light me-2" type="button">{% trans 'Iniciar Sesión'%}</a>
                     <a href="/authentication/registeruser" class="btn btn-outline-light" type="button">{% trans 'Registrarse'%}</a>
                 </div>
+                {%endif%}
             </div>
         </div>
     </nav>
