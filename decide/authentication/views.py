@@ -27,6 +27,17 @@ class GetUserView(APIView):
         tk = get_object_or_404(Token, key=key)
         return Response(UserSerializer(tk.user, many=False).data)
 
+class LogoutView(APIView):
+    def post(self, request):
+        key = request.data.get("token", "")
+        try:
+            tk = Token.objects.get(key=key)
+            tk.delete()
+        except ObjectDoesNotExist:
+            pass
+
+        return Response({})
+
 class LogoutUserView(APIView):
     def get(self, request, *args, **kwargs):
         response = LogoutView.as_view(next_page=reverse_lazy('home'))(request, *args, **kwargs)
