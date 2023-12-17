@@ -26,7 +26,7 @@
                     <li class="nav-item" v-if="signup">
                         <!-- Button trigger modal -->
                         <button type="button" class="btn btn-secondary" data-bs-toggle="modal" data-bs-target="#registerModal">
-                            Login
+                            {% trans "Login"%}
                         </button>
                     </li>
                 </ul>
@@ -71,7 +71,7 @@
                 <path fill-rule="evenodd" d="M11.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 1 0-.708.708L10.293 7.5H1.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708l3-3z"/>
             </svg>
             <div class="ms-2">
-                ¡Debe iniciar sesión para poder acceder a la votación!
+                {% trans "¡Debe iniciar sesión para poder acceder a la votación!"%}
             </div>
         </div>
         <div class="container-fluid">
@@ -80,7 +80,7 @@
                 <div class="modal-dialog modal-dialog-centered">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title" id="registerModalLabel">Login</h5>
+                            <h5 class="modal-title" id="registerModalLabel">{% trans "Login"%}</h5>
                             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
@@ -115,7 +115,7 @@
         </div>
 
         <!-- Voting -->
-        <div v-if="!signup">
+        <div v-if="!userHasVoted && !signup">
             <h1>[[ voting.id ]] - [[ voting.name ]]</h1>
             <h2>[[ voting.question.desc ]]</h2>
             <form v-for="opt in voting.question.options" :key="opt.number">
@@ -132,10 +132,18 @@
             </button>
         </div>
 
+        <div v-else-if="userHasVoted && !signup">
+            <div class="alert alert-info" role="alert">
+                {% trans "You have already voted." %}
+            </div>
+            <button v-if="userHasVoted" v-on:click="editVote" class="btn btn-primary mt-3">
+                {% trans "Edit Vote" %}
+            </button>
+        </div>
     </div>
 
 </div>
-    
+
 {% endblock %}
 
 {% block extrabody %}
@@ -161,7 +169,7 @@
         createApp({
             delimiters: ['[[', ']]'],
             data() {
-                return {
+                return{
                     voting: voting,
                     selected: "",
                     signup: true,
@@ -171,16 +179,17 @@
                     alertLvl: "info",
                     token: null,
                     user: null,
+                    userHasVoted: false,
                     form: {
                         username: '',
-                        password: ''
+                        password: '',
                     },
                     bigpk: {
                         p: BigInt.fromJSONObject(voting.pub_key.p.toString()),
                         g: BigInt.fromJSONObject(voting.pub_key.g.toString()),
                         y: BigInt.fromJSONObject(voting.pub_key.y.toString()),
                     },
-                    keybits: {{ KEYBITS }}
+                    keybits: {{ KEYBITS }},
                 }
             },
             beforeMount() {
@@ -240,6 +249,11 @@
                         .then(data => {
                             this.user = data;
                             this.signup = false;
+                            this.userHasVoted = data.has_voted;
+                            if (this.user.votes) {
+                                this.userHasVoted = this.user.votes.some(vote => vote.voting.id === this.voting.id);
+                            }
+
                             this.alertShow = false;
                         }).catch(error => {
                             this.showAlert("danger", '{% trans "Error: " %}' + error);
@@ -263,28 +277,60 @@
                 },
                 decideSend(evt) {
                     evt.preventDefault();
-                    var v = this.decideEncrypt();
-                    var data = {
-                        vote: {a: v.alpha.toString(), b: v.beta.toString()},
-                        voting: this.voting.id,
-                        voter: this.user.id,
-                        token: this.token
+                    if (this.userHasVoted){
+                        this.updateVote();
+                    } else {
+                        var v = this.decideEncrypt();
+                        var data = {
+                            vote: {a: v.alpha.toString(), b: v.beta.toString()},
+                            voting: this.voting.id,
+                            voter: this.user.id,
+                            token: this.token
+                        }
+                        this.postData("{% url "gateway" "store" "/" %}", data)
+                            .then(data => {
+                                this.successVote = true;
+                                this.alertShow = false;
+                                this.showAlert("success", '{% trans "Congratulations. Your vote has been sent" %}');
+                                this.userHasVoted = true;
+                                this.alreadyVoted = true;
+                            })
+                            .catch(error => {
+                                this.succesVote = false;
+                                this.showAlert("danger", '{% trans "Error: " %}' + error);
+                            });
                     }
-                    this.postData("{% url "gateway" "store" "/" %}", data)
-                        .then(data => {
-                            this.successVote = true;
-                            this.alertShow = false;
-                            this.showAlert("success", '{% trans "Congratulations. Your vote has been sent" %}');
-                        })
-                        .catch(error => {
-                            this.succesVote = false;
-                            this.showAlert("danger", '{% trans "Error: " %}' + error);
-                        });
                 },
                 showAlert(lvl, msg) {
                     this.alertLvl = lvl;
                     this.alertMsg = msg;
                     this.alertShow = true;
+                },
+
+                editVote(){
+                    this.userHasVoted = false;
+                },
+
+                updateVote(){
+                    var v = this.decideEncrypt();
+                        var data = {
+                            vote: {a: v.alpha.toString(), b: v.beta.toString()},
+                            voting: this.voting.id,
+                            voter: this.user.id,
+                            token: this.token
+                        }
+                        this.postData("{% url "gateway" "store" "/" %}", data)
+                            .then(data => {
+                                this.successVote = true;
+                                this.alertShow = false;
+                                this.showAlert("success", '{% trans "Congratulations. Your vote has been changed" %}');
+                                this.userHasVoted = true;
+                                this.alreadyVoted = true;
+                            })
+                            .catch(error => {
+                                this.succesVote = false;
+                                this.showAlert("danger", '{% trans "Error: " %}' + error);
+                            });
                 }
             },
         }).mount('#app-booth')

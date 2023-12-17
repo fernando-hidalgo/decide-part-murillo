@@ -1,0 +1,73 @@
+name: Docker Images
+
+on:
+  push:
+    branches:
+      - master
+
+  pull_request:
+    branches:
+      - master
+  workflow_call:
+    secrets:
+      DOCKERHUB_USERNAME:
+        required: true
+      DOCKERHUB_TOKEN:
+        required: true
+
+jobs:
+  docker:
+    strategy:
+      matrix:
+        pyversion: ['3.11']
+
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:11.18-bullseye
+        env:
+          POSTGRES_USER: decide
+          POSTGRES_PASSWORD: decide
+          POSTGRES_DB: decide
+        ports:
+          - 5432:5432
+        # needed because the postgres container does not provide a healthcheck
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+    - name: Check GitHub Status
+      uses: crazy-max/ghaction-github-status@v4
+    - uses: actions/checkout@v3
+    - name: Set up Python ${{matrix.pyversion}}
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{matrix.pyversion}}
+    - name: psycopg2 prerequisites
+      run: sudo apt-get install libpq-dev
+    -
+      name: Install Docker
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y docker
+
+    -
+      name: Set up QEMU
+      uses: docker/setup-qemu-action@v3
+    -
+      name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    -
+      name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    -
+      name: Build and push
+      uses: docker/build-push-action@v5
+      with:
+        context: ./docker/
+        file: ./docker/Dockerfile
+        push: true
+        tags: agudevbon/decide-part-murillo

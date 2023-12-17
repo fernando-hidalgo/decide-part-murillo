@@ -15,22 +15,23 @@
                 <h1 class="navbar-brand">Decide</h1>
             </div>
         </nav>
-          
 
         <div class="voting container">
             <h1>[[ voting.id ]] - [[ voting.name ]]</h1>
 
-            <h2 v-if="!voting.start_date">Votación no comenzada</h2>
-            <h2 v-else-if="!voting.end_date">Votación en curso</h2>
+            <h2 v-if="!voting.start_date">{% trans "Votación no comenzada" %}</h2>
+            <h2 v-else-if="!voting.end_date">{% trans "Votación en curso" %}</h2>
             <div v-else>
-                <h2 class="heading">Resultados:</h2>
-
+                <h2 class="heading">{% trans "Resultados:" %}</h2>
+                <div class="chart-container">
+                    <canvas id="myChart"></canvas>
+                </div>
                 <table class="table table-bordered table-striped">
                     <thead>
                         <tr>
-                            <th>Opción</th>
-                            <th>Puntuación</th>
-                            <th>Votos</th>
+                            <th>{% trans "Opción" %}</th>
+                            <th>{% trans "Puntuación" %}</th>
+                            <th>{% trans "Votos" %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -41,8 +42,13 @@
                         </tr>
                     </tbody>
                 </table>
+                <h3>{% trans "Recuento de votos: " %}[[ totalVotes ]]  </h3>
+                <h3>{% trans "Total de personas en el censo:  " %}[[ votersCount ]]   </h3>
+                <h3>{% trans "Porcentaje del censo que ha votado:" %}[[ percentageVotes ]]%</h3>
+                <div class="percentage-chart-container">
+                    <canvas id="percentageChart"></canvas>
+                </div>
             </div>
-
         </div>
     </div>
 {% endblock %}
@@ -52,18 +58,101 @@
     <script src="https://unpkg.com/vue"></script>
     <script src="https://unpkg.com/babel-polyfill@latest/dist/polyfill.min.js"></script>
     <script src="https://unpkg.com/bootstrap@5.2.2/dist/js/bootstrap.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
-        var voting = {{voting|safe}};
+        var voting = {{ voting|safe }};
+        var votersCount = {{ voters_count|default:0 }};
+
         const { createApp } = Vue
-        createApp({
+        const app = createApp({
             delimiters: ['[[', ']]'],
             data() {
                 return {
-                    voting: voting
+                    voting: voting,
+                    votersCount: votersCount,
+                    chartData: {
+                        labels: [],
+                        datasets: [{
+                            label: 'Votos por opción',
+                            data: [],
+                            backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#47d147', '#FF8C00', '#4B0082', '#20B2AA', '#8A2BE2']
+                        }]
+                    }
+                }
+            },
+            mounted() {
+                this.prepareChartData();
+                this.createChart();
+                this.createPercentageChart();
+            },
+            methods: {
+                prepareChartData() {
+                    this.chartData.labels = this.voting.postproc.map(opt => opt.option);
+                    this.chartData.datasets[0].data = this.voting.postproc.map(opt => opt.votes);
+                },
+                createChart() {
+                    const ctx = document.getElementById('myChart').getContext('2d');
+                    new Chart(ctx, {
+                        type: 'bar',
+                        data: this.chartData,
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                },
+                createPercentageChart() {
+                    const percentageCtx = document.getElementById('percentageChart').getContext('2d');
+                    new Chart(percentageCtx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Votado', 'No votado'],
+                            datasets: [{
+                                data: [this.totalVotes, this.votersCount - this.totalVotes],
+                                backgroundColor: ['#36A2EB', '#FFCE56'],
+                            }],
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            cutout: '70%',
+                        },
+                    });
+                },
+            },
+            computed: {
+                totalVotes() {
+                    if (this.voting.tally !== null) {
+                        return this.voting.postproc.reduce((total, opt) => total + opt.votes, 0);
+                    } else {
+                        return 0;
+                    }
+                },
+                percentageVotes() {
+                    if (this.votersCount !== 0) {
+                        return ((this.totalVotes / this.votersCount) * 100).toFixed(2);
+                    } else {
+                        return 0;
+                    }
                 }
             }
-        }).mount('#app-visualizer')
+        });
+        app.mount('#app-visualizer');
     </script>
+
+    <style>
+        .chart-container,
+        .percentage-chart-container {
+            height: 40vh;
+            width: 70vw;
+            margin: auto;
+        }
+    </style>
 </body>
 {% endblock %}

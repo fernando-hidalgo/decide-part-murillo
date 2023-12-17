@@ -1,0 +1,48 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <div id="google_translate_element" class="google nav-item"></div>
+    <script type="text/javascript">
+        function googleTranslateElementInit() {
+            new google.translate.TranslateElement({
+                pageLanguage: 'es',
+                includedLanguages: 'ca,eu,gl,en,fr,it,pt,de',
+                layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+                gaTrack: true
+            }, 'google_translate_element');
+        }
+    </script>
+    <script type="text/javascript" src="https://translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% trans "Aviso de votación"%}</title>
+    <form action="/i18n/setlang/" method="post" style="display: inline;">
+        {% csrf_token %}
+        <div style="display: inline;">
+            <select name="language" onchange="this.form.submit()" class="nav-link">
+                {% for lang_code, lang_name in LANGUAGES %}
+                    <option value="{{ lang_code }}" {% if LANGUAGE_CODE == lang_code %} selected="selected"{% endif %}>{{ lang_name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </form>
+</head>
+<body>
+    <p>{% trans "Hola"%} {{ first_name }} {{ last_name }},</p>
+
+    <p>{% trans "Te informamos que has sido añadido a la votación"%} "{{ name }}". {% trans "A continuación, te proporcionamos detalles sobre la votación"%}:</p>
+
+    <ul>
+        <li><strong>{% trans "Nombre de la votación"%}:</strong> {{ name }}</li>
+        <li><strong>{% trans "Descripción"%}:</strong> {{ desc }}</li>
+        <li><strong>{% trans "Fecha de inicio"%}:</strong> {{ start_date }}</li>
+        <li><strong>{% trans "Fecha de fin"%}:</strong> {{ end_date }}</li>
+    </ul>
+
+    <p>{% trans "¡Gracias por participar en la votación!"%}</p>
+
+    <p>{% trans "Atentamente"%},<br>
+        {% trans "El equipo de decide"%}</p>
+</body>
+</html>

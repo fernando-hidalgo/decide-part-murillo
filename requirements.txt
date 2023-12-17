@@ -13,6 +13,8 @@ selenium==4.7.2
 pre-commit==3.5.0
 gitlint
 pynose==1.4.8
+openpyxl
+django-parler==2.3
 dj-database-url == 2.1.0
 whitenoise==6.5.0
 gunicorn==21.2.0

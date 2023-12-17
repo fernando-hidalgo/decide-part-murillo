@@ -1,0 +1,444 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-12-16 16:21+0000\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: base/models.py:33
+msgid "Auth"
+msgstr "Auth"
+
+#: base/models.py:34
+msgid "Auths"
+msgstr "Auths"
+
+#: base/models.py:50
+msgid "Key"
+msgstr "Key"
+
+#: base/models.py:51
+msgid "Keys"
+msgstr "Keys"
+
+#: base/templates/switch_language.html:3
+msgid "Cambiar lenguaje"
+msgstr "Switch language"
+
+#: booth/templates/booth/booth.html:24
+#: booth/templates/booth/boothMultiChoice.html:24
+#: booth/templates/booth/boothPreference.html:24
+#: booth/templates/booth/boothYesNo.html:24
+msgid "Logout"
+msgstr "Logout"
+
+#: booth/templates/booth/booth.html:29 booth/templates/booth/booth.html:84
+#: booth/templates/booth/booth.html:110
+#: booth/templates/booth/boothMultiChoice.html:110
+#: booth/templates/booth/boothPreference.html:29
+#: booth/templates/booth/boothPreference.html:84
+#: booth/templates/booth/boothPreference.html:110
+#: booth/templates/booth/boothYesNo.html:29
+#: booth/templates/booth/boothYesNo.html:84
+#: booth/templates/booth/boothYesNo.html:110
+msgid "Login"
+msgstr "Login"
+
+#: booth/templates/booth/booth.html:75
+#: booth/templates/booth/boothPreference.html:75
+#: booth/templates/booth/boothYesNo.html:75
+msgid "¡Debe iniciar sesión para poder acceder a la votación!"
+msgstr "You must log in to access voting!"
+
+#: booth/templates/booth/booth.html:91
+#: booth/templates/booth/boothMultiChoice.html:91
+#: booth/templates/booth/boothPreference.html:91
+#: booth/templates/booth/boothYesNo.html:91
+msgid "Username"
+msgstr "Username"
+
+#: booth/templates/booth/booth.html:101
+#: booth/templates/booth/boothMultiChoice.html:101
+#: booth/templates/booth/boothPreference.html:101
+#: booth/templates/booth/boothYesNo.html:101
+msgid "Password"
+msgstr "Password"
+
+#: booth/templates/booth/booth.html:132
+#: booth/templates/booth/boothMultiChoice.html:132
+#: booth/templates/booth/boothPreference.html:136
+#: booth/templates/booth/boothYesNo.html:134 store/models.py:18
+msgid "Vote"
+msgstr "Vote"
+
+#: booth/templates/booth/booth.html:138
+#: booth/templates/booth/boothMultiChoice.html:138
+#: booth/templates/booth/boothPreference.html:142
+#: booth/templates/booth/boothYesNo.html:141
+msgid "You have already voted."
+msgstr "You have already voted."
+
+#: booth/templates/booth/booth.html:141
+#: booth/templates/booth/boothMultiChoice.html:141
+#: booth/templates/booth/boothPreference.html:145
+#: booth/templates/booth/boothYesNo.html:144
+#, fuzzy
+#| msgid "Vote"
+msgid "Edit Vote"
+msgstr "Edit Vote"
+
+#: booth/templates/booth/booth.html:244 booth/templates/booth/booth.html:260
+#: booth/templates/booth/booth.html:301 booth/templates/booth/booth.html:333
+#: booth/templates/booth/boothMultiChoice.html:245
+#: booth/templates/booth/boothMultiChoice.html:260
+#: booth/templates/booth/boothMultiChoice.html:314
+#: booth/templates/booth/boothMultiChoice.html:363
+#: booth/templates/booth/boothPreference.html:249
+#: booth/templates/booth/boothPreference.html:264
+#: booth/templates/booth/boothPreference.html:331
+#: booth/templates/booth/boothPreference.html:380
+#: booth/templates/booth/boothYesNo.html:248
+#: booth/templates/booth/boothYesNo.html:263
+#: booth/templates/booth/boothYesNo.html:310
+#: booth/templates/booth/boothYesNo.html:342
+msgid "Error: "
+msgstr "Error:"
+
+#: booth/templates/booth/booth.html:295
+#: booth/templates/booth/boothMultiChoice.html:308
+#: booth/templates/booth/boothMultiChoice.html:357
+#: booth/templates/booth/boothPreference.html:325
+#: booth/templates/booth/boothPreference.html:374
+#: booth/templates/booth/boothYesNo.html:304
+msgid "Congratulations. Your vote has been sent"
+msgstr "Congratulations. Your vote has been sent"
+
+#: booth/templates/booth/booth.html:327
+#: booth/templates/booth/boothYesNo.html:336
+#, fuzzy
+#| msgid "Congratulations. Your vote has been sent"
+msgid "Congratulations. Your vote has been changed"
+msgstr "Congratulations. Your vote has been sent"
+
+#: booth/templates/booth/boothYesNo.html:125
+msgid "Yes"
+msgstr "Yes"
+
+#: booth/templates/booth/boothYesNo.html:130
+msgid "No"
+msgstr "No"
+
+#: census/models.py:16
+msgid "Census"
+msgstr "Census"
+
+#: census/models.py:17
+msgid "Censuses"
+msgstr "Censuses"
+
+#: census/models.py:38
+msgid "Census By Preference"
+msgstr "Census By Preference"
+
+#: census/models.py:39
+msgid "Censuses By Preference"
+msgstr "Censuses By Preference"
+
+#: census/models.py:57
+msgid "Census Yes No"
+msgstr "Census Yes No"
+
+#: census/models.py:58
+msgid "Censuses Yes No"
+msgstr "Censuses Yes No"
+
+#: census/models.py:76
+msgid "Census Multi-Choice"
+msgstr "Census Multi-Choice"
+
+#: census/models.py:77
+msgid "Censuses Multi-Choice"
+msgstr "Censuses Multi-Choice"
+
+#: census/templates/census/admin_census.html:17
+#: census/templates/census/admin_census.html:33
+msgid "Administración del Censo"
+msgstr "Census Administration"
+
+#: census/templates/census/admin_census.html:35
+msgid "Lista de votaciones"
+msgstr "Voting List"
+
+#: census/templates/census/admin_census.html:85
+#, fuzzy
+#| msgid "Puntuación"
+msgid "Votación:"
+msgstr "Score:"
+
+#: census/templates/census/aviso.html:19
+msgid "Aviso de votación"
+msgstr "Voting Warning"
+
+#: census/templates/census/aviso.html:32
+msgid "Hola"
+msgstr "Hello"
+
+#: census/templates/census/aviso.html:34
+msgid "Te informamos que has sido añadido a la votación"
+msgstr "We inform you that you have been added to the vote"
+
+#: census/templates/census/aviso.html:34
+msgid "A continuación, te proporcionamos detalles sobre la votación"
+msgstr "Below we provide you with details about the vote"
+
+#: census/templates/census/aviso.html:37
+msgid "Nombre de la votación"
+msgstr "Vote Name"
+
+#: census/templates/census/aviso.html:38
+#, fuzzy
+#| msgid "Opción"
+msgid "Descripción"
+msgstr "Description"
+
+#: census/templates/census/aviso.html:39
+msgid "Fecha de inicio"
+msgstr "Start Date"
+
+#: census/templates/census/aviso.html:40
+msgid "Fecha de fin"
+msgstr "Ending Date"
+
+#: census/templates/census/aviso.html:43
+msgid "¡Gracias por participar en la votación!"
+msgstr "Thank you for participating in the vote!"
+
+#: census/templates/census/aviso.html:45
+msgid "Atentamente"
+msgstr "Sincerely"
+
+#: census/templates/census/aviso.html:46
+msgid "El equipo de decide"
+msgstr "the Decide team"
+
+#: census/templates/census/import_census.html:11
+msgid "Importar Censo"
+msgstr "Import Census"
+
+#: census/templates/census/import_census.html:12
+msgid "El archivo debe ser de Excel (.xlsx)"
+msgstr "The file must be an Excel (.xlsx)"
+
+#: census/templates/census/import_census.html:14
+msgid "En la primera columna debe aparecer el ID de la votación"
+msgstr "The vote ID must appear in the first column"
+
+#: census/templates/census/import_census.html:15
+msgid "y en la segunda el ID del votante"
+msgstr "and in the second the voter ID"
+
+#: census/templates/census/import_census.html:17
+msgid ""
+"La primera fila del archivo será ignorada (Puedes colocar ahi los "
+"encabezados)."
+msgstr "The first row of the file will be ignored (You can place the headers)."
+
+#: census/templates/census/import_census.html:23
+msgid "Importar Censos"
+msgstr "Import Censuses"
+
+#: decide/settings.py:148
+msgid "English"
+msgstr "English"
+
+#: decide/settings.py:149
+msgid "Spanish"
+msgstr "Spanish"
+
+#: decide/templates/home.html:7
+msgid "Página Principal"
+msgstr "Main Page"
+
+#: decide/templates/home.html:39
+msgid "Vistas"
+msgstr "Views"
+
+#: decide/templates/home.html:42
+msgid "Otras Vistas"
+msgstr "Other Views"
+
+#: decide/templates/home.html:61
+msgid "Iniciar Sesión"
+msgstr "Log In"
+
+#: decide/templates/home.html:62
+msgid "Registrarse"
+msgstr "Register"
+
+#: decide/templates/home.html:88
+msgid "Bienvenido a la página principal de Decide"
+msgstr "Welcome to Decide's Main Page"
+
+#: store/models.py:19
+#, fuzzy
+#| msgid "Vote"
+msgid "Votes"
+msgstr "Vote"
+
+#: store/models.py:35
+msgid "Vote Yes No"
+msgstr "Vote Yes No"
+
+#: store/models.py:36
+msgid "Votes Yes No"
+msgstr "Votes Yes No"
+
+#: store/models.py:52
+msgid "Vote by Prefrence"
+msgstr "Vote by Prefrence"
+
+#: store/models.py:53
+msgid "Votes by Preference"
+msgstr "Votes by Preference"
+
+#: store/models.py:68
+msgid "Vote Multi-Choice"
+msgstr "Vote Multi-Choice"
+
+#: store/models.py:69
+msgid "Votes Multi-Choice"
+msgstr "Votes Multi-Choice"
+
+#: visualizer/templates/visualizer/visualizer.html:22
+#: visualizer/templates/visualizer/visualizerYesNo.html:22
+#: visualizer/templates/visualizer/visualizer_preference.html:22
+msgid "Votación no comenzada"
+msgstr "Voting not started"
+
+#: visualizer/templates/visualizer/visualizer.html:23
+#: visualizer/templates/visualizer/visualizerYesNo.html:23
+#: visualizer/templates/visualizer/visualizer_preference.html:23
+msgid "Votación en curso"
+msgstr "Voting in progress"
+
+#: visualizer/templates/visualizer/visualizer.html:25
+#: visualizer/templates/visualizer/visualizerYesNo.html:25
+#: visualizer/templates/visualizer/visualizer_preference.html:25
+msgid "Resultados:"
+msgstr "Results:"
+
+#: visualizer/templates/visualizer/visualizer.html:32
+#: visualizer/templates/visualizer/visualizerYesNo.html:32
+#: visualizer/templates/visualizer/visualizer_preference.html:32
+msgid "Opción"
+msgstr "Options"
+
+#: visualizer/templates/visualizer/visualizer.html:33
+#: visualizer/templates/visualizer/visualizerYesNo.html:33
+msgid "Puntuación"
+msgstr "Score"
+
+#: visualizer/templates/visualizer/visualizer.html:34
+#: visualizer/templates/visualizer/visualizerYesNo.html:34
+#: visualizer/templates/visualizer/visualizer_preference.html:34
+msgid "Votos"
+msgstr "Votes"
+
+#: visualizer/templates/visualizer/visualizer.html:45
+#: visualizer/templates/visualizer/visualizerYesNo.html:45
+#: visualizer/templates/visualizer/visualizer_preference.html:45
+msgid "Recuento de votos: "
+msgstr "Votes Scrutinizing: "
+
+#: visualizer/templates/visualizer/visualizer.html:46
+#: visualizer/templates/visualizer/visualizerYesNo.html:46
+#: visualizer/templates/visualizer/visualizer_preference.html:46
+msgid "Total de personas en el censo:  "
+msgstr "Total people in census:"
+
+#: visualizer/templates/visualizer/visualizer.html:47
+#: visualizer/templates/visualizer/visualizerYesNo.html:47
+#: visualizer/templates/visualizer/visualizer_preference.html:47
+msgid "Porcentaje del censo que ha votado:"
+msgstr "Percentage of the census that has voted:"
+
+#: visualizer/templates/visualizer/visualizer_preference.html:33
+msgid "Puntuación media de preferencia"
+msgstr "Average preference score"
+
+#: voting/models.py:27
+msgid "Question by Prefrence"
+msgstr "Question by Prefrence"
+
+#: voting/models.py:28
+msgid "Questions by Prefrence"
+msgstr "Questions by Prefrence"
+
+#: voting/models.py:38
+msgid "Question"
+msgstr "Question"
+
+#: voting/models.py:39
+msgid "Questions"
+msgstr "Questions"
+
+#: voting/models.py:48
+msgid "Question Multi-Choice"
+msgstr "Question Multi-Choice"
+
+#: voting/models.py:49
+msgid "Questions Multi-Choice"
+msgstr "Questions Multi-Choice"
+
+#: voting/models.py:68
+msgid "Question Yes No"
+msgstr "Question Yes No"
+
+#: voting/models.py:69
+msgid "Questions Yes No"
+msgstr "Questions Yes No"
+
+#: voting/models.py:274
+msgid "Voting"
+msgstr "Voting"
+
+#: voting/models.py:275
+msgid "Votings"
+msgstr "Votings"
+
+#: voting/models.py:418
+msgid "Voting Yes No"
+msgstr "Voting Yes No"
+
+#: voting/models.py:419
+msgid "Votings Yes No"
+msgstr "Votings Yes No"
+
+#: voting/models.py:577
+msgid "Voting by Prefrence"
+msgstr "Voting by Prefrence"
+
+#: voting/models.py:578
+msgid "Votings by Prefrence"
+msgstr "Votings by Prefrence"
+
+#: voting/models.py:718
+msgid "Voting Multi-Choice"
+msgstr "Voting Multi-Choice"
+
+#: voting/models.py:719
+msgid "Votings Multi-Choice"
+msgstr "Votings Multi-Choice"
