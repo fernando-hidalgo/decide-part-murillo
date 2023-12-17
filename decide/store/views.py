@@ -309,11 +309,11 @@ class StoreMultiChoiceView(generics.ListAPIView):
 
         defs = {"a": a, "b": b}
         v, _ = VoteMultiChoice.objects.get_or_create(
-            voting_multichoice_id=vid, voter_multichoice_id=uid, defaults=defs
+            voting_multichoice_id=vid, voter_multichoice_id=uid
         )
-        v.a = a
-        v.b = b
-
+        for option, value in vote.items():
+            setattr(v, option, value)
+            
         v.save()
 
         return Response({})
